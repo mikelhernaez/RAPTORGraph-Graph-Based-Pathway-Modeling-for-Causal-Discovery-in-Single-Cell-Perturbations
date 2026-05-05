@@ -1,0 +1,650 @@
+@comment{%%% Standardized & Annotated Bibliography for RAPTORGraph
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GROUP 1: Perturb-Seq & Biology %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Contextualizing the importance of pooled genetic screens and biological background.
+
+% SECTION: Introduction
+% PURPOSE: Landmark Perturb-Seq study establishing scalable molecular circuit dissection.}
+
+@comment{% SECTION: Introduction
+% PURPOSE: Key reference for multiplexed CRISPR screening and UPR dissection.}
+
+@comment{% SECTION: Introduction, Background, Experimental Settings
+% PURPOSE: Primary source for the Norman-CPA dataset and genetic interaction manifolds.}
+
+@comment{% SECTION: Introduction (Implicit), Results (GSEA)
+% PURPOSE: Example of single-cell RNA-seq applications in disease context (Alzheimer's).}
+
+@comment{% SECTION: Introduction
+% PURPOSE: Rationalizes therapeutic target validation through human genetics.}
+
+@comment{% SECTION: Introduction
+% PURPOSE: Discusses pitfalls and opportunities for interpretable ML in biology.}
+
+@comment{%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GROUP 2: Background & Theory %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Foundations of Causal Representation Learning, SCMs, and Identifiability.
+
+% SECTION: Background
+% PURPOSE: Illustrates challenges in multimodal Perturb-CITE-seq screens.}
+
+@comment{% SECTION: Background
+% PURPOSE: Critical reference for tissue-specific context in tumorigenesis.}
+
+@comment{% SECTION: Background
+% PURPOSE: Reference for an atlas of gene regulation across human tissues.}
+
+@comment{% SECTION: Background
+% PURPOSE: Reference for mechanisms of tissue and cell-type specificity.}
+
+@comment{% SECTION: Background
+% PURPOSE: Position paper on exploratory vs confirmatory research in ML.}
+
+@comment{% SECTION: Background
+% PURPOSE: Foundational text for Structural Causal Models (SCM).}
+
+@comment{% SECTION: Background (Theoretical identifiability)
+% PURPOSE: Identifiability results for CRL from unknown interventions.}
+
+@comment{% SECTION: Background (CRL frameworks)
+% PURPOSE: Unifying framework for VAEs and Nonlinear ICA.}
+
+@comment{% SECTION: Background (CRL frameworks)
+% PURPOSE: Proves identifiability from interventional sensory data.}
+
+@comment{% SECTION: Introduction
+% PURPOSE: CRL framework using weakly supervised paired samples.}
+
+@comment{% SECTION: Introduction, Background
+% PURPOSE: Foundational review linking CRL to ML generalization.}
+
+@comment{% SECTION: Background (Identifiability)
+% PURPOSE: Identifiability guarantees for CRL from soft interventions.}
+
+@comment{%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GROUP 3: SOTA Models %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Competitive baselines and existing perturbation models.
+
+% SECTION: Background
+% PURPOSE: Baseline model for single-cell perturbation response via vector arithmetic.}
+
+@comment{% SECTION: Introduction, Background, Experimental Settings
+% PURPOSE: State-of-the-art Compositional Perturbation Autoencoder (CPA).}
+
+@comment{% SECTION: Background
+% PURPOSE: Network inference model (CellOracle) for cell identity dissection.}
+
+@comment{% SECTION: Introduction, Results
+% PURPOSE: Baseline model integrating knowledge graphs for GI prediction.}
+
+@comment{% SECTION: Introduction, Background, Results
+% PURPOSE: Transformer-based foundation model for single-cell multi-omics.}
+
+@comment{% SECTION: Introduction, Background
+% PURPOSE: Interpretable CRL model using predefined biological pathways.}
+
+@comment{%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GROUP 4: Methodology & Metrics %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Core algorithms, losses, and optimization techniques.
+
+% SECTION: Methods
+% PURPOSE: Differentiable DAG discovery via matrix characterization (NOTEARS).}
+
+@comment{% SECTION: Methods
+% PURPOSE: Improved DAG learning via log-determinant characterization (DAGMA).}
+
+@comment{% SECTION: Methods
+% PURPOSE: Entropic regularized optimal transport (Sinkhorn).}
+
+@comment{% SECTION: Methods
+% PURPOSE: POT library for Python optimal transport.}
+
+@comment{% SECTION: Background, Results
+% PURPOSE: Learning cell-specific response via neural optimal transport (CellOT).}
+
+@comment{% SECTION: Experimental Settings
+% PURPOSE: Causal identification of perturbation effects with CINEMA-OT.}
+
+@comment{% SECTION: Methods (Loss Components)
+% PURPOSE: Kernel two-sample test foundation for MMD.}
+
+@comment{% SECTION: Supplementary (Metrics)
+% PURPOSE: Multi-kernel learning improved by MMD.}
+
+@comment{% SECTION: Background
+% PURPOSE: Identifiability from temporal intervened sequences (CITRIS).}
+
+@comment{% SECTION: Introduction (Implicit), Background
+% PURPOSE: Standard VAE categorical reparameterization (Gumbel-Softmax).}
+
+@comment{% SECTION: Supplementary (Metrics)
+% PURPOSE: Multi-scale kernel maximum mean discrepancy.}
+
+@comment{%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GROUP 5: Administrative & Misc %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Metadata, databases, and miscellaneous background.
+
+% SECTION: Experimental Settings, Supplementary (Data)
+% PURPOSE: Evaluation dataset source for combinatorial CRISPR screens.}
+
+@comment{% SECTION: Experimental Settings
+% PURPOSE: Database for single-cell perturbation data analysis (PerturBase).}
+
+@comment{% SECTION: Results (GSEA)
+% PURPOSE: Database for pathway gene sets (Hallmark Collection).}
+
+@comment{% SECTION: Background
+% PURPOSE: Foundational paper on confirmatory vs exploratory research.}
+
+@comment{% SECTION: Results (GSEA)
+% PURPOSE: UV stress response mediator reference (JUN).}
+
+@comment{% SECTION: Introduction
+% PURPOSE: Foundational VAE reference.}
+
+@comment{% SECTION: Methods
+% PURPOSE: Standard reference for SiLU activation function.}
+
+@comment{% SECTION: Results (GSEA)
+% PURPOSE: AP-1 regulator of cell life/death reference (JUN).}
+
+@comment{% SECTION: Results (GSEA)
+% PURPOSE: Monoallelically expressed gene related to p53 reference (TP73).}
+
+@comment{% SECTION: Introduction (Implicit), Background
+% PURPOSE: Reference for biological pathway specificity challenges.}
+
+@comment{% SECTION: Results (GSEA)
+% PURPOSE: Emodin and AZT effects on leukemia cells reference (EGR1).}
+
+@article{adamson2016multiplexed,
+ author = {Adamson, Britt and Norman, Thomas M and Jost, Marco and Cho, Min Y and Nu{\~n}ez, James K and Chen, Yuwen and Villalta, Jacqueline E and Gilbert, Luke A and Horlbeck, Max A and Hein, Marco Y and others},
+ doi = {10.1016/j.cell.2016.11.048},
+ journal = {Cell},
+ number = {7},
+ pages = {1867--1882},
+ publisher = {Elsevier},
+ title = {A multiplexed single-cell {CRISPR} screening platform enables systematic dissection of the unfolded protein response},
+ volume = {167},
+ year = {2016}
+}
+
+@inproceedings{ahuja2023interventional,
+ author = {Ahuja, Kartik and Mahajan, Divyat and Wang, Yixin and Bengio, Yoshua},
+ booktitle = {International Conference on Machine Learning},
+ doi = {10.48550/arXiv.2302.04943},
+ organization = {PMLR},
+ pages = {372--407},
+ title = {Interventional causal representation learning},
+ year = {2023}
+}
+
+@article{bello2022dagma,
+ author = {Bello, Kevin and Aragam, Bryon and Ravikumar, Pradeep},
+ doi = {10.48550/arXiv.2209.08037},
+ journal = {Advances in Neural Information Processing Systems},
+ pages = {8226--8239},
+ title = {{DAGMA}: Learning {DAGs} via {M}-matrices and a log-determinant acyclicity characterization},
+ volume = {35},
+ year = {2022}
+}
+
+@article{brehmer2022weakly,
+ author = {Brehmer, Johann and De Haan, Pim and Lippe, Phillip and Cohen, Taco S},
+ doi = {10.48550/arXiv.2203.16437},
+ journal = {Advances in Neural Information Processing Systems},
+ pages = {38319--38331},
+ title = {Weakly supervised causal representation learning},
+ volume = {35},
+ year = {2022}
+}
+
+@article{bunne2023learning,
+ author = {Bunne, Charlotte and Stark, Stefan G and Gut, Gabriele and Del Castillo, Jacobo Sarabia and Levesque, Mitch and Lehmann, Kjong-Van and Pelkmans, Lucas and Krause, Andreas and R{"a}tsch, Gunnar},
+ doi = {10.1038/s41592-023-01969-x},
+ journal = {Nature Methods},
+ number = {11},
+ pages = {1759--1768},
+ publisher = {Nature Publishing Group US New York},
+ title = {Learning single-cell perturbation responses using neural optimal transport},
+ volume = {20},
+ year = {2023}
+}
+
+@article{chen_applying_2024,
+ author = {Chen, Valerie and Yang, Muyu and Cui, Wenbo and Kim, Joon Sik and Talwalkar, Ameet and Ma, Jian},
+ doi = {10.1038/s41592-024-02359-7},
+ journal = {Nature Methods},
+ month = {August},
+ number = {8},
+ pages = {1454--1461},
+ title = {Applying interpretable machine learning in computational biology—pitfalls, recommendations and opportunities for new developments},
+ volume = {21},
+ year = {2024}
+}
+
+@article{cui2024scgpt,
+ author = {Cui, Haotian and Wang, Chloe and Maan, Hassaan and Pang, Kuan and Luo, Fengning and Duan, Nan and Wang, Bo},
+ doi = {10.1038/s41592-024-02201-0},
+ journal = {Nature Methods},
+ number = {8},
+ pages = {1470--1480},
+ publisher = {Nature Publishing Group US New York},
+ title = {{scGPT}: toward building a foundation model for single-cell multi-omics using generative {AI}},
+ volume = {21},
+ year = {2024}
+}
+
+@article{cuturi2013sinkhorn,
+ author = {Cuturi, Marco},
+ doi = {10.48550/arXiv.1306.0895},
+ journal = {Advances in Neural Information Processing Systems},
+ title = {Sinkhorn distances: Lightspeed computation of optimal transport},
+ volume = {26},
+ year = {2013}
+}
+
+@article{de2025interpretable,
+ author = {de la Fuente, Jesus and Lehmann, Robert and Ruiz-Arenas, Carlos and Voges, Jan and Marin-Go{\~n}i, Irene and Martinez-de-Morentin, Xabier and Gomez-Cabrero, David and Ochoa, Idoia and Tegner, Jesper and Lagani, Vincenzo and others},
+ journal = {arXiv preprint arXiv:2506.12439},
+ title = {Interpretable Causal Representation Learning for Biological Data in the Pathway Space},
+ year = {2025}
+}
+
+@article{dixit2016perturb,
+ author = {Dixit, Atray and Parnas, Oren and Li, Biyu and Chen, Jenny and Fulco, Charles P and Jerby-Arnon, Livnat and Marjanovic, Nemanja D and Dionne, Danielle and Burks, Tyler and Raychowdhury, Raktima and others},
+ doi = {10.1016/j.cell.2016.11.038},
+ journal = {Cell},
+ number = {7},
+ pages = {1853--1866},
+ publisher = {Elsevier},
+ title = {Perturb-Seq: dissecting molecular circuits with scalable single-cell {RNA} profiling of pooled genetic screens},
+ volume = {167},
+ year = {2016}
+}
+
+@article{dong2023causal,
+ author = {Dong, Mingze and Wang, Bao and Wei, Jessica and de O. Fonseca, Antonio H and Perry, Curtis J and Frey, Alexander and Ouerghi, Feriel and Foxman, Ellen F and Ishizuka, Jeffrey J and Dhodapkar, Rahul M and others},
+ doi = {10.1038/s41592-023-02040-9},
+ journal = {Nature Methods},
+ number = {11},
+ pages = {1769--1779},
+ publisher = {Nature Publishing Group US New York},
+ title = {Causal identification of single-cell experimental perturbation effects with {CINEMA-OT}},
+ volume = {20},
+ year = {2023}
+}
+
+@article{elfwing2018sigmoid,
+ author = {Elfwing, Stefan and Uchibe, Eiji and Doya, Kenji},
+ doi = {10.1016/j.neunet.2017.12.012},
+ journal = {Neural Networks},
+ pages = {3--11},
+ publisher = {Elsevier},
+ title = {Sigmoid-weighted linear units for neural network function approximation in reinforcement learning},
+ volume = {107},
+ year = {2018}
+}
+
+@article{flamary2021pot,
+ author = {Flamary, R{\'e}mi and Courty, Nicolas and Gramfort, Alexandre and Alaya, Mokhtar Z and Boisbunon, Aur{\'e}lie and Chambon, Stanislas and Chapel, Laetitia and Corenflos, Adrien and Fatras, Kilian and Fournier, Nemo and others},
+ journal = {Journal of Machine Learning Research},
+ number = {78},
+ pages = {1--8},
+ title = {{POT}: Python optimal transport},
+ volume = {22},
+ year = {2021}
+}
+
+@article{frangieh2021multimodal,
+ author = {Frangieh, Chris J and Melms, Johannes C and Thakore, Pratiksha I and Geiger-Schuller, Kathryn R and Ho, Patricia and Luoma, Adrienne M and Cleary, Brian and Jerby-Arnon, Livnat and Malu, Shruti and Cuoco, Michael S and others},
+ doi = {10.1038/s41588-021-00779-1},
+ journal = {Nature Genetics},
+ number = {3},
+ pages = {332--341},
+ publisher = {Nature Publishing Group US New York},
+ title = {Multimodal pooled {Perturb-CITE-seq} screens in patient models define mechanisms of cancer immune evasion},
+ volume = {53},
+ year = {2021}
+}
+
+@article{gamazon2018using,
+ author = {Gamazon, Eric R and Segr{\`e}, Ayellet V and Van De Bunt, Martijn and Wen, Xiaoquan and Xi, Hualin S and Hormozdiari, Farhad and Ongen, Halit and Konkashbaev, Anuar and Derks, Eske M and Aguet, Fran{\c{c}}ois and others},
+ doi = {10.1038/s41588-018-0154-4},
+ journal = {Nature Genetics},
+ number = {7},
+ pages = {956--967},
+ publisher = {Nature Publishing Group US New York},
+ title = {Using an atlas of gene regulation across 44 human tissues to inform complex disease-and trait-associated variation},
+ volume = {50},
+ year = {2018}
+}
+
+@article{gretton2012kernel,
+ author = {Gretton, Arthur and Borgwardt, Karsten M and Rasch, Malte J and Sch{"o}lkopf, Bernhard and Smola, Alexander},
+ journal = {The Journal of Machine Learning Research},
+ number = {1},
+ pages = {723--773},
+ publisher = {JMLR. org},
+ title = {A kernel two-sample test},
+ volume = {13},
+ year = {2012}
+}
+
+@article{hekselman2020mechanisms,
+ author = {Hekselman, Idan and Yeger-Lotem, Esti},
+ doi = {10.1038/s41576-019-0200-9},
+ journal = {Nature Reviews Genetics},
+ number = {3},
+ pages = {137--150},
+ publisher = {Nature Publishing Group UK London},
+ title = {Mechanisms of tissue and cell-type specificity in heritable traits and diseases},
+ volume = {21},
+ year = {2020}
+}
+
+@article{jaeger1998confirmatory,
+ author = {Jaeger, Robert G and Halliday, Tim R},
+ journal = {Herpetologica},
+ pages = {S64--S66},
+ publisher = {JSTOR},
+ title = {On confirmatory versus exploratory research},
+ volume = {54},
+ year = {1998}
+}
+
+@article{jang2016categorical,
+ author = {Jang, Eric and Gu, Shixiang and Poole, Ben},
+ journal = {arXiv preprint arXiv:1611.01144},
+ title = {Categorical reparameterization with {Gumbel-Softmax}},
+ year = {2016}
+}
+
+@article{kaghad_monoallelically_1997,
+ author = {Kaghad, Mourad and Bonnet, Helene and Yang, Annie and Creancier, Laurent and Biscan, Jean-Christophe and Alexandre, Valent and Minty, Adrian and Chalon, Pascale and Lelias, Jean-Michel and Dumont, Xavier and Ferrara, Pascual and McKeon, Frank and Caput, Daniel},
+ doi = {10.1016/S0092-8674(00)80540-1},
+ journal = {Cell},
+ month = {August},
+ number = {4},
+ pages = {809--819},
+ title = {Monoallelically {Expressed} {Gene} {Related} to p53 at 1p36, a {Region} {Frequently} {Deleted} in {Neuroblastoma} and {Other} {Human} {Cancers}},
+ volume = {90},
+ year = {1997}
+}
+
+@article{kamimoto2023dissecting,
+ author = {Kamimoto, Kenji and Stringa, Blerta and Hoffmann, Christy M and Jindal, Kunal and Solnica-Krezel, Lilianna and Morris, Samantha A},
+ doi = {10.1038/s41586-022-05688-9},
+ journal = {Nature},
+ number = {7949},
+ pages = {742--751},
+ publisher = {Nature Publishing Group UK London},
+ title = {Dissecting cell identity via network inference and in silico gene perturbation},
+ volume = {614},
+ year = {2023}
+}
+
+@inproceedings{khemakhem2020variational,
+ author = {Khemakhem, Ilyes and Kingma, Diederik and Monti, Ricardo and Hyvarinen, Aapo},
+ booktitle = {International Conference on Artificial Intelligence and Statistics},
+ organization = {PMLR},
+ pages = {2207--2217},
+ title = {Variational autoencoders and nonlinear {ICA}: A unifying framework},
+ year = {2020}
+}
+
+@article{kingma2013auto,
+ author = {Kingma, Diederik P and Welling, Max},
+ journal = {arXiv preprint arXiv:1312.6114},
+ title = {Auto-encoding variational {Bayes}},
+ year = {2013}
+}
+
+@article{liberzon_molecular_2015,
+ author = {Liberzon, Arthur and Birger, Chet and Thorvaldsdóttir, Helga and Ghandi, Mahmoud and Mesirov, Jill P. and Tamayo, Pablo},
+ doi = {10.1016/j.cels.2015.12.004},
+ journal = {Cell Systems},
+ month = {December},
+ number = {6},
+ pages = {417--425},
+ title = {The {Molecular} {Signatures} {Database} {Hallmark} {Gene} {Set} {Collection}},
+ volume = {1},
+ year = {2015}
+}
+
+@inproceedings{lippe2022citris,
+ author = {Lippe, Phillip and Magliacane, Sara and L{"o}we, Sindy and Asano, Yuki M and Cohen, Taco and Gavves, Stratis},
+ booktitle = {International Conference on Machine Learning},
+ doi = {10.48550/arXiv.2202.03169},
+ organization = {PMLR},
+ pages = {13557--13603},
+ title = {{CITRIS}: Causal identifiability from temporal intervened sequences},
+ year = {2022}
+}
+
+@article{lotfollahi2019scgen,
+ author = {Lotfollahi, Mohammad and Wolf, F Alexander and Theis, Fabian J},
+ doi = {10.1038/s41592-019-0494-8},
+ journal = {Nature Methods},
+ number = {8},
+ pages = {715--721},
+ publisher = {Nature Publishing Group US New York},
+ title = {{scGen} predicts single-cell perturbation responses},
+ volume = {16},
+ year = {2019}
+}
+
+@article{lotfollahi2023predicting,
+ author = {Lotfollahi, Mohammad and Klimovskaia Susmelj, Anna and De Donno, Carlo and Hetzel, Leon and Ji, Yuge and Ibarra, Ignacio L and Sanjay R Srivatsan and Mohsen Naghipourfar and Riza M Daza and Beth Martin and Jay Shendure and Jose L McFaline‐Figueroa and Pierre Boyeau and F Alexander Wolf and Nafissa Yakubova and Stephan Günnemann and Cole Trapnell and David Lopez-Paz and Fabian J Theis},
+ doi = {10.15252/msb.202211517},
+ journal = {Molecular Systems Biology},
+ number = {6},
+ pages = {e11517},
+ title = {Predicting cellular responses to complex perturbations in high-throughput screens},
+ volume = {19},
+ year = {2023}
+}
+
+@article{ma_emodin_2019,
+ author = {Ma, Wenjuan and Liu, Fang and Yuan, Lingyan and Zhao, Chuan and Chen, Che},
+ doi = {10.3892/or.2019.7408},
+ issn = {1021-335X, 1791-2431},
+ journal = {Oncology Reports},
+ month = {November},
+ title = {Emodin and {AZT} synergistically inhibit the proliferation and induce the apoptosis of leukemia {K562} cells through the {EGR1} and the {Wnt}/$\beta$-catenin pathway},
+ url = {http://www.spandidos-publications.com/10.3892/or.2019.7408},
+ urldate = {2025-11-28},
+ year = {2019}
+}
+
+@article{norman2019exploring,
+ author = {Norman, Thomas M and Horlbeck, Max A and Replogle, Joseph M and Ge, Alex Y and Xu, Albert and Jost, Marco and Gilbert, Luke A and Weissman, Jonathan S},
+ doi = {10.1126/science.aax4438},
+ journal = {Science},
+ number = {6455},
+ pages = {786--793},
+ publisher = {American Association for the Advancement of Science},
+ title = {Exploring genetic interaction manifolds constructed from rich single-cell phenotypes},
+ volume = {365},
+ year = {2019}
+}
+
+@article{olah_single_2020,
+ author = {Olah, Marta and Menon, Vilas and Habib, Naomi and Taga, Mariko F. and Ma, Yiyi and Yung, Christina J. and Cimpean, Maria and Khairallah, Anthony and Coronas-Samano, Guillermo and Sankowski, Roman and Grün, Dominic and Kroshilina, Alexandra A. and Dionne, Danielle and Sarkis, Rani A. and Cosgrove, Garth R. and Helgager, Jeffrey and Golden, Jeffrey A. and Pennell, Page B. and Prinz, Marco and Vonsattel, Jean Paul G. and Teich, Andrew F. and Schneider, Julie A. and Bennett, David A. and Regev, Aviv and Elyaman, Wassim and Bradshaw, Elizabeth M. and De Jager, Philip L.},
+ doi = {10.1038/s41467-020-19737-2},
+ journal = {Nature Communications},
+ month = {November},
+ number = {1},
+ pages = {6129},
+ title = {Single cell {RNA} sequencing of human microglia uncovers a subset associated with {Alzheimer}’s disease},
+ volume = {11},
+ year = {2020}
+}
+
+@book{pearl2009causality,
+ author = {Pearl, Judea},
+ publisher = {Cambridge University Press},
+ title = {Causality},
+ year = {2009}
+}
+
+@article{plenge2013validating,
+ author = {Plenge, Robert M and Scolnick, Edward M and Altshuler, David},
+ doi = {10.1038/nrd4051},
+ journal = {Nature Reviews Drug Discovery},
+ number = {8},
+ pages = {581--594},
+ publisher = {Nature Publishing Group UK London},
+ title = {Validating therapeutic targets through human genetics},
+ volume = {12},
+ year = {2013}
+}
+
+@inproceedings{pmlr-v235-herrmann24b,
+ author = {Herrmann, Moritz and Lange, F. Julian D. and Eggensperger, Katharina and Casalicchio, Giuseppe and Wever, Marcel and Feurer, Matthias and R{"u}gamer, David and H{"u}llermeier, Eyke and Boulesteix, Anne-Laure and Bischl, Bernd},
+ booktitle = {Proceedings of the 41st International Conference on Machine Learning},
+ doi = {10.48550/arXiv.2405.01931},
+ pages = {18228--18247},
+ publisher = {PMLR},
+ series = {Proceedings of Machine Learning Research},
+ title = {Position: Why We Must Rethink Empirical Research in Machine Learning},
+ volume = {235},
+ year = {2024}
+}
+
+@inproceedings{ren2010multiple,
+ author = {Ren, Jiangtao and Liang, Zhou and Hu, Shaofeng},
+ booktitle = {International Conference on Advanced Data Mining and Applications},
+ organization = {Springer},
+ pages = {63--74},
+ title = {Multiple kernel learning improved by {MMD}},
+ year = {2010}
+}
+
+@article{replogle_combinatorial_2020,
+ author = {Replogle, Joseph M. and Norman, Thomas M. and Xu, Albert and Hussmann, Jeffrey A. and Chen, Jin and Cogan, J. Zachery and Meer, Elliott J. and Terry, Jessica M. and Riordan, Daniel P. and Srinivas, Niranjan and Fiddes, Ian T. and Arthur, Joseph G. and Alvarado, Luigi J. and Pfeiffer, Katherine A. and Mikkelsen, Tarjei S. and Weissman, Jonathan S. and Adamson, Britt},
+ doi = {10.1038/s41587-020-0470-y},
+ journal = {Nature Biotechnology},
+ month = {August},
+ number = {8},
+ pages = {954--961},
+ title = {Combinatorial single-cell {CRISPR} screens by direct guide {RNA} capture and targeted sequencing},
+ volume = {38},
+ year = {2020}
+}
+
+@article{roohani2024predicting,
+ author = {Roohani, Yusuf and Huang, Kexin and Leskovec, Jure},
+ doi = {10.1038/s41587-023-01905-6},
+ journal = {Nature Biotechnology},
+ number = {6},
+ pages = {927--935},
+ publisher = {Nature Publishing Group US New York},
+ title = {Predicting transcriptional outcomes of novel multigene perturbations with {GEARS}},
+ volume = {42},
+ year = {2024}
+}
+
+@article{schneider2017tissue,
+ author = {Schneider, G{"u}nter and Schmidt-Supprian, Marc and Rad, Roland and Saur, Dieter},
+ doi = {10.1038/nrc.2017.5},
+ journal = {Nature Reviews Cancer},
+ number = {4},
+ pages = {239--253},
+ publisher = {Nature Publishing Group UK London},
+ title = {Tissue-specific tumorigenesis: context matters},
+ volume = {17},
+ year = {2017}
+}
+
+@article{scholkopf2021toward,
+ author = {Sch{\"o}lkopf, Bernhard and Locatello, Francesco and Bauer, Stefan and Ke, Nan Rosemary and Kalchbrenner, Nal and Goyal, Anirudh and Bengio, Yoshua},
+ doi = {10.1109/JPROC.2021.3058327},
+ journal = {Proceedings of the IEEE},
+ number = {5},
+ pages = {612--634},
+ publisher = {IEEE},
+ title = {Toward causal representation learning},
+ volume = {109},
+ year = {2021}
+}
+
+@article{shaulian_ap-1_2002,
+ author = {Shaulian, Eitan and Karin, Michael},
+ doi = {10.1038/ncb0502-e131},
+ journal = {Nature Cell Biology},
+ month = {May},
+ number = {5},
+ pages = {E131--E136},
+ title = {{AP}-1 as a regulator of cell life and death},
+ volume = {4},
+ year = {2002}
+}
+
+@article{shaulian_mammalian_2000,
+ author = {Shaulian, Eitan and Schreiber, Martin and Piu, Fabrice and Beeche, Michelle and Wagner, Erwin F and Karin, Michael},
+ doi = {10.1016/S0092-8674(00)00193-8},
+ journal = {Cell},
+ month = {December},
+ pages = {897--908},
+ title = {The {Mammalian} {UV} {Response}},
+ volume = {103},
+ year = {2000}
+}
+
+@article{von2023nonparametric,
+ author = {von K\"ugelgen, Julius and Besserve, Michel and Wendong, Liang and Gresele, Luigi and Keki{\'c}, Armin and Bareinboim, Elias and Blei, David and Sch{"o}lkopf, Bernhard},
+ doi = {10.48550/arXiv.2306.02235},
+ journal = {Advances in Neural Information Processing Systems},
+ pages = {48603--48638},
+ title = {Nonparametric identifiability of causal representations from unknown interventions},
+ volume = {36},
+ year = {2023}
+}
+
+@article{walter2019biological,
+ author = {Walter, Nils G},
+ doi = {10.1002/bies.201800244},
+ journal = {Bioessays},
+ number = {8},
+ pages = {1800244},
+ publisher = {Wiley Online Library},
+ title = {Biological pathway specificity in the cell—does molecular diversity matter?},
+ volume = {41},
+ year = {2019}
+}
+
+@article{wei_perturbase_2024,
+ author = {Wei, Zhiting and Si, Duanmiao and Duan, Bin and Gao, Yicheng and Yu, Qian and Zhang, Zhenbo and Guo, Ling and Liu, Qi},
+ doi = {10.1093/nar/gkae858},
+ journal = {Nucleic Acids Research},
+ month = {October},
+ pages = {D1099--D1111},
+ title = {{PerturBase}: a comprehensive database for single-cell perturbation data analysis and visualization},
+ volume = {53},
+ year = {2024}
+}
+
+@article{zhang2023identifiability,
+ author = {Zhang, Jiaqi and Greenewald, Kristjan and Squires, Chandler and Srivastava, Akash and Shanmugam, Karthikeyan and Uhler, Caroline},
+ doi = {10.48550/arXiv.2307.01207},
+ journal = {Advances in Neural Information Processing Systems},
+ pages = {50254--50292},
+ title = {Identifiability guarantees for causal disentanglement from soft interventions},
+ volume = {36},
+ year = {2023}
+}
+
+@article{zheng2018dags,
+ author = {Zheng, Xun and Aragam, Bryon and Ravikumar, Pradeep K and Xing, Eric P},
+ doi = {10.48550/arXiv.1803.01422},
+ journal = {Advances in Neural Information Processing Systems},
+ title = {{DAGs} with {NO} {TEARS}: Continuous optimization for structure learning},
+ volume = {31},
+ year = {2018}
+}
+
+@inproceedings{zhu2017maximum,
+ author = {Zhu, Xiaofeng and Thung, Kim-Han and Adeli, Ehsan and Zhang, Yu and Shen, Dinggang},
+ booktitle = {International Conference on Medical Image Computing and Computer-Assisted Intervention},
+ organization = {Springer},
+ pages = {72--80},
+ title = {Maximum mean discrepancy based multiple kernel learning for incomplete multimodality neuroimaging data},
+ year = {2017}
+}

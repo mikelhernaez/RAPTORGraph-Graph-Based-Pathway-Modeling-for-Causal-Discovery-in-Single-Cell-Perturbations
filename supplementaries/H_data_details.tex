@@ -1,0 +1,9 @@
+%===============================================================================
+\section{Experimental Methodology: Data and Evaluation}
+\label{app:methodology}
+%===============================================================================
+
+\subsection{Training and Test Data Partitioning}
+\label{app:methodology:partitioning}
+
+To create a robust benchmark for evaluating the generalization capabilities of each model, we partitioned the~\cite{norman2019exploring} dataset based on the type of perturbation. The training dataset was composed of the complete set of control cells (i.e., those with non-targeting guides) and the complete set of cells from all available \textbf{single-gene perturbation} conditions. This approach ensures that the models are trained on the fundamental effects of individual gene knockdowns. The test dataset, conversely, consisted exclusively of cells from all \textbf{double-gene perturbation} conditions. These combinatorial perturbations were entirely held out from the training process. This training/test split was designed to specifically assess each model's ability to perform out-of-distribution prediction, where the primary task is to predict the effects of unseen combinatorial perturbations based on the learned effects of their individual constituent perturbations.

@@ -1,0 +1,136 @@
+%=====================================================================
+%  main.tex  –  Master file for the ICML submission
+%=====================================================================
+\documentclass{article}
+
+% Recommended, but optional, packages for figures and better typesetting:
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs} % for professional tables
+
+% hyperref makes hyperlinks in the resulting PDF.
+\usepackage{hyperref}
+
+% Attempt to make hyperref and algorithmic work together better:
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+% Use the following line for the initial blind version submitted for review:
+\usepackage{icml2026}
+
+% For preprint, use
+% \usepackage[preprint]{icml2026}
+
+% If accepted, instead use the following line for the camera-ready submission:
+% \usepackage[accepted]{icml2026}
+
+%---------------------------------------------------------------------
+% Global package imports
+%---------------------------------------------------------------------
+\input{latex/packages}               % Loads all required \usepackage statements
+
+%---------------------------------------------------------------------
+% Global macro definitions
+%---------------------------------------------------------------------
+\input{latex/custom_commands}        % Loads macros, math shortcuts, etc.
+
+%---------------------------------------------------------------------
+% ICML Title and Authors
+%---------------------------------------------------------------------
+\icmltitlerunning{RAPTORGraph: Graph-Based Pathway Modeling for Causal Discovery}
+
+\begin{document}
+
+\twocolumn[
+  \icmltitle{RAPTORGraph: Graph-Based Pathway Modeling for Causal Discovery in Single-Cell Perturbations}
+
+  % Anonymized for initial submission
+  \begin{icmlauthorlist}
+    \icmlauthor{Anonymous Authors}{equal}
+  \end{icmlauthorlist}
+
+  \icmlaffiliation{anon}{Anonymous Institution, Anonymous City, Anonymous Region, Anonymous Country}
+
+  \icmlcorrespondingauthor{Anonymous Author}{anon.email@domain.com}
+
+  \icmlkeywords{scRNA-seq, Causal Discovery, CRL, Optimal Transport}
+
+  \vskip 0.3in
+]
+
+% Footnote for affiliations and equal contribution
+\printAffiliationsAndNotice{}  % Leave empty for anonymous submission
+
+% Reset glossary entries so that the first use prints the long form
+\glsresetall
+
+%---------------------------------------------------------------------
+% Abstract (Optimized to 6 sentences per ICML protocol)
+%---------------------------------------------------------------------
+\begin{abstract}
+Experiments involving the perturbation of individual cells are central to understanding cellular mechanisms and accelerating drug discovery. 
+While causal representation learning aims to uncover latent regulatory factors, existing methods often suffer from intervention spillover and mean collapse. 
+We introduce \glsentryshort{raptorgraph}, a VAE framework that addresses these challenges through a novel GraphPathway encoder and optimal-transport alignment. 
+Our architecture uses preconditioning to enforce sparse mappings to learned causal meta-pathways—which are distinct from curated biological pathways—enabling the clean, single-node latent interventions required for causal identifiability. 
+Empirical results on Perturb-seq datasets demonstrate that \glsentryshort{raptorgraph} achieves a superior balance between reconstruction fidelity and distributional accuracy while outperforming state-of-the-art models in predicting non-additive interactions. 
+Finally, we show that the model learns biologically meaningful causal structures, providing an interpretable bridge between generative quality and mechanistic insight.
+\end{abstract}
+
+% Original Abstract (Reference)
+% \begin{abstract}
+%
+% Experiments involving the perturbation of individual cells are central to understanding cellular mechanisms and can accelerate drug discovery.
+% \Gls{crl} allows us to uncover the latent factors that regulate biological systems and predict the impact of novel perturbations.
+% Unfortunately, existing methods fail to address intervention spillover in a closed-world setting where intervention targets are known \apriori, such as in Perturb-seq experiments, due to their reliance on dense encoders.
+% Furthermore, incorporating curated biological pathways into the model imposes a confirmatory bias, forcing it to explain the data through preexisting pathways and reducing the set of hypotheses the model can explore, while discarding novel signals that lie outside the annotated pathways.
+% In this work, we introduce \glsentryshort{raptorgraph}, a \betavae{} with a GraphPathway encoder that explicitly models complex gene-to-gene interactions within learned pathways.
+% Moreover, our model's preconditioning isolates the influence of perturbed genes, yielding clean, single-node latent interventions required for identifiable causal discovery and eliminating spillover.
+% Finally, we train the model on data preprocessed with optimal-transport alignment, which guarantees a well-defined mapping between control and perturbed samples and further stabilizes the learned latent representations.
+% We demonstrate that \glsentryshort{raptorgraph} improves state-of-the-art performance on downstream analyses of unseen perturbations, such as non-additive interactions, while outperforming other approaches on objective metrics, such as \glsentryshort{mse} and \glsentryshort{mkmmd}.
+% The code will be made publicly available upon publication of this paper.
+%
+% \end{abstract}
+
+\glsresetall
+
+%---------------------------------------------------------------------
+% Content Injection
+%---------------------------------------------------------------------
+\input{sections/01_introduction}
+\input{sections/02_background}
+\input{sections/03_methods}
+
+\section{Experimental Settings}
+\label{sec:experiments}
+\input{sections/04_experimental_settings}
+
+\section{Results}
+\label{sec:results}
+\input{sections/05_results}
+
+\input{sections/06_conclusion}
+
+%---------------------------------------------------------------------
+% Broader Impact Statement (Mandatory for ICML 2026)
+%---------------------------------------------------------------------
+\section*{Broader Impact Statement}
+This paper presents work whose goal is to advance the field of Machine Learning by improving the interpretability and accuracy of causal discovery in biological systems. 
+By enabling more precise \insilico{} predictions of genetic perturbations, our framework potentially accelerates therapeutic discovery and reduces the need for exhaustive experimental screening. 
+While the primary focus is on basic research in cellular biology, we recognize that improved causal modeling of biological data could eventually inform clinical decision-making; thus, we emphasize the importance of independent experimental validation before applying these findings in medical contexts. 
+There are no direct negative societal consequences of this work anticipated at this stage.
+
+%---------------------------------------------------------------------
+% Bibliography
+%---------------------------------------------------------------------
+\bibliography{raptor_references}
+\bibliographystyle{icml2026}
+
+%---------------------------------------------------------------------
+% Appendix
+%---------------------------------------------------------------------
+\newpage
+\appendix
+\onecolumn
+\input{supplementary}
+
+\end{document}

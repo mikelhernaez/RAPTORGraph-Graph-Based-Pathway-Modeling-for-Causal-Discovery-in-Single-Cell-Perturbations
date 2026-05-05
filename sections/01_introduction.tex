@@ -1,0 +1,34 @@
+%===============================================================================
+\section{Introduction}
+\label{sec:introduction}
+%===============================================================================
+
+Understanding how cells respond to genetic perturbations, such as those induced by CRISPR screens~\citep{dixit2016perturb}, is fundamental to understand disease biology and advancing therapeutic discovery ~\citep{plenge2013validating,adamson2016multiplexed,norman2019exploring}. 
+However, the combinatorial explosion across $\sim$25,000 genes makes exhaustive perturbation experiments infeasible~\citep{norman2019exploring}, motivating computational models that predict cellular responses to unseen perturbations or combinations thereof.
+
+Existing approaches to predict the transcriptional outcome following a perturbation face a fundamental challenge: generative quality comes at the cost of causal interpretability.
+For example, recent methods like GEARS~\citep{roohani2024predicting} or scGPT~\citep{cui2024scgpt} achieve strong predictive performance in cellular response to perturbations; however, they act as ``black boxes'' providing little mechanistic insight into how perturbations affect cellular systems,
+%This opacity prevents researchers from understanding why certain combinations of perturbations produce synergistic effects, 
+failing to provide testable biological hypotheses.
+
+
+Computational biology demands models that provide mechanistic insights into cellular function~\citep{chen_applying_2024}, making \gls{crl}~\citep{scholkopf2021toward} a promising approach for mapping (intervened) genes to biological processes.
+Recent \gls{crl} approaches such as \gls{dvae}~\citep{zhang2023identifiability} or SENA~\citep{de2025interpretable} aim at recovering the underlying causal factors aligned with the interventions, enabling counterfactual reasoning.
+However, these \gls{crl} approaches suffer from a fundamental architectural limitation: a dense interventional encoder allows every gene, including the intervened ones, to influence many or all latent variables, undermining the requirements for their identifiability guarantees.
+We term this phenomenon \emph{intervention spillover}, which renders identifying the unique latent target for a given intervention ill-posed.
+Consequently, the intervention mechanism cannot perform the clean, single-node manipulation required for valid causal inference~\citep{brehmer2022weakly,lippe2022citris}.
+
+\revised{Further, the destructive nature of \gls{scRNAseq} makes it impossible to observe the same cell before and after a genetic intervention, complicating the prediction of cell-specific responses.
+Existing methods address this issue by randomly pairing control and perturbed cells.
+Since current models are trained to minimize the error across all possible arbitrary pairings, they are incentivized to (suboptimally) learn the population-mean response.
+We refer to this phenomenon as \emph{mean collapse}, as this regression to the mean erodes cellular diversity.}
+
+To address these critical issues, we present \gls{raptorgraph}, a novel framework that addresses causal identifiability challenges through a structured encoder design. 
+Our first key innovation is the GraphPathway layer, a novel architecture that uses preconditioning to enforce sparse mappings from genes to learned interpretable causal factors, which we term \cmps{}.
+This design enables the model to perform the clean, single-node latent associations required for causal inference, while  maintaining interpretability.
+This innovation is complemented by an \gls{ot} preprocessing step, which mitigates the distinct problem of mean collapse.
+
+\revised{We benchmark the generative quality of \glsentryshort{raptorgraph} on the \citet{norman2019exploring} Perturb-seq dataset and the \citet{replogle_combinatorial_2020} CRISPRi dataset, assess the accuracy of inferred genetic interactions under combinations of perturbations, and evaluate the biological interpretability of the inferred \cmps{}. We uncover biologically accurate programs in the K562 cell line, including the differentiation-induced cell cycle arrest driven by EGR1 and the stress-induced growth arrest mediated by JUN.}
+%\revised{Additionally, we \citet{replogle_combinatorial_2020} CRISPRi dataset}
+
+%We demonstrate strong performance alongside interpretability, which addresses key gaps not filled by current approaches.

@@ -1,0 +1,51 @@
+%===============================================================================
+\section{Rationale For Global Pairing through Optimal Transport}
+\label{app:ot}
+%===============================================================================
+
+As discussed in \cref{sec:methods}, random pairing of control and perturbed cells leads to mean collapse. Here, we detail the mechanism behind this phenomenon and the mathematical formulation of our \gls{ot} solution.
+
+\subsection{Mechanism of Mean Collapse}
+
+For a given interventional sample (e.g., cell $i$, in which gene $A$ was perturbed), a randomly selected observational sample (e.g., cell $j$) from the batch is highly unlikely to be an appropriate counterfactual. 
+The biological state of cell $j$ may differ substantially from that of cell $i$ prior to the perturbation.
+Consequently, the model must learn a transformation from an often noisy and biologically irrelevant initial state. 
+Across thousands of training iterations, a single interventional sample is paired with hundreds of different random controls. Each pairing provides a distinct and noisy gradient signal. 
+The optimiser seeks to minimise the loss on average across these inconsistent pairings and converges on a simple solution: predicting the mean of the target distribution. The random noise from the poor counterfactuals averages to zero, leaving only the central tendency as a stable learning signal. Ultimately, the objective function effectively becomes an expectation over these random pairings. The model learns that the most reliable strategy to achieve a low expected loss is to ignore the specifics of the randomly chosen input and produce an average output. The optimisation landscape is thereby smoothed in a manner that makes the `mean prediction' an attractive local minimum.
+
+\begin{figure}[tb]
+    \centering
+    \begin{subfigure}{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{gfx/OT.png}
+        \caption{Random pairing}
+        \label{fig:app:ot_comparison_a}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{gfx/ot_comparison.png}
+        \caption{Optimal Transport}
+        \label{fig:app:ot_comparison_b}
+    \end{subfigure}
+    \caption{
+        \textbf{Comparison of random pairing vs. Optimal Transport.}
+        (a) Random pairing collapses the source distribution towards the target mean (mean collapse).
+        (b) Optimal Transport pairing preserves the underlying population structure and biological heterogeneity.
+    }
+    \label{fig:app:ot_comparison}
+\end{figure}
+
+Rather than creating noisy one-to-one random pairs, \glsentryshort{ot} considers the entire population of observational and interventional latents. 
+It computes an optimal flow of probability mass from the observational to the interventional distribution. This flow represents the most efficient method of morphing one entire point cloud into the other. The flow implicitly creates meaningful pairings.
+Each interventional sample is matched with the observational sample(s) that are closest in gene expression space, providing the best possible counterfactuals within the given populations.
+\revised{The theoretical properties of \glsentryshort{ot} ensure that it robustly preserves the inherent heterogeneous subpopulation structures by minimizing the ground movement cost, a feature critical for reliable counterfactual prediction.}
+
+\subsection{Mathematical Formulation}
+Let $\mu_s = \sum_{i=1}^n \frac{1}{n} \delta_{\zobs^{(i)}}$ and $\nu_t = \sum_{j=1}^m \frac{1}{m} \delta_{\zint^{(j)}}$ be the empirical measures of the source (control) and target (perturbed) latent distributions.
+The Optimal Transport problem seeks a transport plan $\gamma \in \mathbb{R}_{+}^{n \times m}$ that minimizes the total cost:
+\begin{equation}
+    \min_{\gamma \in \Pi(\mu_s, \nu_t)} \langle \gamma, \mathbf{C} \rangle_F
+\end{equation}
+where $\mathbf{C}_{ij} = \| \zobs^{(i)} - \zint^{(j)} \|^2_2$ is the squared Euclidean cost matrix, and $\Pi(\mu_s, \nu_t)$ is the set of joint probability measures with marginals $\mu_s$ and $\nu_t$.
+The resulting optimal plan $\gamma^*$ provides a probabilistic coupling. To obtain a deterministic mapping for training, we use the barycentric projection map, ensuring each control cell is paired with its optimal counterfactual representation in the perturbed domain.

@@ -1,0 +1,17 @@
+%===============================================================================
+\subsection{Evaluation Setup, Metrics and Datasets}
+\label{subsec:eval_setup_metrics}
+%===============================================================================
+
+To ensure a consistent and fair benchmark across all evaluated  models, we use \gls{mmd} to assess the similarity between predicted and true gene expression distributions.
+The \gls{mmd} is calculated per type of perturbation (single or combinations thereof) and then averaged to provide an overall measure of distribution similarity.
+Alongside objective metric comparison, we use Precision@10 to evaluate non-additive interactions of combinatorial perturbations (see \cref{app:metrics}).
+
+For evaluation we use two datasets: First, the Perturb-seq single-cell RNA-seq dataset from~\citet{norman2019exploring} and as processed in the CPA study~\citep{lotfollahi2023predicting} and refer to it as the Norman-CPA dataset.
+It profiles 105 gene perturbations in K562 cells, including both single and double perturbations.
+In total, 284 conditions across $\sim$108,000 cells were measured, of which 131 represent unique gene–gene combinations and the remaining 153 represent single perturbations. For each perturbation, associated control cells were also profiled. 
+We utilize the entire set of single-perturbations during training and evaluate the subsequent methods on the double-perturbations.
+
+Additionally, we used the CRISPRi single-cell RNA-seq dataset curated by~\citet{replogle_combinatorial_2020} and as processed in the PerturBase study~\citep{wei_perturbase_2024}. We refer to it as the Replogle2020 dataset.
+This dataset profiles 82 gene perturbations in K562 cells, including both single (44), double perturbations (37), and control.
+The 82 conditions were measured across $\sim$22,740 cells.

@@ -1,0 +1,82 @@
+% ------------------------------------------------- 
+%  Global LaTeX package imports
+%  (All packages are loaded once, in a logical order,
+%   with no duplicate entries.)
+% ------------------------------------------------- 
+
+%--- Core encoding and font handling --------------------------------------------
+\usepackage{iftex}
+\ifPDFTeX
+  % pdfLaTeX (Overleaf default)
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{times}
+\else
+  % XeLaTeX (Local Tectonic) or LuaLaTeX
+  \usepackage{fontspec}
+  \setmainfont{Nimbus Roman}
+  \setsansfont{Nimbus Sans}
+  \setmonofont{Nimbus Mono PS}
+\fi
+
+%--- Mathematics ---------------------------------------------------------------
+\usepackage{amsmath,amssymb,amsthm}   % AMS math environments and symbols
+\usepackage{mathtools}                % Extensions to amsmath (optional but useful)
+
+%--- Graphics & figures ---------------------------------------------------------
+%\usepackage{graphicx}                % (Loaded by ICML template)
+\usepackage{tikz}                    % Vector graphics language
+\usepackage{pgfplots}                % Plotting with pgf/TikZ
+\pgfplotsset{compat=1.17}            % Compatibility version for pgfplots
+\usepackage{wrapfig}                 % Text wrapping around figures
+%\usepackage{subcaption}              % (Loaded by ICML template)
+\usepackage{caption}                 % Caption customisation
+\usepackage{float}                   % Improved float placement (e.g., [H])
+\usepackage{adjustbox}               % Box-adjustment utilities
+
+%--- Tables --------------------------------------------------------------------
+%\usepackage{booktabs}                % (Loaded by ICML template)
+\usepackage{tabularx}                % Flexible column widths
+\usepackage{multirow}                % Multi-row cells
+\usepackage{siunitx}                 % Typeset numbers and units
+\sisetup{
+    round-mode             = places,
+    round-precision        = 3,
+    table-alignment-mode   = none,
+    % New v3 replacement for all "detect" options:
+    mode                   = match,
+    reset-text-family      = false,
+    reset-text-series      = false
+}
+%\usepackage{array}                   % Extended column definitions (optional)
+
+%--- Algorithms ---------------------------------------------------------------
+%\usepackage{algorithm}               % (Loaded by icml2026.sty)
+%\usepackage{algorithmic}             % (Loaded by icml2026.sty)
+
+%--- Hyperlinks & cross-references ---------------------------------------------
+%\usepackage{hyperref}                % (Loaded by ICML template)
+\usepackage{cleveref}                % Smart cross-reference formatting
+\usepackage{url}                     % URL typesetting (fallback for hyperref)
+\usepackage{xurl}                     % Allow breaks anywhere in long URLs
+\usepackage{doi}                     % DOI hyperlink formatting
+
+%--- Glossaries / Acronyms ------------------------------------------------------
+\usepackage[acronym]{glossaries}     % Acronym handling (acronym list)
+\makeglossaries                       % Initialise glossaries (called once)
+
+%--- Miscellaneous -------------------------------------------------------------
+\usepackage{xcolor}                  % Colour definitions
+%\usepackage{microtype}               % (Loaded by ICML template)
+\usepackage{enumitem}                % Customisable list environments
+\usepackage{float}                   % (already loaded above – kept for clarity)
+\usepackage{todonotes}
+\usepackage{csvsimple}               %  Csv loading
+
+%--- User-defined helper commands -----------------------------------------------
+% Circled characters (used throughout the manuscript)
+\newcommand*\circled[1]{
+  \tikz[baseline=(char.base)]{
+    \node[shape=circle,draw,inner sep=2pt] (char) {#1};
+  }
+}

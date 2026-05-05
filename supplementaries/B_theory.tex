@@ -1,0 +1,183 @@
+%===============================================================================
+% APPENDIX: MATHEMATICAL PROOFS AND THEORETICAL BACKGROUND
+%===============================================================================
+\section{Mathematical Proofs and Theoretical Background}
+\label{app:proofs}
+%===============================================================================
+
+This appendix provides a detailed theoretical examination of the core challenges in causal representation learning that motivate our proposed architecture.
+We begin by formally defining and proving the incompatibility of dense encoders via the Intervention Spillover Problem, and then discuss the role of prior knowledge in differentiating causal modeling strategies.
+
+%-------------------------------------------------------------------------------
+% Subsection: The Intervention Spillover Problem
+%-------------------------------------------------------------------------------
+\subsection{The Intervention Spillover Problem}
+\label{app:proofs:spillover}
+%-------------------------------------------------------------------------------
+
+This section provides the formal theoretical background for the \emph{Intervention Spillover Problem}.
+We formally define this problem, arguing that it is a direct consequence of the inherent properties of dense encoder architectures commonly used in \gls{crl}.
+We then prove the fundamental incompatibility between these architectures and the requirements for causal identifiability.
+
+\begin{definition}[The Intervention Spillover Problem]
+\label{def:app:intervention_spillover_problem}
+The \emph{Intervention Spillover Problem} is the phenomenon where a targeted single-variable intervention in a high-dimensional observation space is transformed into a dense, multi-node signal in the lower-dimensional latent space.
+This issue arises as a direct consequence of using a practical, dense encoder architecture, which inevitably corrupts the intervention's sparsity and creates a fundamental incompatibility with \gls{crl} methods that require sparse, single-node latent interventions for identifiability.
+\end{definition}
+
+%------------------------------------------------------------------------------
+% Subsubsection: Mathematical Preliminaries and Setup
+%------------------------------------------------------------------------------
+\subsubsection{Mathematical Preliminaries and Setup}
+\label{app:proofs:spillover:setup}
+%------------------------------------------------------------------------------
+
+While the problem described is general, this analysis formalizes it within the context of a \emph{linear \gls{scm}} for clarity.
+Let the gene expression space be $\realnumbers^\observeddim$ and the latent space be $\realnumbers^\latentdim$, with $\latentdim \ll \observeddim$.
+Let $\practicalencoder: \realnumbers^\observeddim \to \realnumbers^\latentdim$ be the practical, differentiable encoder network we train.
+It maps an observation vector $\variables$ to an \emph{approximated} latent vector $\latentvars = \practicalencoder(\variables)$.
+The local behavior of this encoder is described by its Jacobian matrix $\mJ_\theta(\variables) \in \realnumbers^{\latentdim \times \observeddim}$.
+
+We model the latent space with a linear \gls{scm}, where causal relationships are defined by an adjacency matrix $\graphmatrix$.
+An intervention on a single gene creates a post-intervention vector $\variables_{\text{int}}$ from a corresponding control vector $\variables_{\text{obs}}$.
+This experimental paradigm is characteristic of modern pooled CRISPR screens (e.g., Perturb-seq), where the genetic target of each intervention is known by design.
+
+%------------------------------------------------------------------------------
+% Subsubsection: Formal Assumptions
+%------------------------------------------------------------------------------
+\subsubsection{Formal Assumptions}
+\label{app:proofs:spillover:assumptions}
+%------------------------------------------------------------------------------
+
+\begin{assumption}[Ideal Causal Encoder and Single-Node Intervention Target]
+\label{assump:app:ideal_encoder}
+An \emph{Ideal Causal Encoder}, $\idealencoder$, is an unknown oracle function that perfectly disentangles the effect of any intervention.
+The key property is that the \emph{true} latent change, $\latentchangeideal = \idealencoder(\variables_{\text{int}}) - \idealencoder(\variables_{\text{obs}})$, corresponds to a single-node perturbation.
+This ideal latent change is defined as $\latentchangeideal = \maskvector \cdot \interventionstrength$, where $\interventionstrength$ is the latent intervention strength and the target mask $\maskvector \in \{0, 1\}^\latentdim$ is \emph{one-hot}:
+\begin{equation}
+\sum_{i=1}^{\latentdim} m_i = 1
+\label{eq:app:one-hot}
+\end{equation}
+\end{assumption}
+
+In a \emph{closed-world experimental setting}, where the targeted gene is known \apriori{}, the behavior of the $\idealencoder$ must fulfill the single-node intervention requirement.
+The following lemma formalizes this ideal mapping.
+
+\begin{lemma}[Equivalence in Ideal Latent Space]
+\label{lemma:app:ideal_equivalence}
+For an Ideal Causal Encoder $\idealencoder$ operating in a closed-world setting, the latent representation of the post-intervention sample is equivalent to the latent representation of the control sample plus the ideal single-node latent perturbation.
+Formally:
+\begin{equation}
+    \idealencoder(\variables_{\text{int}}) = \idealencoder(\variables_{\text{obs}}) + \maskvector \cdot \interventionstrength
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+The proof follows directly from the definition of the ideal latent change in \cref{assump:app:ideal_encoder}.
+We start with the identity $\latentchangeideal = \idealencoder(\variables_{\text{int}}) - \idealencoder(\variables_{\text{obs}})$.
+Substituting the single-node perturbation gives $\idealencoder(\variables_{\text{int}}) - \idealencoder(\variables_{\text{obs}}) = \maskvector \cdot \interventionstrength$.
+Rearranging the terms yields the desired result.
+\end{proof}
+
+\begin{assumption}[Practical Model Approximation and Dense Jacobian]
+\label{assump:app:practical_model}
+Our \emph{Practical Model} uses an encoder $\practicalencoder(\variables)$ and a perturbation inference network $\interventionencoder$.
+The underlying encoder network has a \emph{dense Jacobian matrix} $\mJ_\theta(\variables)$.
+\end{assumption}
+
+\begin{remark}[Architectural Bias vs. Learned Function]
+It is important to distinguish between the architecture of the encoder and the function it learns.
+While it is theoretically possible for a densely-connected network to learn an effectively sparse Jacobian, the architecture itself possesses a strong inductive bias towards dense mappings.
+Standard training objectives provide no direct incentive for learning a sparse function.
+\end{remark}
+
+%------------------------------------------------------------------------------
+% Subsubsection: Main Result: The Incompatibility
+%------------------------------------------------------------------------------
+\subsubsection{Main Result: The Incompatibility}
+\label{app:proofs:spillover:lemma_proof}
+%------------------------------------------------------------------------------
+
+\begin{lemma}[Incompatibility of the Practical Model]
+\label{lemma:app:incompatibility}
+Given the practical model's reliance on a dense encoder network (\cref{assump:app:practical_model}), there is no guarantee that an intervention on a single gene will produce a single-node latent intervention target vector $\maskvector$ as required by the ideal model in \cref{assump:app:ideal_encoder}.
+\end{lemma}
+\begin{proof}
+The proof rests on the direct conflict between the output of the practical encoder and the requirements of the ideal model in a closed-world setting.
+In this setting, we have access to both the control sample $\variables_{\text{obs}}$ and the post-intervention sample $\variables_{\text{int}}$.
+Our trained practical encoder, $\practicalencoder$, is a known deterministic function (e.g., a trained MLP).
+
+When we process these known samples, the encoder produces an approximated latent change:
+\begin{equation}
+    \latentchangeapprox = \practicalencoder(\variables_{\text{int}}) - \practicalencoder(\variables_{\text{obs}})
+\end{equation}
+Due to the dense Jacobian of $\practicalencoder$ (\cref{assump:app:practical_model}), each component of the latent vector $\latentvars$ is a function of all input components in $\variables$.
+Consequently, a change in a single gene will result in a change across nearly all latent dimensions.
+The resulting vector $\latentchangeapprox$ is therefore dense.
+
+The objective for a conditional network $\interventionencoder$ is to learn to predict this latent change.
+For the model to perfectly capture the intervention effect, the learned perturbation $(\maskvector \cdot \interventionstrength)$ must match the observed latent change.
+This implies minimizing the loss:
+\begin{equation}
+    \mathcal{L} = || \latentchangeapprox - (\maskvector \cdot \interventionstrength) ||^2
+\end{equation}
+To achieve a loss of zero, the learned perturbation $(\maskvector \cdot \interventionstrength)$ must be equal to the dense vector $\latentchangeapprox$.
+This forces the learned target mask $\maskvector$ to be dense, which directly contradicts the one-hot requirement for a single-node intervention as defined in \cref{eq:app:one-hot}.
+Therefore, the practical model's architecture is fundamentally misaligned with the goal of identifying single-node latent interventions.
+\end{proof}
+
+%------------------------------------------------------------------------------
+% Subsubsection: Implications for Causal Discovery in Dense Encoders
+%------------------------------------------------------------------------------
+\subsubsection{Implications for Causal Discovery in Dense Encoders}
+\label{app:proofs:spillover:implications}
+%------------------------------------------------------------------------------
+
+This mathematical reality creates a cascade of problems for causal discovery models that rely on a learned intervention network to identify the latent target of a perturbation.
+The core of the issue is the need to make a discrete, single-target selection.
+This is typically addressed using a temperature-scaled softmax function, a mechanism that mimics the Gumbel-Softmax trick for differentiable categorical sampling~\citep{jang2016categorical}.
+Given the output logits, $\vo$, from an intervention network, the probability for each target is calculated as:
+\begin{equation}
+\pi_i = \frac{\exp(\vo_i / \gumbeltemp)}{\sum_{k=1}^{\latentdim} \exp(\vo_k / \gumbeltemp)}
+\label{eq:app:temp_softmax}
+\end{equation}
+where $\gumbeltemp > 0$ is a temperature hyperparameter that controls the sharpness of the output distribution.
+
+As the temperature $\gumbeltemp \to 0$, the softmax output approaches a discrete, one-hot vector (a proxy for a Dirac delta function), representing a single, "hard" choice.
+However, this creates a fundamental contradiction when applied to the output of a dense encoder.
+The encoder produces a dense latent change vector, $\latentchangeapprox$, where the evidence suggests a multi-node perturbation.
+To satisfy the model's objective of selecting a single target, a low temperature $\gumbeltemp$ must be used to force the softmax into a "winner-take-all" state.
+This forces the model to ignore the dense evidence and declare a single winner, which can lead to it learning spurious, causally unfaithful mappings.
+
+The temperature-scaled softmax is therefore caught in an architectural dissonance: it is a mechanism forced to make a discrete choice that fundamentally misrepresents the dense, continuous signal it receives from the encoder.
+
+Furthermore, in the closed-world setting of a Perturb-seq experiment, the mapping from a perturbed gene to its corresponding latent variable is known beforehand.
+Therefore, the task of ``exploratory perturbation'' (i.e., discovering which latent variable was the target) is not actually necessary.
+The true challenge is to learn the \emph{scale} or \emph{power} of the intervention's effect on the causal representation, not its target, a task for which these architectures are ill-suited.
+
+%-------------------------------------------------------------------------------
+% Subsection: The Role of Prior Knowledge in Causal Modeling
+%-------------------------------------------------------------------------------
+\subsection{The Role of Prior Knowledge in Causal Modeling}
+\label{app:proofs:prior_knowledge}
+%-------------------------------------------------------------------------------
+
+The theoretical gaps in existing models can be understood by positioning them on a spectrum between two complementary modes of scientific inquiry: exploratory and confirmatory research~\citep{pmlr-v235-herrmann24b}.
+Exploratory research is concerned with hypothesis generation; it involves analyzing data to uncover novel patterns, structures, and relationships without a strong pre-existing theory.
+In contrast, confirmatory research is concerned with hypothesis testing; it begins with a specific, pre-formulated hypothesis and uses data to determine if that hypothesis is supported or refuted.
+This distinction helps clarify the intended purpose and inherent trade-offs of different causal models.
+For instance, \textbf{\gls{dvae}} is primarily exploratory, aiming to discover latent variables and their causal graph from scratch~\citep{zhang2023identifiability}.
+In contrast, \textbf{SENA} takes a more targeted approach, acting as a confirmatory model for pathways while exploring perturbation effects; it \textbf{confirms} latent variables as known biological pathways and \textbf{explores} which pathway is targeted by a perturbation~\citep{de2025interpretable}.
+
+The approach by \citet{de2025interpretable} highlights the close relationship between \gls{scm} and \gls{crl}.
+By assuming its causal variables (the biological pathways) are known \emph{a priori}, it operates like a traditional \gls{scm}.
+However, because it must still \emph{learn} a representation of how to map raw gene expression data onto these variables and then discover the causal graph between them, it firmly resides within the \gls{crl} paradigm.
+It represents a specific, constrained form of \gls{crl} where prior knowledge heavily guides the representation learning process.
+This confirmatory design choice is motivated by the goal of enhancing the biological interpretability of the learned causal model.
+
+However, this reliance on predefined pathways introduces significant limitations, primarily stemming from the challenge of knowledge transfer.
+Biological pathways exhibit strong cell-type and cell-line specificity, meaning that mechanisms characterized in one cellular context often do not generalize to another~\citep{schneider2017tissue,gamazon2018using,hekselman2020mechanisms}.
+This context dependence poses a fundamental barrier to transferring pathway insights across different \emph{in vitro} models and ultimately to patient tissues~\citep{walter2019biological}.
+Consequently, the findings from confirmatory models are difficult to apply to less-researched cell types, which limits the scalability and broader applicability of these approaches.
+Furthermore, this confirmatory strategy may not be suitable for smaller-scale experiments that only incorporate a limited set of genes, making it difficult to map observations to comprehensive pathway definitions.
+

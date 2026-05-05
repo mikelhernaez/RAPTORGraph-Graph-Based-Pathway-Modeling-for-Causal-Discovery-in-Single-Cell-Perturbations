@@ -1,0 +1,360 @@
+%=====================================================================
+%  main.tex  –  Master file for the ICLR submission
+%=====================================================================
+\documentclass{article}
+
+%---------------------------------------------------------------------
+% Conference style (provided by the ICLR author kit)
+%---------------------------------------------------------------------
+\usepackage{iclr2026_conference,times, wrapfig}
+%---------------------------------------------------------------------
+% Global package imports
+%---------------------------------------------------------------------
+\input{latex/packages}               % Loads all required \usepackage statements
+%    (the file also executes \makeglossaries, so the glossary system is ready)
+
+%---------------------------------------------------------------------
+% Global macro definitions
+%---------------------------------------------------------------------
+\input{latex/custom_commands}        % Loads:
+%    • math_commands.tex   (ICLR‑provided math shortcuts)
+%    • theorem_envs.tex    (theorem / proof environments)
+%    • cref_names.tex      (cleveref name customisations)
+%    • acronyms.tex        (glossaries/acronym definitions)
+%    • project‑specific math shortcuts (vectors, operators, etc.)
+
+%---------------------------------------------------------------------
+% Document metadata
+%---------------------------------------------------------------------
+
+\title{RAPTORGraph: Graph-Based Pathway Modeling for Causal Discovery in Single-Cell Perturbations}
+\author{Yeremia Gunawan Adhisantoso \And Stephanie Kristin Schröder \And Maximilian Greß \And Mikel Hernaez \And Jan Voges
+}
+
+%---------------------------------------------------------------------
+% Uncomment for final version
+%---------------------------------------------------------------------
+%\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+
+%---------------------------------------------------------------------
+% Begin document
+%---------------------------------------------------------------------
+\begin{document}
+\maketitle
+
+% Reset glossary entries so that the first use prints the long form
+\glsresetall
+
+%---------------------------------------------------------------------
+% Abstract
+%---------------------------------------------------------------------
+\begin{abstract}
+
+Experiments involving the perturbation of individual cells are central to understanding cellular mechanisms and can accelerate drug discovery.
+\Gls{crl} allows us to uncover the latent factors that regulate biological systems and predict the impact of novel perturbations.
+Unfortunately, existing methods fail to address intervention spillover in a closed-world setting where intervention targets are known \apriori, such as in Perturb-seq experiments, due to their reliance on dense encoders.
+Furthermore, incorporating curated biological pathways into the model imposes a confirmatory bias, forcing it to explain the data through preexisting pathways and reducing the set of hypotheses the model can explore, while discarding novel signals that lie outside the annotated pathways.
+In this work, we introduce \glsentryshort{raptorgraph}, a \betavae{} with a GraphPathway encoder that explicitly models complex gene-to-gene interactions within learned pathways.
+Moreover, our model's preconditioning isolates the influence of perturbed genes, yielding clean, single-node latent interventions required for identifiable causal discovery and eliminating spillover.
+Finally, we train the model on data preprocessed with optimal-transport alignment, which guarantees a well-defined mapping between control and perturbed samples and further stabilizes the learned latent representations.
+We demonstrate that \glsentryshort{raptorgraph} improves state-of-the-art performance on downstream analyses of unseen perturbations, such as non-additive interactions, while outperforming other approaches on objective metrics, such as \glsentryshort{mse} and \glsentryshort{mkmmd}.
+The code will be made publicly available upon publication of this paper.
+
+\end{abstract}
+
+\glsresetall
+
+%===============================================================================
+\section{Introduction}
+\label{sec:introduction}
+%===============================================================================
+
+% Understanding how cells respond to genetic perturbations is fundamental to advancing therapeutic discovery and basic biology~\citep{plenge2013validating}. 
+% CRISPRa-enabled pooled genetic perturbation screens, which use a deactivated Cas9 (dCas9) that cannot cut DNA, aim to modify gene expression, involving different perturbations, such as \Gls{ko} (disrupting the gene function) or over-expression (increasing gene expression levels). This is considered a "soft" intervention, because gene functions are only altered instead of removed entirely, such as in a "hard" intervention. Recent advances in high-throughput technologies like Perturb-seq enable systematic measurement of transcriptional responses to genetic \textit{interventions} across thousands of cells simultaneously~\citep{dixit2016perturb,adamson2016multiplexed,norman2019exploring}.
+% However, the combinatorial explosion of possible perturbations with approximately 20,000 protein-coding genes in the human genome makes exhaustive experimental characterization infeasible~\citep{norman2019exploring} --- growing exponentially when multiple genes are considered as targets. This challenge has motivated the development of computational models that can predict cellular responses to unseen (combinations of) perturbations, potentially reducing laboratory work by orders of magnitude.
+
+Understanding how cells respond to genetic perturbations, such as those induced by CRISPR screens~\citep{dixit2016perturb}, is fundamental to advancing our understanding of basic biology and therapeutic discovery~\citep{plenge2013validating,adamson2016multiplexed,norman2019exploring}. 
+However, the combinatorial explosion across $\sim$20,000 protein-coding genes makes exhaustive perturbation experiments infeasible~\citep{norman2019exploring}, motivating computational models that predict cellular responses to unseen perturbations or combinations thereof.
+
+Existing approaches to predict the transcriptional outcome following a perturbation face a fundamental challenge: generative quality comes at the cost of causal interpretability.
+For example, recent methods like GEARS~\citep{roohani2022gears} or scGPT~\citep{cui2024scgpt} achieve strong predictive performance in cellular response to perturbations; however, they act as ``black boxes'' providing little mechanistic insight into how perturbations affect cellular systems.
+This opacity prevents researchers from understanding why certain combinations of perturbations produce synergistic effects, failing to provide testable biological hypotheses.
+
+
+As such, computational biology demands models that provide mechanistic insights into cellular function~\citep{chen_applying_2024}, making \gls{crl}~\citep{scholkopf2021toward} a promising approach for mapping genes to biological processes.
+In particular, recent \gls{crl} approaches such as \gls{dvae}~\citep{zhang2023identifiability} or SENA~\citep{de2025interpretable} aim at recovering the underlying causal generative factors and their interactions, enabling counterfactual reasoning.
+However, these \gls{crl} approaches suffer from fundamental architectural limitations that prevent them from fulfilling their theoretical causal identifiability guarantees: the use of a dense interventional encoder inherently means that every gene, including those intervened upon can influence all latent variables.
+We term this phenomenon \emph{intervention spillover}, as it renders the task of identifying a unique latent target for an intervention ill-posed.
+Consequently, any mechanism designed to apply the intervention is forced to converge to a suboptimal solution, because it cannot perform the clean, single-node manipulation required for valid causal inference~\citep{brehmer2022weakly,lippe2022citris}.
+
+\textcolor{blue}{Further, the destructive nature of \gls{scRNAseq} makes it impossible to observe the same cell before and after a genetic intervention, complicating the prediction of cell-specific responses.
+Existing methods address this issue by randomly pairing control and perturbed cells.
+Since the model must minimize error across all possible arbitrary pairings, it is incentivized to learn the population-mean response.
+We refer to this phenomenon as \emph{mean collapse}, as this regression to the mean erodes cellular diversity.}
+
+We present \gls{raptorgraph}, a novel framework that addresses causal identifiability challenges in perturbation prediction through structured encoder design. 
+Our first key innovation is the GraphPathway layer, a novel architecture that uses preconditioning to enforce sparse mappings from genes to learned latent factors. 
+This design enables the model to perform the clean, single-node manipulations required for valid causal inference, directly maintaining interpretability.
+This innovation is complemented by a novel \gls{ot} preprocessing step, which mitigates the distinct problem of mean collapse.
+We benchmark the generative quality of \glsentryshort{raptorgraph} on the \citet{norman2019exploring} Perturb-seq dataset \textcolor{blue}{and the \citet{replogle_combinatorial_2020} CRISPRi dataset.
+For the \citet{norman2019exploring} data, we further evaluate the} accuracy of genetic interaction in perturbation combinations, \textcolor{blue}{and the biological interpretability of the inferred latent factor.
+Specifically, when applied to scRNA-seq data from a K562 cell line, \glsentryshort{raptorgraph} uncovered distinct, biologically accurate programs, such as the differentiation-induced cell cycle arrest driven by EGR1 and stress-induced growth arrest mediated by JUN.}
+\textcolor{blue}{Additionally, we \citet{replogle_combinatorial_2020} CRISPRi dataset}
+We demonstrate strong performance alongside interpretability, which addresses key gaps not filled by current approaches.
+% The code will be made publicly available upon publication of this paper.
+
+%===============================================================================
+% SECTION: BACKGROUND
+%===============================================================================
+\input{sections/02_background}
+
+%===============================================================================
+% SECTION: METHODS
+%===============================================================================
+\input{sections/03_methods}
+
+%===============================================================================
+\section{Experimental Settings}
+\label{sec:experiments}
+%===============================================================================
+
+%===============================================================================
+\subsection{Optimal Transport for Deterministic Interventional Learning}
+%===============================================================================
+
+
+A fundamental challenge in learning from single-cell perturbation data is the absence of a direct one-to-one mapping between control and perturbed cell populations, as it is impossible to observe the same cell before and after the intervention.
+This makes learning the treatment effect a fundamental counterfactual problem, where the central challenge is to identify a general transformation that maps the control distribution to the perturbed distribution in the absence of paired examples.
+To address this counterfactual gap, many models create training pairs by randomly matching control and interventional samples.
+While computationally efficient, this random pairing is a primary cause of what we term \emph{mean collapse}: a process where the model learns the average response, collapsing the distribution towards its mean and eroding cellular diversity (\cref{fig:ot_comparison}).
+\begin{wrapfigure}[13]{r}{.395\textwidth}
+    \vspace{-8pt}
+    \begin{subfigure}{0.49\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{gfx/OT.png}
+    \subcaption{}
+    \label{fig:ot_comparison_a}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+    \includegraphics[width=\linewidth]{gfx/ot_comparison.png}
+    \subcaption{}
+    \label{fig:ot_comparison_b}
+    \end{subfigure}
+\caption{
+    Illustrative example of mean collapse problem.
+    (a) Random pairing collapses the source distribution towards the target mean.
+    (b) The \gls{ot} preserves the underlying population structure.
+    % Data are simulated for visualization purposes.
+    }
+    \label{fig:ot_comparison}
+\end{wrapfigure}
+    
+% \begin{wrapfigure}{r}{.6\textwidth}
+%     \begin{minipage}{\linewidth}
+%     \centering\captionsetup[subfigure]{justification=centering}
+%     \includegraphics[width=.2\linewidth]{gfx/OT.png}
+%     \subcaption{}
+%     \label{fig:ot_comparison_a}\par\vfill
+%     \includegraphics[width=.2\linewidth]{gfx/ot_comparison.png}
+%     \subcaption{}
+%     \label{fig:ot_comparison_b}
+% \end{minipage}
+% \caption{
+%     Illustrative example of mean collapse problem.
+%     (a) Random pairing collapses the source distribution towards the target mean.
+%     (b) The \gls{ot} preserves the underlying population structure.
+%     % Data are simulated for visualization purposes.
+% }
+% \label{fig:ot_comparison}
+% \end{wrapfigure}
+To address these issues, we employ a Wasserstein-based \gls{ot}~\citep{cuturi2013sinkhorn,flamary2021pot} framework to globally pair control cells with perturbed cells under unique conditions (\cref{fig:ot_comparison_b}).
+Although several recent methods address unpaired single-cell perturbation data~\citep{bunne2023learning,dong2023causal}, we adopt \gls{ot} as an offline pairing step for simplicity while avoiding mean collapse.
+See ~\cref{app:ot} for more details regarding \gls{ot}.
+\textcolor{blue}{
+    Extended results, including empirical evidence supporting the necessity of \gls{ot} and a comprehensive analysis of \gls{ot} complexity, are detailed in ~\cref{app:extended_results:loss_function_analysis} and ~\cref{app:extended_results:ot_complexity}, respectively.
+}
+
+% \clearpage
+
+%===============================================================================
+\subsection{Evaluation Setup and Metrics}
+\label{subsec:eval_setup_metrics}
+%===============================================================================
+
+To ensure a consistent and fair benchmark across all models taken into account, we use \gls{mkmmd} to assess the similarity between predicted and true gene expression distributions.
+\textcolor{blue}{The MK-MMD is calculated per-condition and then averaged to provide an overall measure of distribution similarity.}
+Alongside objective metric comparison, we use Precision@10 to evaluate non-additive interactions of combinatorial perturbations (see \cref{app:metrics}).
+%We refer to \cref{app:metrics} for a detailed explanation.
+
+We used the Perturb-seq single-cell RNA-seq dataset curated by~\citet{norman2019exploring} as processed in the CPA study~\citep{lotfollahi_predicting_2023} and refer to it as the Norman-CPA dataset.
+It profiles 105 gene perturbations in K562 cells, including both single and double perturbations.
+In total, 284 conditions across $\sim$108{,}000 cells were measured, of which 131 represent unique gene–gene combinations and the remainder single perturbations or controls, respectively.
+We utilize the entire set of single-perturbations during training and evaluate the subsequent methods on the double-perturbations.
+
+\textcolor{blue}{Additionally, we used the CRISPRi single-cell RNA-seq dataset (exp6) curated by~\citet{replogle_combinatorial_2020} as processed in the PerturBase study~\citep{wei_perturbase_2024} and refer to it as the Replogle2020 dataset.
+This dataset profiles 82 gene perturbations in K562 cells, including both single (44), double perturbations (37) and control.
+The 82 conditions were measured across $\sim$22{,}740 cells.}
+
+%===============================================================================
+\section{Results}
+\label{sec:results}
+%===============================================================================
+To first establish the foundational accuracy of \gls{raptorgraph}, we benchmarked its generative performance against four state-of-the-art models: SENA, scGPT, \gls{dvae}, and GEARS.
+We assessed two key aspects of prediction fidelity primarily using the single-cell perturbation dataset from \citet{norman2019exploring}.
+\textcolor{blue}{We prioritized this dataset for the comprehensive comparison because the implementations of several baseline models have auxiliary files and preprocessing steps that are tightly coupled to it, making adaptation to other datasets non-trivial.
+However, to further demonstrate generalizability, we provide an additional evaluation on the Replogle2020 dataset in~\cref{app:metrics:replogle_benchmark}, restricted to a comparison between \gls{raptorgraph} and scGPT.}
+
+\textcolor{blue}{
+To validate our hyperparameter selection, we conducted a comprehensive ablation study on the $\beta$-VAE regularization parameter ($\beta$) and the DAGMA loss weights ($\mu, \lambda_1$).
+Our analysis reveals a critical trade-off between distribution matching and the preservation of biological heterogeneity.
+While higher regularization ($\beta \geq 0.8$) achieves competitive \gls{mkmmd} scores, it induces severe posterior collapse, with the variance of predicted control cell states dropping by an order of magnitude compared to the optimal setting ($10^{-4}$ vs $10^{-3}$).
+Conversely, lower regularization ($\beta = 0.1$) preserves higher variance but results in unstable training and significantly higher \gls{mkmmd}.
+We identified $\beta \approx 0.4$ as the optimal operating point, minimizing \gls{mkmmd} while maintaining a latent KL divergence ($\approx 10^{-3}$) consistent with established baselines (dVAE and SENA), thereby ensuring the model captures meaningful cellular diversity rather than regressing to the population mean.
+Detailed results of the full hyperparameter sweep are provided in \cref{app:extended_results:ablation_study}.
+}
+
+\textbf{Reconstruction capabilities.} First, we measured the \gls{mse} between the ground truth and predicted profiles of control cells to evaluate how well each model reconstructs the basal, unperturbed cellular state.
+Second, we calculated the \gls{mkmmd} between the distributions of ground truth and predicted profiles for double-gene perturbations to assess the model's ability to capture the global transcriptional shift following a complex intervention. A detailed description of these metrics is provided in \cref{app:metrics}. 
+
+The results in \Cref{tab:MMD_results} highlight a crucial trade-off between reconstruction fidelity (\gls{mse}) and distributional accuracy (\gls{mkmmd}).
+% While models like SENA and \gls{dvae} excel on one metric at the expense of the other, 
+\Gls{raptorgraph} achieves a strong overall balance, demonstrating highly competitive performance across both reconstruction and generative capabilities. 
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lccccc}
+        \toprule
+        {Metric} & {SENA} & {scGPT} & {\gls{dvae}} & {GEARS} & {\gls{raptorgraph}} (ours) \\
+        \midrule
+        \gls{mkmmd} & 0.522 $\pm$ 0.003 & 0.176 $\pm$ 0.001 & \textbf{0.076 $\pm$ 0.000} & {--}* & \textit{0.112 $\pm$ 0.001} \\
+        \gls{mse} & \textbf{0.043 $\pm$ 0.000} & 0.066 $\pm$ 0.000 & 0.062 $\pm$ 0.000 & {--}* & \textit{0.045 $\pm$ 0.000} \\
+        \bottomrule
+    \end{tabular}
+    \caption{Results using the Norman-CPA dataset are averaged over $3$ runs. Bold: best results; Italics: second best. \textcolor{blue}{Values are mean $\pm$ variance.}
+    *We excluded the GEARS model because it behaves in a fundamentally different way that is incompatible with our evaluation framework, making a fair and direct comparison impossible (see \cref{app:metrics:gears_exclusion}).}
+    \label{tab:MMD_results}
+\end{table}
+
+\textbf{Prediction of non-additive genetic perturbations.} %Next, we evaluated : the prediction of non-additive genetic interactions 
+This complex and biologically significant benchmark assesses a model's ability to predict emergent effects that are not simple linear combinations of single-gene perturbations (\Cref{tab:gi_scores}).
+Specifically, we compared the models based on their ability to predict five distinct interaction types, using Precision@10 to quantify how effectively each model could identify true interactions within its top 10 predictions, a direct measure of its utility for experimental discovery (see \cref{app:metrics:genetic_interaction}).
+
+
+% \begin{table}[H]
+% \centering
+% \csvreader[
+%     tabular= lccccc,
+%     table head=\toprule Model & Synergy & Suppression & Neomorphism & Redundancy & Epistasis \\ \midrule,
+%     late after line=\\,
+%     table foot=\bottomrule
+% ]{results_files/gi_scores/precision_at_10_summary.csv}{Dataset=\Dataset,synergy=\synergy,suppression=\suppression,neomorphism=\neomorphism,redundancy=\redundancy,epistasis=\epistasis}
+% {\Dataset & \synergy & \suppression & \neomorphism & \redundancy & \epistasis}
+% \caption{Comparison of non-additive genetic interaction prediction.
+%     Precision@10 scores for \gls{raptorgraph} and four baseline models across five distinct genetic interaction subtypes on the Norman et al. dataset. 
+%     Higher scores indicate better performance.
+%     Error bars represent the standard deviation across three independent runs.}
+% \label{tab:gi_scores}
+% \end{table}
+
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\csvreader[
+    separator=comma,
+    tabular= lccccc,
+    table head=\toprule Metric & \gls{dvae} & SENA & GEARS & scGPT & \gls{raptorgraph} (ours)\\ \midrule,
+    late after line=\\,
+    table foot=\bottomrule
+]{results_files/gi_scores/precision_at_10_summary_transposed.csv}{type=\Metric,scGPT=\scGPT,dvae=\dvae,raptor=\raptor,sena=\sena,gears=\gears}
+{\Metric & \dvae & \sena & \gears & \scGPT & \raptor}
+}
+\caption{Comparison of non-additive genetic interaction prediction. Precision@10 scores for five baseline models across distinct genetic interaction subtypes on the Norman et al. dataset. Higher is better. \textcolor{blue}{Values are mean $\pm$ variance over 3 runs.}}
+\label{tab:gi_scores}
+\end{table}
+
+\textcolor{blue}{We further investigated the contribution of \gls{ot} to this performance. Our ablation studies reveal that \gls{ot} preprocessing is a key driver of the model's ability to predict complex non-additive interactions, particularly redundancy and epistasis, significantly outperforming a random pairing baseline. Importantly, this benefit comes with negligible computational overhead ($\approx 2.2\%$ of total training time). Detailed analyses of these empirical benefits and the computational cost are provided in \cref{app:extended_results:ot_impact} and \cref{app:extended_results:ot_complexity}, respectively.}
+
+\textbf{Reverse perturbation analysis.} While predicting genetic interactions demonstrates a model's forward predictive power, a more profound test is its ability to reverse-engineer the genetic cause of an observed phenotype.
+To this end, we challenged a model to identify the specific genetic perturbation responsible for a given cellular gene expression profile.
+The analysis was performed on a controlled combinatorial space of 20 transcription factors from the \citet{norman2019exploring} dataset.
+For each model, we generated a database of predicted expression profiles for all possible double-gene perturbations within this subset.
+We then used the ground truth mean expression profiles from experimentally observed double perturbations as queries, ranking the database entries by similarity to identify the most likely causal perturbation.
+
+
+
+We first evaluated the models on the highly stringent task of identifying the exact causal gene combination, quantified by the Correct (Exact Match) Hit Rate @ K.
+As shown in \cref{fig:app:hit_rate_exact}, all models achieve modest hit rates, underscoring the profound difficulty of this reverse-engineering challenge.
+However, a more practical measure of a model's utility is its ability to identify biologically influential genes.
+We assessed this using the Relevant (Gene Overlap) Hit Rate @ K, which credits a model for retrieving perturbations containing at least one of the correct genes (see \cref{fig:app:hit_rate_relevant} and \Cref{tab:hit_rate}).
+\Gls{raptorgraph}  demonstrates exceptional performance, consistently ranking among the top models.
+This highlights that while pinpointing exact higher-order interactions is an ongoing challenge, \gls{raptorgraph} is highly effective at identifying the key genetic players driving a cellular response, making it a valuable tool for hypothesis generation and experimental design.
+
+\begin{table}[H]
+\centering
+\csvreader[
+    separator=comma,
+    tabular= lccccc,
+    table head=\toprule $k$ & \gls{dvae} & SENA & GEARS & scGPT & \gls{raptorgraph} (ours)\\ \midrule,
+    late after line=\\,
+    table foot=\bottomrule
+]{results_files/hit_rate/hit_rate_at_k_summary_transposed.csv}{k=\k,SENA=\SENA,scGPT=\scGPT,dVAE=\dVAE,GEARS=\GEARS,RAPTORGraph=\RAPTORGraph}
+{\k & \dVAE & \SENA & \GEARS & \scGPT & \RAPTORGraph}
+\caption{
+    Hit Rate @ K (relevant) for the reverse perturbation task.
+    The metric measures the fraction of queries where at least one correct gene was identified in the top K predictions.
+    Higher values are better.
+    \textcolor{blue}{Values are mean $\pm$ variance over 3 runs.}
+}
+\label{tab:hit_rate}
+\end{table}
+
+\textcolor{blue}{\textbf{\gls{raptorgraph} learns biologically meaningful causal latent factors.} To confirm that \gls{raptorgraph} learns biologically meaningful structures rather than arbitrary representations, we examined the functional identity of the latent factors using Gene Set Enrichment Analysis (GSEA).
+We utilized an in-silico perturbation approach to generate transcriptional signatures for each latent factor and tested them against the MSigDB Hallmark collection \citep{liberzon_molecular_2015}.
+We observed a robust alignment between the known biological roles of perturbed genes and the pathway enrichments of their corresponding latent factors.
+For instance, the latent factor constrained to the stress-response transcription factor \textit{JUN} displayed strong negative enrichment for cell cycle signatures (``E2F Targets,'' FDR $< 0.001$), consistent with its role in stress-induced growth arrest.
+Similarly, the factor associated with the tumor suppressor \textit{TP73} showed significant negative enrichment for ``G2-M Checkpoint'' targets (FDR $< 0.03$).
+Furthermore, the factor linked to the differentiation regulator \textit{EGR1} exhibited massive downregulation of E2F targets (FDR $\approx 0.0$), consistent with the cell cycle exit necessary for differentiation.
+These results demonstrate that the model successfully disentangles complex transcriptomic profiles into interpretable, functionally coherent modules.
+A detailed description of the methodology is provided in~\cref{app:metrics:gsea_setup} and a comprehensive heatmap and analysis of pathway enrichments can be found in~\cref{app:extended_results:biological_validation}}
+
+
+% \subsection{Computational Complexity of Optimal Transport Preprocessing}
+% \label{subsec:complexity}
+% \textcolor{blue}{
+% On the \citet{norman2019exploring} dataset ($N=108,497$), we evaluated the computational cost of our \gls{ot} pairing strategy. 
+% This strategy mitigates the $O(N^3)$ complexity of global matching by solving independent sub-problems that map the control population ($N_{ctrl}=8,907$) to specific perturbation groups ($N_k$ in hundreds). 
+% This parallelized approach added only 34 seconds of overhead compared to random pairing (2m 18s vs. 1m 44s) on an Intel i9-9900K CPU. This represents just 2.2\% of the total training time for a standard 100-epoch experiment on an RTX 3090 GPU ($\approx 25.8$ min).
+% Given that \gls{ot} is essential for causal identifiability, this negligible cost offers a highly favorable trade-off.
+% }
+
+% \begin{figure}[!h]
+%     \centering
+%     \includegraphics[width=0.75\linewidth]{gfx/results/precision_at_10_comparison.png}
+%     \caption{Comparison of non-additive genetic interaction prediction.
+%     Precision@10 scores for \gls{raptorgraph} and four baseline models across five distinct genetic interaction subtypes on the Norman et al. dataset. 
+%     Higher scores indicate better performance.
+%     Error bars represent the standard deviation across three independent runs.}
+%     \label{fig:gi_scores}
+% \end{figure}
+
+% \begin{figure}[!h]
+%     \centering
+%     \includegraphics[width=0.75\linewidth]{gfx/results/precision_at_10_comparison.png}
+%     \caption{Enter Caption}
+%     \label{fig:enter-label}
+% \end{figure}
+
+%===============================================================================
+% SECTION: CONCLUSION
+%===============================================================================
+\input{sections/06_conclusion}
+%---------------------------------------------------------------------
+% Bibliography
+%---------------------------------------------------------------------
+\bibliography{raptor_references}
+\bibliographystyle{iclr2026_conference}
+
+\glsresetall
+\input{supplementary}
+
+\end{document}

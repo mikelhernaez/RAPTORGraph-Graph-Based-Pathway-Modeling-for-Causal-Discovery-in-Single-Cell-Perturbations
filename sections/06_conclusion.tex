@@ -1,0 +1,27 @@
+%===============================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+%===============================================================================
+
+Developing interpretable \emph{in silico} models is crucial for therapeutic discovery, yet current approaches face two key challenges: intervention spillover, where dense encoders create entangled latent signals that confound causal discovery, and mean collapse, where the absence of one-to-one cell pairings erodes cellular diversity. We introduce \gls{raptorgraph}, a framework that directly resolves these issues. To counteract intervention spillover, it combines a preconditioned GraphPathway layer, enforcing the sparse mappings required for clean single-node interventions, with a DAGMA layer for robust DAG discovery.
+\revised{This architectural design eliminates the artifactual entanglement of input genes with latent pathways, while the subsequent DAG module explicitly learns the legitimate biological causal relationships and correlations between the resulting sparse pathway activities.}
+To prevent mean collapse, \gls{raptorgraph} globally pairs control and perturbed populations through \gls{ot}.
+\gls{raptorgraph} not only achieves a superior balance between reconstruction fidelity and distributional accuracy compared to state of the arts, but also demonstrates a superior capability to predict complex, non-additive genetic interactions, and can reverse-engineer genetic drivers to generate testable hypotheses.
+\gls{raptorgraph} bridges predictive power and mechanistic insight, enabling not only the prediction of a perturbation's effect but also understanding the reasoning behind it.
+Future work will focus on deploying \gls{raptorgraph} for the hypothesis-driven discovery of novel drug targets and exploring its utility in uncovering cell-type specific pathway mechanisms.
+% Future work will focus on deploying \gls{raptorgraph} for the hypothesis-driven discovery of novel drug targets and exploring its utility in uncovering cell-type specific pathway mechanisms.
+
+% The development of predictive and causally-aware \textit{in silico} models is critical for advancing therapeutic discovery and our fundamental understanding of biology.
+% However, current approaches for predicting cellular responses face two key challenges.
+% First, many predictive models act as uninterpretable ``black boxes'', while \gls{crl} models that use dense encoders are forced to identify a discrete intervention target from an entangled latent signal, a task which introduces unnecessary complexity and leads to suboptimal solutions, which we term as \emph{intervention spillover}.
+% Second, learning from single-cell data is challenging due to the absence of a one-to-one mapping between control and perturbed cell populations, and random pairing strategies lead to \emph{mean collapse}, a phenomenon where the model learns an average response that erodes cellular diversity.
+
+% In this work, we introduced \gls{raptorgraph}, a framework designed to bridge this gap by directly addressing two critical issues.
+% First, we solve the \emph{intervention spillover} problem through a combination of preconditioned GraphPathway and DAG discovery based on the DAGMA layer.
+% Our novel GraphPathway layer addresses this by using preconditioning to enforce sparse gene-to-\cmp{} mappings, enabling the clean, single-node interventions required for valid causal inference.
+% Our DAGMA layer solves the problem where the order causal latent variables are fixed, which render simple acyclicity constraints, such as enforcing an upper-triangular adjacency
+% matrix, unsuitable.
+% Second, we address the \emph{mean collapse} problem by employing an \gls{ot}-based preprocessing step to globally pair the control samples with intervened samples.
+% Our empirical evaluation demonstrates the effectiveness of this approach. 
+% \Gls{raptorgraph} achieves a superior overall performance by providing a strong balance between reconstruction fidelity and distributional prediction accuracy.
+% Furthermore, it excels at predicting complex, non-additive genetic interactions and demonstrates a strong capacity for reverse-engineering the genetic drivers of a given cellular phenotype, highlighting its utility for generating testable hypotheses.

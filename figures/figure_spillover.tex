@@ -1,0 +1,48 @@
+% FILE: figures/figure_spillover.tex
+% This file contains the TikZ diagram for the Dense Encoder Problem.
+% It should be included in the main appendix using \input{...}
+
+\begin{tikzpicture}[
+    node distance=1cm and 1.5cm,
+    block/.style={rectangle, draw, minimum height=1cm, minimum width=1.5cm, text centered},
+    io/.style={text width=2cm, text centered},
+    group/.style={rectangle, draw, dashed, inner sep=0.5cm, rounded corners},
+    arrow/.style={-stealth, thick},
+    line/.style={thick}
+]
+    % --- Column 1: Reality ---
+    \node[group] (reality_group) {
+        \begin{tikzpicture}
+            \node[io] (x_in) {Single-Gene Intervention ($\evx_j$)};
+            \node[block, below=1cm of x_in] (f_theta) {$f_\theta(\cdot)$ \\ Dense Encoder};
+            \node[io, below=1cm of f_theta] (delta_z) {Dense Latent Change ($\Delta\rvz$)};
+            \draw[arrow] (x_in) -- (f_theta);
+            \draw[arrow] (f_theta) -- (delta_z);
+        \end{tikzpicture}
+    };
+    \node[above=0.2cm of reality_group] {Reality};
+
+    % --- Column 2: Ideal Goal ---
+    \node[group, right=2.5cm of reality_group] (ideal_group) {
+        \begin{tikzpicture}
+            \node[io] (c_in) {Condition Vector ($c_j$)};
+            \node[block, below=1cm of c_in] (g_phi) {$g_\phi(\cdot)$ \\ Conditional Net};
+            \node[io, below=1cm of g_phi, text width=2.5cm] (mc_out) {Single-Node Target \\ ($\vm \cdot c$)};
+            \node[io, left=0.2cm of mc_out, xshift=-0.5cm] (m_out) {Mask ($\vm$)};
+            \node[io, right=0.2cm of mc_out, xshift=0.5cm] (c_out) {Strength ($c$)};
+            \draw[arrow] (c_in) -- (g_phi);
+            \draw[arrow] (g_phi.south) -- ++(0,-0.5cm) -| (m_out.north);
+            \draw[arrow] (g_phi.south) -- ++(0,-0.5cm) -| (c_out.north);
+        \end{tikzpicture}
+    };
+    \node[above=0.2cm of ideal_group] {Ideal Goal};
+
+    % --- Contradiction Link ---
+    % Use the anchors of the inner nodes for precise arrow placement
+    \draw[<->, thick, red, dashed, shorten <=2pt, shorten >=2pt]
+        (delta_z.east) -- node[above, text=red, font=\small] {Contradiction!} (mc_out.west);
+
+\end{tikzpicture}
+
+\caption{The Dense Encoder Problem. A clean single-gene intervention is processed by the dense encoder $f_\theta$, resulting in a corrupted, dense latent change $\Delta\rvz$. A secondary network, $g_\phi$, must then attempt the difficult task of predicting a single-node target mask $\vm$ and a strength $c$ from a simple condition vector $c_j$, trying to reverse-engineer the spill-over effect.}
+\label{fig:spillover_diagram}

@@ -1,0 +1,20 @@
+\begin{abstract}
+Experiments involving perturbation of single cells are central to understanding cellular mechanisms and accelerating therapeutic discovery,  however the space of combinatorial perturbations is intractably large. 
+Causal representation learning has shown great promise for predicting unseen combination of perturbations, but existing methods often violate the theoretical requirements for identifiability guarantees.  
+We introduce \glsentryshort{raptorgraph}, an end-to-end VAE framework that addresses these issues through: i) a preconditioned \emph{GraphPathway} encoder that enforces intervention-guided mappings to \cmps{}, enabling clean single latent-node interventions needed for causal identifiability, and ii) optimal-transport alignment that aligns control and perturbed populations to stabilize conditional generation. 
+Empirical results on Perturb-seq datasets demonstrate that \glsentryshort{raptorgraph} improves the trade-off between reconstruction fidelity and distributional matching, and yields improved performance on predicting non-additive combinatorial effects. 
+Finally, we show that \glsentryshort{raptorgraph} recovers biologically meaningful latent programs and a causal graph over meta-pathways, providing an interpretable bridge between generative quality and mechanistic insight.
+\end{abstract}
+% \begin{abstract}
+%
+% Experiments involving the perturbation of individual cells are central to understanding cellular mechanisms and can accelerate drug discovery.
+% \Gls{crl} allows us to uncover the latent factors that regulate biological systems and predict the impact of novel perturbations.
+% Unfortunately, existing methods fail to address intervention spillover in a closed-world setting where intervention targets are known \apriori, such as in Perturb-seq experiments, due to their reliance on dense encoders.
+% Furthermore, incorporating curated biological pathways into the model imposes a confirmatory bias, forcing it to explain the data through preexisting pathways and reducing the set of hypotheses the model can explore, while discarding novel signals that lie outside the annotated pathways.
+% In this work, we introduce \glsentryshort{raptorgraph}, a \betavae{} with a GraphPathway encoder that explicitly models complex gene-to-gene interactions within learned pathways.
+% Moreover, our model's preconditioning isolates the influence of perturbed genes, yielding clean, single-node latent interventions required for identifiable causal discovery and eliminating spillover.
+% Finally, we train the model on data preprocessed with optimal-transport alignment, which guarantees a well-defined mapping between control and perturbed samples and further stabilizes the learned latent representations.
+% We demonstrate that \glsentryshort{raptorgraph} improves state-of-the-art performance on downstream analyses of unseen perturbations, such as non-additive interactions, while outperforming other approaches on objective metrics, such as \glsentryshort{mse} and \glsentryshort{mkmmd}.
+% The code will be made publicly available upon publication of this paper.
+%
+% \end{abstract}

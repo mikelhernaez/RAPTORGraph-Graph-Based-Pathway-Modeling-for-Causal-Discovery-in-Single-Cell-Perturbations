@@ -1,0 +1,163 @@
+\documentclass{article}
+\usepackage[a4paper, margin=1in]{geometry}
+
+% --- Custom Command Imports ---
+% Load all custom notation, operators, and theorem environments
+% from the dedicated commands file.
+\input{latex/packages}               % Loads all 
+\input{latex/custom_commands}
+
+% --- Theorem Environments ---
+% These are now expected to be defined in custom_commands.tex or one of its inputs.
+% If not, they can be re-defined here. For now, assuming they are loaded.
+% \newtheorem{theorem}{Theorem}
+% \newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+% \newtheorem{corollary}[theorem]{Corollary}
+% \newtheorem{definition}{Definition}
+
+\title{Theoretical Foundations in Causal Representation Learning}
+\author{A Synthesis of Key Papers}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This document synthesizes the key theoretical results from foundational papers in Causal Representation Learning (CRL). It provides a unified notation to compare and understand the identifiability guarantees for learning latent causal factors from high-dimensional observations, particularly under various forms of interventions. The focus is on formal theorems, lemmas, and their proof sketches.
+\end{abstract}
+
+\section{Unified Notation and Variable Definitions}
+
+\subsection{Primary Variables (Defined in Commands)}
+\begin{description}
+    \item[$\variables$ (\texttt{\textbackslash variables})] The observed high-dimensional data vector.
+    \item[$\latentvars$ (\texttt{\textbackslash latentvars})] The vector of latent variables in a generative model (e.g., VAE).
+    \item[$\latentcausalvars$ (\texttt{\textbackslash latentcausalvars})] The vector of true, latent causal variables, which are nodes in a causal graph $\graph$.
+    \item[$\noiseterms$ (\texttt{\textbackslash noiseterms})] Exogenous noise terms in a Structural Causal Model (SCM).
+    \item[$\graph$ (\texttt{\textbackslash graph})] A Directed Acyclic Graph (DAG) representing the causal structure.
+    \item[$\truemixingfunc$ (\texttt{\textbackslash truemixingfunc})] The true, unknown data-generating function that maps latent causal variables to observations ($\variables = \truemixingfunc(\latentcausalvars)$). Also known as the mixing function.
+    \item[$\decoder$ (\texttt{\textbackslash decoder})] The learned decoder network in a model (e.g., VAE) that attempts to approximate $\truemixingfunc$.
+    \item[$\idealencoder$ (\texttt{\textbackslash idealencoder})] The ideal, ground-truth encoder function that would perfectly recover the latents.
+    \item[$\practicalencoder$ (\texttt{\textbackslash practicalencoder})] The learned, parameterized encoder network of a model.
+    \item[$\interventionencoder$ (\texttt{\textbackslash interventionencoder})] The intervention encoder network, which maps an intervention target to its parameters.
+    \item[$\vect{i}$ (\texttt{\textbackslash vi})] A one-hot vector indicating the target of an intervention.
+    \item[$\maskvector$ (\texttt{\textbackslash maskvector})] The mask vector output by the intervention encoder.
+    \item[$\interventionstrength$ (\texttt{\textbackslash interventionstrength})] The scalar intervention strength output by the intervention encoder.
+    \item[$\latentdim$ (\texttt{\textbackslash latentdim})] The dimensionality of the latent space.
+    \item[$\numpathways$ (\texttt{\textbackslash numpathways})] The number of learned pathways, equivalent to $\latentdim$.
+\end{description}
+
+\subsection{Additional Variables Not Listed in Commands}
+\begin{description}
+    \item[$n$ (\texttt{\textbackslash observeddim})] The dimensionality of the observed space $\variables$.
+    \item[$p$ (\texttt{\textbackslash polydegree})] The degree of a polynomial mixing function.
+    \item[$\learnedrepresentation$ (\texttt{\textbackslash learnedrepresentation})] The learned representation, i.e., the output of the encoder, $\practicalencoder(\variables)$.
+    \item[$a$ (\texttt{\textbackslash composedfunc})] The composed function $\practicalencoder \circ \truemixingfunc$.
+    \item[$\affinetransform, \affineoffset$ (\texttt{\textbackslash affinetransform, \textbackslash affineoffset})] The matrix and vector defining an affine transformation.
+    \item[$\scalefactor, \shiftoffset$ (\texttt{\textbackslash scalefactor, \textbackslash shiftoffset})] The scalar and constant defining a shift-and-scale transformation.
+    \item[$\latentsupport, \observsupport$ (\texttt{\textbackslash latentsupport, \textbackslash observsupport})] The support (set of possible values) of the latent and observed distributions, respectively.
+    \item[$\interventionaldist$ (\texttt{\textbackslash interventionaldist})] The distribution of latents under an intervention.
+    \item[$\interventionset$ (\texttt{\textbackslash interventionset})] The set of intervened variables in environment $k$.
+    \item[$\auxvar$ (\texttt{\textbackslash auxvar})] An auxiliary conditioning variable, as used in Khemakhem et al. (2020).
+\end{description}
+
+\section{Foundational Theory: VAEs and Identifiability}
+
+\subsection{Khemakhem et al. (2020): Variational Autoencoders and Nonlinear ICA}
+This paper established a foundational link between VAEs and identifiability in nonlinear Independent Component Analysis (ICA). It proved that a VAE can recover the true latent sources if the decoder is conditioned on an auxiliary variable $\auxvar$ that is not available to the encoder.
+
+\begin{theorem}[Identifiability from Auxiliary Information, Thm. 1 in Khemakhem et al.]
+Let the data generation process be $\variables = \truemixingfunc(\latentvars)$, where the components of $\latentvars$ are independent, and $\truemixingfunc$ is an invertible function. Let the distribution of the sources $\condpdf{\latentvars}{\auxvar}$ depend on an observed auxiliary variable $\auxvar$, while the prior on $\auxvar$, $\pdf{\auxvar}$, is known. A VAE is trained to maximize the conditional evidence lower bound. If the model is sufficiently flexible to perfectly model the data distribution, then the encoder of the trained VAE, $\practicalencoder(\variables)$, will recover the true sources $\latentvars$ up to permutation and element-wise nonlinearities.
+\end{theorem}
+
+\begin{proof}[Proof Sketch]
+\begin{enumerate}
+    \item The core of the proof relies on the conditional independence structure of the VAE. The model assumes that the learned latents $\learnedrepresentation$ are conditionally independent given the auxiliary variable $\auxvar$.
+    \item At the optimum, the model distribution must match the true data distribution. This implies a relationship between the true sources $\latentvars$ and the learned representation $\learnedrepresentation$.
+    \item The proof, following Darmois (1953), shows that if two sets of random variables ($\latentvars$ and $\learnedrepresentation$) are related by an invertible transformation and both are conditionally independent given $\auxvar$, then the transformation must be such that the components of $\learnedrepresentation$ are element-wise functions of the components of $\latentvars$.
+    \item This enforces a structural constraint that prevents the model from learning a heavily mixed, unidentifiable representation, leading to recovery of the sources up to permutation and component-wise transformations.
+\end{enumerate}
+\end{proof}
+
+\section{Identifiability from Interventions}
+
+\subsection{Ahuja et al. (2023): Interventional Causal Representation Learning}
+This work provides identifiability guarantees when the true mixing function $\truemixingfunc$ is a polynomial and we have access to interventional data.
+
+\begin{lemma}[Polynomial Factorization, Lemma A.1 in Ahuja et al.]
+Let $\composedfunc: \mathbb{R}^{\latentdim} \to \mathbb{R}^{\latentdim}$ be a multivariate polynomial map. If there exist injective polynomials $\truemixingfunc, \decoder: \mathbb{R}^{\latentdim} \to \mathbb{R}^{\observeddim}$ of degree $\polydegree \geq 1$ such that $\decoder \circ \composedfunc = \truemixingfunc$, then the map $\composedfunc$ must be an affine transformation.
+$$
+\composedfunc(\latentvars) = \affinetransform\latentvars + \affineoffset
+$$
+where $\affinetransform \in \mathbb{R}^{\latentdim \times \latentdim}$ is invertible and $\affineoffset \in \mathbb{R}^{\latentdim}$.
+\end{lemma}
+\begin{proof}[Proof Sketch]
+The proof relies on properties of polynomial degrees. The degree of the composed polynomial $\decoder \circ \composedfunc$ is the product of the degrees of $\decoder$ and $\composedfunc$. Since this must equal the degree of $\truemixingfunc$ (which is the same as $\decoder$), the degree of $\composedfunc$ must be 1. A polynomial of degree 1 is an affine map.
+\end{proof}
+
+\begin{theorem}[Component-wise ID under a single hard do-intervention, Thm. 5.3]
+Let the true mixing function $\truemixingfunc$ and learned decoder $\decoder$ be injective polynomials of the same degree. If we have data from a hard do-intervention on a single latent $z_i$, then the learned component $\hat{z}_k$ corresponding to that intervention can identify $z_i$ up to shift and scaling.
+$$
+\hat{z}_k = \scalefactor z_i + \shiftoffset
+$$
+\end{theorem}
+\begin{proof}[Proof Sketch]
+The intervention imposes a constraint that one component of the learned representation, $\hat{z}_k$, is constant on the manifold of interventional data. Using the affine relationship from the Lemma ($\learnedrepresentation = \composedfunc(\latentvars) = \affinetransform\latentvars + \affineoffset$), this constraint forces all but one element in the $k$-th row of the matrix $\affinetransform$ to be zero, leading to the component-wise identification.
+\end{proof}
+
+\subsection{Brehmer et al. (2022): Weakly Supervised Causal Representation Learning}
+This paper proves identifiability when given data from different environments where the intervention targets are known, but the nature of the interventions is not (weak supervision).
+
+\begin{theorem}[Identifiability from Known Intervention Targets, Thm. 1 in Brehmer et al.]
+Assume a linear Structural Causal Model (SCM) on the latents $\latentvars$ and an invertible, nonlinear mixing function $\truemixingfunc$. If we have access to an observational environment and, for each latent variable $z_i$, an interventional environment where only $z_i$ is intervened upon (with an unknown intervention), then the latent variables $\latentvars$ are identifiable up to permutation and scaling.
+\end{theorem}
+\begin{proof}[Proof Sketch]
+The proof's intuition is that an intervention on a single variable $z_i$ breaks its causal dependency on its parents. This change in the dependency structure propagates through the nonlinear mixing function $\truemixingfunc$ and leaves a unique signature in the observed data distribution. By comparing the distributions across different interventional environments, the model can isolate the effect of each latent variable, allowing for their disentanglement. The key is that each intervention uniquely "highlights" one latent factor.
+\end{proof}
+
+\subsection{Squires et al. (2023): Causal Disentanglement for OOD Generalization}
+This work tackles the problem of learning from unknown interventions by assuming that changes across environments are sparse.
+
+\begin{theorem}[Identifiability from Sparse Unknown Interventions, Thm. 1 in Squires et al.]
+Consider a linear SCM on the latents $\latentvars$ and an invertible linear mixing function $\truemixingfunc$. Suppose we have data from multiple environments, where each environment corresponds to a soft intervention on a small, unknown subset of the latent variables. If the interventions are sufficiently diverse and sparse, the latent causal model (graph and variables) is identifiable up to permutation, scaling, and a special kind of ambiguity for certain unobserved graph structures.
+\end{theorem}
+\begin{proof}[Proof Sketch]
+The method works by analyzing the differences in the covariance matrices of the observed data across environments. A sparse intervention on the latents creates a low-rank change in the latent covariance matrix. This low-rank structure is preserved by the linear mixing function. By finding a common basis that sparsifies these low-rank difference matrices, the algorithm can recover the mixing function and thus disentangle the latent variables.
+\end{proof}
+
+\subsection{Varici et al. (2023): Learning Linear Causal Representations from General Environments}
+This paper generalizes previous work by allowing multiple unknown interventions to occur simultaneously in each environment.
+
+\begin{theorem}[Identifiability from Multi-Node Interventions, Thm. 1 in Varici et al.]
+For a linear SCM and an invertible linear mixing function $\truemixingfunc$, if the set of multi-node interventions across environments is sufficiently diverse (specifically, it satisfies a "covering" condition, meaning for any pair of latents, there's an environment where one is intervened on but the other is not), then the latent variables $\latentvars$ are identifiable up to permutation and scaling.
+\end{theorem}
+\begin{proof}[Proof Sketch]
+This proof also operates on the covariance matrices of the observed data. Even with multiple interventions, the change in the latent covariance matrix has a specific structure related to the intervention targets. The "covering" assumption ensures that the set of these changes across all environments is rich enough to uniquely determine the columns of the inverse mixing matrix up to permutation and scaling, which is equivalent to identifying the latents.
+\end{proof}
+
+\subsection{Zhang et al. (2024): Identifiability Guarantees for Causal Disentanglement from Soft Interventions}
+This work provides identifiability guarantees for soft interventions in a nonlinear setting, assuming a VAE-based model.
+
+\begin{theorem}[Identifiability from Soft Interventions, Thm. 4.1 in Zhang et al.]
+Assume a nonlinear SCM with additive noise and an invertible mixing function $\truemixingfunc$. Given observational data and interventional data from soft interventions that modify the noise distributions, the latent causal model is identifiable up to permutation, scaling, and shift, provided a condition called Linear Interventional Faithfulness holds.
+\end{theorem}
+\begin{proof}[Proof Sketch]
+The proof leverages the VAE framework. The key insight is that a soft intervention on the noise term of a latent $z_i$ induces a specific, structured change in the distribution of the observed data $\variables$. The "Linear Interventional Faithfulness" assumption ensures that these changes are non-degenerate. By training a conditional VAE where the decoder is conditioned on the intervention, the model learns to map each intervention to a change in the latent space. The structure of these learned changes allows the model to disentangle the causal factors.
+\end{proof}
+
+\section{Key Applications in Single-Cell Genomics}
+
+\subsection{Tejada-Lapuerta et al. (2023): Causal Machine Learning for Single-Cell Genomics}
+This work introduces \textit{Celcomen}, a generative graph neural network grounded in causality to model gene regulation in spatial transcriptomics data.
+
+\begin{theorem}[Identifiability of the Causal Graph, Thm. 1 in Tejada-Lapuerta et al.]
+Under assumptions of acyclicity, faithfulness, and sufficient heterogeneity in the data, the model is causally identifiable. This means the learned intra-cellular causal graph (gene interactions within a cell) and the inter-cellular causal graph (interactions between neighboring cells) are unique up to the permutation of nodes that share identical parent sets.
+\end{theorem}
+
+\subsection{Grønbech et al. (2020): Interpretable factor models of single-cell rna-seq via variational autoencoders}
+This paper demonstrates a practical application of VAEs to disentangle interpretable biological factors from single-cell RNA-seq data without explicit causal guarantees. It serves as a practical counterpart to the more theoretical papers. The model, scVI (single-cell Variational Inference), learns a latent representation of cells that can be used to correct for batch effects and identify cell types. While it does not prove causal identifiability, it shows that the VAE framework is highly effective at learning meaningful, disentangled representations in a real-world scientific domain.
+
+\end{document}
+

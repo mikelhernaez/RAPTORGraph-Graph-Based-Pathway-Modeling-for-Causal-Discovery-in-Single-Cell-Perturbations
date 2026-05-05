@@ -1,0 +1,47 @@
+%===============================================================================
+\section{Training Configurations and Analysis Setup}
+\label{app:training_configs}
+%===============================================================================
+
+\subsection{Model Architectures and Training Hyperparameters}
+To establish a fair and reproducible benchmark, we standardized key architectural and training hyperparameters for all models, primarily based on the default configurations provided in their respective publications and source code. This approach ensures that performance differences can be attributed to the models' core methodologies rather than variations in setup. Table \ref{tab:model_architectures} details the specific architectural parameters, such as latent dimension size and the number of transformer layers, while Table \ref{tab:training_hyperparameters} outlines the training parameters used for each model, including optimizer, learning rate, and batch size. Notably, gradient clipping was employed exclusively for the scGPT model, as this is a standard and necessary technique to ensure numerical stability during the training of large transformer-based architectures.
+
+\revised{For a complete list of hyperparameters and reproducibility instructions, please refer to the `configs/` directory in our code repository and the accompanying `README.md`.}
+
+% Table S1
+\begin{table}[ht]
+\centering
+\caption{Detailed Model Architectures}
+\label{tab:model_architectures}
+\begin{tabular}{lcccc}
+\hline
+\textbf{Hyperparameter} & \textbf{dVAE} & \textbf{SENA} & \textbf{scGPT} & \textbf{RAPTORGraph} \\
+\hline
+Latent Dimension ($z_{dim}$) & 105 & 105 & N/A & \revised{109} \\
+Embedding Size ($embsize$) & N/A & N/A & 512 & \revised{N/A} \\
+Transformer Layers ($nlayers$) & N/A & N/A & 12 & \revised{N/A} \\
+Attention Heads ($nheads$) & N/A & N/A & 8 & \revised{N/A} \\
+Feed-Forward Dimension ($d_{hid}$) & N/A & N/A & 512 & \revised{904} \\
+Hidden Layers (Encoder) & 1 (128 units) & 1 (128 units) & N/A & \revised{N/A} \\
+Activation Functions & LeakyReLU & LeakyReLU & GELU & \revised{SiLU} \\
+\hline
+\end{tabular}
+\end{table}
+
+% Table S2
+\begin{table}[ht]
+\centering
+\caption{Detailed Training Hyperparameters}
+\label{tab:training_hyperparameters}
+\begin{tabular}{lcccc}
+\hline
+\textbf{Hyperparameter} & \textbf{dVAE} & \textbf{SENA} & \textbf{scGPT} & \textbf{RAPTORGraph} \\
+\hline
+Optimizer & Adam & Adam & AdamW & \revised{AdamW} \\
+Learning Rate & $1\times10^{-3}$ & $1\times10^{-3}$ & $1\times10^{-4}$ & \revised{$1\times10^{-4}$} \\
+Training Batch Size & 32 & 32 & 16 & \revised{256} \\
+Evaluation Batch Size & 32 & 32 & 32 & \revised{256} \\
+Epochs & 100 & 100 & 30 & \revised{100} \\
+\hline
+\end{tabular}
+\end{table}

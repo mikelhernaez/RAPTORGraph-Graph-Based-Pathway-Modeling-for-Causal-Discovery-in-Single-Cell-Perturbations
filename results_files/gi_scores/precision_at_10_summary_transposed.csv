@@ -1,0 +1,6 @@
+,type,dvae,sena,gears,scGPT,raptor
+1,Synergy,0.000 $\pm$ 0.000,0.233 $\pm$ 0.153,\textit{0.333 $\pm$ 0.115},0.100 $\pm$ 0.000,\textbf{0.367 $\pm$ 0.058}
+2,Suppression,0.000 $\pm$ 0.000,0.167 $\pm$ 0.115,\textit{0.333 $\pm$ 0.115},\textbf{0.400 $\pm$ 0.000},0.267 $\pm$ 0.153
+3,Neomorphism,\textit{0.333 $\pm$ 0.153},\textit{0.333 $\pm$ 0.115},0.133 $\pm$ 0.058,0.100 $\pm$ 0.000,\textbf{0.433 $\pm$ 0.058}
+4,Redundancy,\textbf{0.933 $\pm$ 0.115},0.467 $\pm$ 0.058,0.567 $\pm$ 0.115,0.100 $\pm$ 0.000,\textit{0.800 $\pm$ 0.100}
+5,Epistasis,\textit{0.567 $\pm$ 0.153},\textbf{0.800 $\pm$ 0.100},0.533 $\pm$ 0.115,0.400 $\pm$ 0.000,0.433 $\pm$ 0.115

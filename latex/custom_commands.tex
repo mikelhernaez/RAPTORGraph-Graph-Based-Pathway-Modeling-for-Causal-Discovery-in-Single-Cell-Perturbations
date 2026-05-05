@@ -1,0 +1,210 @@
+% ==============================================================
+%  Custom Commands – Global LaTeX configuration
+%  --------------------------------------------------------------
+%  This file is loaded **after** `latex/packages.tex` (which
+%  supplies all required \usepackage statements) and **before**
+%  any manuscript section files are \input.
+%  It aggregates:
+%    • the unmodified ICLR math-macro file (math_commands.tex)
+%    • theorem / proof environment definitions
+%    • cleveref name customisations
+%    • acronym/glossary definitions
+%    • project-specific mathematical shortcuts
+% ==============================================================
+
+% -------------------------------------------------
+% Load the original ICLR math macro file
+% -------------------------------------------------
+\input{math_commands}
+
+% -------------------------------------------------
+% Load theorem/proof environment definitions
+% -------------------------------------------------
+\input{latex/theorem_envs}
+
+% -------------------------------------------------
+% Load cleveref name customisations
+% -------------------------------------------------
+\input{latex/cref_names}
+
+% -------------------------------------------------
+% 4. Load acronym definitions (glossaries)
+% -------------------------------------------------
+\input{latex/acronyms}
+
+% -------------------------------------------------
+% Project-specific math shortcuts (vectors, operators, etc.)
+% -------------------------------------------------
+% --- Vector- and matrix-notation -------------------------------------------------
+
+\newcommand{\vect}[1]{\mathbf{\MakeLowercase{#1}}}
+\newcommand{\mat}[1]{\mathbf{\MakeUppercase{#1}}}
+\newcommand{\hadamard}[1]{#1 \circ #1}
+
+% -- General Variables & Matrices --
+\newcommand{\realnumbers}{\mathbb{R}}
+\newcommand{\variables}{\rvx}
+\newcommand{\latentvars}{\rvz}
+\newcommand{\noiseterms}{\rve}
+\newcommand{\adjacencymatrix}{\mB}
+\newcommand{\weightmatrix}{\mW}
+\newcommand{\identitymatrix}{\mI}
+\newcommand{\datamatrix}{\mX}
+\newcommand{\interactionmatrix}{\mW_{\text{int}}}
+
+% -- Graph-related --
+\newcommand{\graph}{\gG}
+
+% -- SCM / Causal Variables --
+\newcommand{\latentcausalvars}{\rvu}
+\newcommand{\latentcausalvar}{\ervu}
+\newcommand{\exonoise}{\rvz}
+\newcommand{\graphmatrix}{\mA}
+\newcommand{\structuralfunc}{f}
+
+% -- DAG Operators --
+\DeclareMathOperator{\parentnodes}{Pa_{\graph}}
+\DeclareMathOperator{\tr}{Tr}
+\newcommand{\transitiveclosure}[1]{\bar{#1}}
+
+% -- Dimensionality --
+\newcommand{\observeddim}{n}
+\newcommand{\latentdim}{d}
+\newcommand{\numpathways}{\latentdim}
+\newcommand{\numgenes}{\observeddim}
+\newcommand{\numperturbedgenes}{k}
+% \newcommand{\numparallellayers}{M}
+\newcommand{\numgraphs}{m}
+
+% -- Identifiability and Equivalence Classes --
+\newcommand{\simT}{\sim_T}
+\newcommand{\simC}{\sim_C}
+
+% -- Specific Latent Variables & Model Functions --
+\newcommand{\idealencoder}{f^*}
+\newcommand{\practicalencoder}{f_\theta}
+\newcommand{\latentideal}{\tilde{\rvz}}
+\newcommand{\latentchangeideal}{\Delta\tilde{\rvz}}
+\newcommand{\causallatentchangeideal}{\Delta\tilde{\rvu}}
+\newcommand{\latentchangeapprox}{\Delta\rvz}
+\newcommand{\causallatentchangeapprox}{\Delta\rvu}
+\newcommand{\maskvector}{\vm}
+\newcommand{\interventionstrength}{c}
+\newcommand{\conditionvector}{\vc}
+\newcommand{\zobs}{\latentvars_{\text{obs}}}
+\newcommand{\zint}{\latentvars_{\text{int}}}
+\newcommand{\pathwayactivation}{\vect{s}}
+\newcommand{\activationfunc}{\rho}
+\newcommand{\gumbeltemp}{\tau}
+
+% --- Intervention Encoder Model ---
+%\newcommand{\conditionalnet}{g_\phi}
+\newcommand{\interventionencoder}{q_{\text{int}}}
+%\newcommand{\interventionencoder}{\phi}
+
+% -- Loss Functions and Operators --
+\newcommand{\mseloss}{\mathcal{L}_{\text{MSE}}}
+\newcommand{\kldloss}{\mathcal{L}_{\text{KL}}}
+\newcommand{\mmdloss}{\mathcal{L}_{\text{MMD}}}
+\newcommand{\dagmaloss}{\mathcal{L}_{\text{DAGMA}}}
+\newcommand{\totalloss}{\mathcal{L}_{\text{total}}}
+\newcommand{\acyclicityfunc}{h}
+\newcommand{\scorefunc}{S}
+
+% -- Hyperparameters --
+% Note: Use standard LaTeX commands \mu and \alpha for these
+\newcommand{\scorelambda}{\lambda_{\text{score}}}
+\newcommand{\alpharec}{\alpha_{\text{rec}}}
+\newcommand{\betakl}{\beta_{\text{KL}}}
+\newcommand{\gammammd}{\gamma_{\text{MMD}}}
+\newcommand{\deltadagma}{\delta_{\text{DAGMA}}}
+
+
+% --- MMD Hyperparameters ---
+\newcommand{\mmdsigma}{\sigma}
+\newcommand{\mmdsigmaMMD}{\sigma_{\text{MMD}}}
+\newcommand{\mkmmdweights}{\beta}
+\newcommand{\numkernels}{L}
+\newcommand{\numsamplesobs}{i} % Changed
+\newcommand{\numsamplespred}{j} % Changed
+
+
+% -- Other Functions and Models --
+\newcommand{\truemixingfunc}{g^*}
+\newcommand{\decoder}{g}
+\newcommand{\normaldist}{\gN}
+\newcommand{\betavae}{$\beta$-VAE}
+
+
+% --- Additional Variables from Synthesis ---
+\newcommand{\polydegree}{p}
+\newcommand{\learnedrepresentation}{\hat{\latentvars}}
+\newcommand{\predictedvariable}{\hat{\variables}}
+\newcommand{\predicteddatamatrix}{\hat{\mX}}
+\newcommand{\composedfunc}{a}
+\newcommand{\affinetransform}{\mat{A}}
+\newcommand{\affineoffset}{\vect{c}}
+\newcommand{\scalefactor}{e}
+\newcommand{\shiftoffset}{b}
+\newcommand{\latentsupport}{\mathcal{Z}}
+\newcommand{\observsupport}{\mathcal{X}}
+\newcommand{\interventionaldist}{P_Z^{(i)}}
+\newcommand{\interventionset}{I_k}
+\newcommand{\interventiontargets}{\vt_i}
+\newcommand{\auxvar}{\vu}
+
+% --- Downstream Analysis Metrics ---
+\newcommand{\effectvector}{\Delta}
+\newcommand{\ltwonorm}[1]{\left\lVert #1 \right\rVert_2}
+\newcommand{\cossim}[2]{\cos\left(#1, #2\right)}
+\newcommand{\meanexpression}{\bar{\variables}}
+\newcommand{\numcells}{N}
+\newcommand{\predictionfunc}{f}
+\newcommand{\effectvectornaive}{\effectvector(A+B)_{\text{naive}}}
+\newcommand{\synergyscore}{\text{Synergy Ratio}}
+\newcommand{\neomorphismscore}{\text{Neomorphism Score}}
+\newcommand{\redundancyscore}{\text{Redundancy Score}}
+\newcommand{\epistasiscore}{\text{Epistasis Score}}
+
+
+% --- PROBABILITY OPERATORS (PMF/GENERAL) ---
+\newcommand{\prob}[1]{\operatorname{P}\left(#1\right)}
+\newcommand{\condprob}[2]{\operatorname{P}\left(#1 \mid #2\right)}
+
+% --- PROBABILITY DENSITY OPERATORS (PDF) ---
+\newcommand{\pdf}[1]{\operatorname{p}\left(#1\right)}
+\newcommand{\condpdf}[2]{\operatorname{p}\left(#1 \mid #2\right)}
+
+% --- CUMULATIVE DISTRIBUTION OPERATORS (CDF) ---
+\newcommand{\cdf}[1]{\operatorname{F}\left(#1\right)}
+\newcommand{\condcdf}[2]{\operatorname{F}\left(#1 \mid #2\right)}
+
+% --- STATISTICAL OPERATORS ---
+% \DeclareMathOperator{\E}{\mathbb{E}}
+
+% --- DISTRIBUTION METRIC OPERATORS ---
+\newcommand{\kernel}{k}
+\newcommand{\mmd}{\operatorname{MMD}}
+\newcommand{\mkmmd}{\mmd}
+
+% --- CSV LOADING AND STYLING
+\newcommand{\makerow}[2]{%
+  \pgfplotstableread[col sep=comma]{#1}\loadedtable
+  #2 &
+  \pgfplotstablegetelem{0}{synergy}\of{\loadedtable}\pgfplotsretval $\pm$ \pgfplotstablegetelem{1}{synergy}\of{\loadedtable}\pgfplotsretval &
+  \pgfplotstablegetelem{0}{suppression}\of{\loadedtable}\pgfplotsretval $\pm$ \pgfplotstablegetelem{1}{suppression}\of{\loadedtable}\pgfplotsretval &
+  \pgfplotstablegetelem{0}{neomorphism}\of{\loadedtable}\pgfplotsretval $\pm$ \pgfplotstablegetelem{1}{neomorphism}\of{\loadedtable}\pgfplotsretval &
+  \pgfplotstablegetelem{0}{redundancy}\of{\loadedtable}\pgfplotsretval $\pm$ \pgfplotstablegetelem{1}{redundancy}\of{\loadedtable}\pgfplotsretval &
+  \pgfplotstablegetelem{0}{epistasis}\of{\loadedtable}\pgfplotsretval $\pm$ \pgfplotstablegetelem{1}{epistasis}\of{\loadedtable}\pgfplotsretval \\
+}
+
+% --- Revision Highlight Macro ---
+% Switch to simple #1 to disable coloring
+\newcommand{\revised}[1]{\textcolor{black}{#1}}
+
+% --- Divergence Operators ---
+\newcommand{\kl}[2]{\KL(#1 \parallel #2)}
+
+% --- Project Terminology ---
+\newcommand{\cmp}{causal meta-pathway}
+\newcommand{\cmps}{causal meta-pathways}

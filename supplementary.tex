@@ -1,0 +1,52 @@
+\newpage
+\appendix
+\setcounter{equation}{0}
+\renewcommand{\theequation}{S\arabic{equation}}
+\renewcommand{\theHequation}{S\arabic{equation}}
+\glsresetall
+
+\clearpage
+
+%===============================================================================
+% 			PREFIX ALL APPENDIX FIGURES/TABLES WITH 'S'
+%===============================================================================
+\renewcommand{\thefigure}{S\arabic{figure}}
+\renewcommand{\thetable}{S\arabic{table}}
+%===============================================================================
+
+%-------------------------------------------------------------------------------
+% I. DEFINITIONS AND BACKGROUND
+%-------------------------------------------------------------------------------
+\input{supplementaries/A_nomenclature}
+\clearpage
+\input{supplementaries/B_theory}
+
+%-------------------------------------------------------------------------------
+% II. MODEL DETAILS
+%-------------------------------------------------------------------------------
+\clearpage
+\input{supplementaries/D_model_arch}
+\clearpage
+\input{supplementaries/E_training_configs}
+
+%-------------------------------------------------------------------------------
+% III. EXPERIMENTAL METHODOLOGY
+%-------------------------------------------------------------------------------
+\clearpage
+\input{supplementaries/G_ot_details}
+\clearpage
+\input{supplementaries/H_data_details}
+\clearpage
+\input{supplementaries/C_metrics_losses}
+
+%-------------------------------------------------------------------------------
+% IV. RESULTS AND VALIDATION
+%-------------------------------------------------------------------------------
+\clearpage
+\input{supplementaries/F_extended_results}
+
+%-------------------------------------------------------------------------------
+% V. ADMINISTRATIVE
+%-------------------------------------------------------------------------------
+\clearpage
+\input{supplementaries/I_llm_disclosure}

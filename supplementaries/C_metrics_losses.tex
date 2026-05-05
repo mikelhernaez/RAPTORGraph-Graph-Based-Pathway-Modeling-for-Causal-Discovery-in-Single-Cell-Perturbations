@@ -1,0 +1,313 @@
+%===============================================================================
+% APPENDIX: EVALUATION METRICS AND LOSS FUNCTIONS
+%===============================================================================
+\section{Evaluation Metrics and Loss Functions}
+\label{app:metrics}
+%===============================================================================
+
+In this section, we provide detailed definitions for the key metrics used to quantitatively assess model performance.
+To ensure a comprehensive evaluation, we employed a suite of metrics targeting different aspects of model capability.
+We used the \gls{mse} for evaluating the reconstruction of basal cell states, the \gls{mmd} for evaluating the accuracy of out-of-distribution predictions for perturbed states, and a set of non-additive interaction scores to assess the model's ability to capture complex biological phenomena.
+The calculation of these metrics was standardized across all benchmarked tools.
+
+%-------------------------------------------------------------------------------
+% Subsection: Mean Squared Error (MSE)
+%-------------------------------------------------------------------------------
+\subsection{Mean Squared Error}
+\label{app:metrics:mse}
+%-------------------------------------------------------------------------------
+
+The \gls{mse} was used to measure each model's ability to faithfully reconstruct the gene expression profile of control (unperturbed) cells, with a lower \gls{mse} indicating better performance.
+To ensure an unbiased evaluation, the set of control cells was randomly split into two non-overlapping halves: an input set and a ground truth set.
+The evaluation proceeded in a batch-wise manner, where a batch of cells from the input set was fed to the model to generate reconstructions.
+The \gls{mse} was then calculated between these reconstructed cells and a corresponding batch from the ground truth set.
+The final reported \gls{mse} is the mean of the scores from all batches.
+For a single batch of $\numsamplesobs$ cells with $\numgenes$ genes, the \gls{mse} is calculated as:
+\begin{equation}
+    \mseloss = \frac{1}{\numsamplesobs \cdot \numgenes} \sum_{i=1}^{\numsamplesobs} \sum_{j=1}^{\numgenes} (\variables_{ij} - \predictedvariable_{ij})^2
+    \label{eq:app:mse}
+\end{equation}
+where $\variables_{ij}$ is the expression level of the $j$\-th gene in the $i$\-th true control cell, and $\predictedvariable_{ij}$ is the expression level of the $j$\-th gene in the $i$\-th reconstructed control cell.
+
+%-------------------------------------------------------------------------------
+% Subsection: Maximum Mean Discrepancy (MMD)
+%-------------------------------------------------------------------------------
+\subsection{Maximum Mean Discrepancy}
+\label{app:metrics:mmd}
+%-------------------------------------------------------------------------------
+
+The \gls{mmd}~\citep{gretton2012kernel} is a metric used to measure the distance between two probability distributions based on the distance between their mean embeddings in a \gls{rkhs}.
+It was used to measure the dissimilarity between the distribution of model-predicted gene expression profiles and the distribution of true, experimentally observed profiles for a given perturbation.
+
+\subsubsection{The Kernel Function}
+\label{app:metrics:mmd:kernel}
+
+The \gls{mmd} relies on a kernel function, $\kernel(\cdot, \cdot)$, which is a symmetric, positive definite function that computes a notion of similarity between two samples.
+A common choice for the kernel, and the one used in our work, is the Gaussian \gls{grbf} kernel:
+\begin{equation}
+    \kernel(\variables, \vy) = \exp\left(-\frac{\|\variables - \vy\|^2}{2\mmdsigmaMMD^2}\right)
+    \label{eq:app:kernel_rbf}
+\end{equation}
+where $\mmdsigmaMMD$ is the bandwidth hyperparameter.
+
+%-------------------------------------------------------------------------------
+\subsubsection{Formal Definitions of MMD}
+\label{app:metrics:mmd:definitions}
+%-------------------------------------------------------------------------------
+
+The squared \gls{mmd} between the true data distribution $\pdata$ and the model's learned distribution $\pmodel$ is defined in its population form as:
+\begin{align}
+    \mmd^2(\pdata, \pmodel) &= \E_{\variables, \variables' \sim \pdata} \bigl[ \kernel(\variables, \variables') \bigr] \notag \\
+    &\quad - 2 \E_{\variables \sim \pdata, \predictedvariable \sim \pmodel} \bigl[ \kernel(\variables, \predictedvariable) \bigr] \notag \\
+    &\quad + \E_{\predictedvariable, \predictedvariable' \sim \pmodel} \bigl[ \kernel(\predictedvariable, \predictedvariable') \bigr]
+    \label{eq:app:mmd_population}
+\end{align}
+In practice, we use batches of data and compute the unbiased empirical estimator.
+Given a batch of $\numsamplesobs$ true samples $\{\variables_i\}_{i=1}^\numsamplesobs \sim \pdata$ from matrix $\datamatrix$ and a batch of $\numsamplespred$ predicted samples $\{\predictedvariable_j\}_{j=1}^\numsamplespred \sim \pmodel$ from matrix $\predicteddatamatrix$, the estimator is:
+\begin{align}
+    \mmd_u^2(\datamatrix, \predicteddatamatrix) &= \frac{1}{\numsamplesobs(\numsamplesobs-1)} \sum_{i \ne j}^{\numsamplesobs} \kernel(\variables_i, \variables_j) \notag \\
+    &\quad + \frac{1}{\numsamplespred(\numsamplespred-1)} \sum_{i \ne j}^{\numsamplespred} \kernel(\predictedvariable_i, \predictedvariable_j) \notag \\
+    &\quad - \frac{2}{\numsamplesobs\numsamplespred} \sum_{i=1}^{\numsamplesobs} \sum_{j=1}^{\numsamplespred} \kernel(\variables_i, \predictedvariable_j)
+    \label{eq:app:mmd_empirical}
+\end{align}
+
+%-------------------------------------------------------------------------------
+\subsubsection{Multi-Kernel Implementation}
+\label{app:metrics:mmd:multi_kernel}
+%-------------------------------------------------------------------------------
+
+\gls{mmd}~\citep{ren2010multiple,zhu2017maximum} extends the standard \gls{mmd} by using a convex combination of $\numkernels$ different kernels~\citep{gretton2012kernel}.
+The squared \gls{mmd} is defined as a weighted sum of individual squared \glspl{mmd}:
+\begin{equation}
+    \mkmmd^2(\pdata, \pmodel) = \sum_{l=1}^{\numkernels} \mkmmdweights_l \cdot \mmd^2_{\kernel_l}(\pdata, \pmodel)
+    \label{eq:app:mkmmd}
+\end{equation}
+where $\mkmmdweights_l \ge 0$ are the weights assigned to each kernel.
+
+\subsubsection{Rationale for Using MMD}
+\label{app:metrics:mmd:rationale}
+
+The choice of \gls{mmd} over \gls{mse} for evaluating interventional predictions is motivated by two key factors.
+First, \gls{mmd} captures holistic distributional shifts, including changes in variance, skewness, and modality, whereas \gls{mse} is only sensitive to the mean.
+This is critical for modeling the heterogeneous biological response to a perturbation.
+Second, state-of-the-art \gls{crl} models for interventional data often do not produce one-to-one pairings between predicted and ground-truth samples, making \gls{mse} computation impossible.
+\gls{mmd} is a two-sample test that compares two sets of samples directly, which aligns perfectly with this setting.
+
+%-------------------------------------------------------------------------------
+\subsubsection{Hyperparameter Selection for MMD}
+\label{app:metrics:mmd:hyperparameters}
+%-------------------------------------------------------------------------------
+
+The performance of the \gls{mmd} test is highly sensitive to the kernel bandwidth, $\mmdsigmaMMD$.
+To establish a fair and consistent benchmark across all models, it was necessary to standardize this parameter.
+We noted that different models, such as Discrepancy\gls{vae} and SENA~\citep{de2025interpretable}, use different default values.
+The implementations often define a $\text{fix\_sigma}$ parameter, which relates to the standard kernel variance by $\text{fix\_sigma} = 2\mmdsigmaMMD^2$.
+To standardize, we aligned with the value used in SENA.
+Our benchmark, therefore, uses a \gls{mmd} implementation with a base $\text{fix\_sigma}$ set to 200.0 for all evaluations, which corresponds to a variance $\mmdsigmaMMD^2$ of 100.0.
+This approach generates a series of kernels with varying bandwidths derived from this base value, ensuring the metric's scale and sensitivity were consistent and robust.
+
+%-------------------------------------------------------------------------------
+% Subsection: Kullback-Leibler (KL) Divergence
+%-------------------------------------------------------------------------------
+\subsection{KL Divergence}
+\label{app:metrics:kld}
+%-------------------------------------------------------------------------------
+
+The Kullback-Leibler (KL) divergence term is a standard component of the \gls{vae} framework used to regularize the learned latent space.
+It measures the information lost when the learned posterior distribution, $q(\latentvars|\variables)$, is used to approximate a predefined prior distribution, $p(\latentvars)$.
+In our model, we assume a standard multivariate normal prior, $p(\latentvars) = \normaldist(\vect{0}, \identitymatrix)$.
+The KL divergence term, $\kldloss$, encourages the encoder to produce latent representations that are both smooth and well-structured, preventing the model from assigning each input sample to a single, isolated point in the latent space (a form of overfitting).
+The term is calculated as:
+\begin{equation}
+    \kldloss = \kl{q(\latentvars|\variables)}{p(\latentvars)} = -\frac{1}{2} \sum_{j=1}^{\latentdim} \left( 1 + \log(\sigma_j^2) - \mu_j^2 - \sigma_j^2 \right)
+    \label{eq:app:kld}
+\end{equation}
+where $\mu_j$ and $\sigma_j$ are the mean and standard deviation produced by the encoder for the $j$-th latent pathway.
+
+%-------------------------------------------------------------------------------
+\subsection{Causal Graph Loss}
+\label{app:metrics:dagma}
+%-------------------------------------------------------------------------------
+
+The causal graph structure between learned meta-pathways is identified by optimizing the DAGMA-based objective function~\citep{bello2022dagma}.
+The loss function, $\dagmaloss$, is computed on the latent representations of observational data to learn the invariant causal rules of the biological system.
+The objective integrates three key components: a data-fit score that measures how well the graph explains the observed dependencies, an L1 penalty to encourage structural sparsity, and a differentiable acyclicity constraint to ensure the resulting graph is a \gls{dag}.
+The full causal graph loss is defined as:
+\begin{equation}
+    \dagmaloss = \mu \left( \scorefunc(\graphmatrix; \datamatrix) + \lambda_1 \|\graphmatrix\|_1 \right) + \acyclicityfunc(\graphmatrix)
+    \label{eq:app:dagma_loss_full}
+\end{equation}
+where $\scorefunc(\graphmatrix; \datamatrix)$ is the data-fit score (typically the \gls{mse} of linear structural assignments in the latent space), $\|\graphmatrix\|_1$ is the L1 norm of the adjacency matrix $\graphmatrix$ controlled by sparsity hyperparameter $\lambda_1$, and $\acyclicityfunc(\graphmatrix)$ is the log-determinant acyclicity penalty.
+The hyperparameter $\mu$ controls the trade-off between the data-fit score and the acyclicity constraint, following a path-following schedule during training as detailed in \cref{app:dagma:optimization}.
+
+%===============================================================================
+% \subsection{\revised{Benchmarking on Replogle2020 Dataset}}
+% \label{app:metrics:replogle_benchmark}
+%===============================================================================
+
+% \revised{First, we measured the \gls{mse} between the ground truth and predicted profiles of control cells to evaluate how well each model reconstructs the basal, unperturbed cellular state.
+% Second, we calculated the \gls{mmd} between the distributions of ground truth and predicted profiles for double-gene perturbations to assess the model's ability to capture the global transcriptional shift following a complex intervention.}
+
+% \begin{table}[H]
+% \color{blue} 
+%     \centering
+%     \begin{tabular}{lcc}
+%         \toprule
+%         {Metric} & {scGPT} & RAPTORGraph (ours) \\
+%         \midrule
+%         \gls{mmd} & 0.138 $\pm$ 0.000 & \textbf{0.137 $\pm$ 0.000} \\
+%         \gls{mse} & 0.069 $\pm$ 0.000 & \textbf{0.054 $\pm$ 0.000} \\
+%         \bottomrule
+%     \end{tabular}
+%     \caption{\revised{Results using the Replogle2020 dataset are averaged over $3$ runs. Values are mean $\pm$ variance.}}
+%     \label{tab:objective_results_replogle}
+% \end{table}
+
+% \revised{To validate the generalization capabilities of \glsentryshort{raptorgraph} across different experimental contexts and cell lines, we extended our evaluation to include the large-scale single-cell CRISPR screen dataset from \citet{replogle_combinatorial_2020} as shown in \Cref{tab:objective_results_replogle}.
+% As discussed in \cref{sec:results}, our primary comparative analysis prioritized the \citet{norman2019exploring} dataset due to the rigid architectural dependency of several baseline models (specifically SENA and Discrepancy VAE) on auxiliary files and preprocessing pipelines unique to that study.
+% Adapting these confirmatory models to the distinct structure of the Replogle2020 dataset proved non-trivial.
+% Additionally, we excluded the \glsentryshort{gears} model because it behaves in a fundamentally different way that is incompatible with our evaluation framework, making a fair and direct comparison impossible.
+% Consequently, this supplementary benchmark is restricted to a direct comparison between \glsentryshort{raptorgraph} and \glsentryshort{scgpt}, demonstrating our model's robust performance and superior reconstruction fidelity on independent biological data.}
+
+%===============================================================================
+\subsection{Non-Additive Genetic Interaction Analysis}
+\label{app:metrics:genetic_interaction}
+%===============================================================================
+
+To evaluate the models' ability to predict non-additive effects, we designed a genetic interaction analysis inspired by the Precision@10 metric introduced in the GEARS paper~\citep{roohani2024predicting}.
+While the original study used a robust regression model, we opted for a more direct naive additive baseline, defined as the vector sum of single-perturbation effects over control ($\effectvector_A + \effectvector_B$).
+We calculated five interaction scores by comparing the predicted double-perturbation effect ($\effectvector_{AB}$) to this baseline.
+This unified metric was applied to all models to ensure a fair comparison.
+
+The analysis follows a multi-step process for each double-gene perturbation.
+First, ``effect vectors'' ($\effectvector$) are calculated for single and double perturbations by subtracting the mean gene expression profile of control cells from the mean profile of perturbed cells.
+This is done for both ground truth data and model predictions.
+The naive additive baseline assumes the double perturbation effect is a linear sum of individual effects:
+\begin{equation}
+    \effectvectornaive = \effectvector A + \effectvector B
+    \label{eq:app:naive_additive}
+\end{equation}
+By comparing the true or predicted $\effectvector(A+B)$ to the individual and naive additive vectors, we compute raw scores for five distinct genetic interaction subtypes.
+\begin{itemize}
+    \item \emph{Synergy} and \emph{Suppression} are measured using a ratio of magnitudes:
+    \begin{equation}
+        \synergyscore = \frac{\ltwonorm{\effectvector(A+B)}}{\ltwonorm{\effectvectornaive}}
+        \label{eq:app:synergy_ratio}
+    \end{equation}
+
+    \item \emph{Neomorphism} measures changes in the direction of the effect:
+    \begin{equation}
+        \neomorphismscore = 1 - \cossim{\effectvector(A+B)}{\effectvectornaive}
+        \label{eq:app:neomorphism}
+    \end{equation}
+
+    \item \emph{Redundancy} measures functional overlap:
+    \begin{equation}
+        \redundancyscore = \min \big( \cossim{\effectvector(A+B)}{\effectvector A}, \cossim{\effectvector(A+B)}{\effectvector B} \big)
+        \label{eq:app:redundancy}
+    \end{equation}
+
+    \item \emph{Epistasis} measures dominance:
+    \begin{equation}
+        \epistasiscore = \big\lvert \cossim{\effectvector(A+B)}{\effectvector A} - \cossim{\effectvector(A+B)}{\effectvector B} \big\rvert
+        \label{eq:app:epistasis}
+    \end{equation}
+\end{itemize}
+Final performance is measured using Precision@10.
+For each interaction type, perturbations are ranked by their predicted score, and the top 10 are selected.
+These are compared against a ground truth set of interactors, defined as those whose true score falls in the top 25\% (or bottom 25\% for suppression) for that category.
+The Precision@10 score is the fraction of correct predictions in the top 10.
+
+%===============================================================================
+\subsection{Reverse Perturbation Analysis}
+\label{app:metrics:reverse_perturbation}
+%===============================================================================
+
+To assess the models' understanding of genotype-phenotype relationships, we implemented an in silico reverse perturbation prediction task, inspired by the analysis in the scGPT study~\citep{cui2024scgpt}.
+This task challenges a model to infer the causal genetic perturbation that induced a given transcriptomic state.
+
+The analysis is conducted on a specific subset of 20 genes from the \citet{norman2019exploring} dataset, creating a controlled combinatorial search space.
+For each unique perturbation condition $p$, we establish a ground truth mean expression profile, $\meanexpression_p$, by averaging the expression vectors of all cells for that condition:
+\begin{equation}
+    \meanexpression_p = \frac{1}{\numcells_p} \sum_{i=1}^{\numcells_p} \variables_{p,i}
+    \label{eq:app:mean_expression}
+\end{equation}
+where $\numcells_p$ is the number of cells under perturbation $p$, and $\variables_{p,i} \in \realnumbers^\numgenes$ is the expression profile of the $i$-th cell.
+The central component is the creation of a comprehensive in silico prediction database restricted to the 20-gene subset.
+For each model, we generate a predicted expression profile $\predictedvariable_{A+B}$ for every unique combination of two genes, A and B.
+This is achieved by feeding the model the ground truth mean control profile, $\meanexpression_{\text{ctrl}}$, and conditioning it on the desired double perturbation.
+The prediction function $\predictionfunc$ for a given model is expressed as:
+\begin{equation}
+    \predictedvariable_{A+B} = \predictionfunc(\meanexpression_{\text{ctrl}}, \text{pert}=A+B)
+    \label{eq:app:prediction_function}
+\end{equation}
+This results in a key-value database where each key is a double-perturbation identifier from the 20-gene subset, and the value is the corresponding predicted mean expression vector in $\realnumbers^\numgenes$.
+
+With the prediction database established, we query it using the ground truth mean expression profiles of the experimentally observed double perturbations from the 20-gene subset.
+For each true double perturbation $p_{true}$ present in the test set, its ground truth mean profile $\meanexpression_{p_{\text{true}}}$ is used as a query vector.
+We then calculate the Euclidean distance between this query vector and every predicted vector $\predictedvariable_{p_{\text{pred}}}$ in the database:
+\begin{equation}
+    d(\mathbf{\meanexpression}_{p_{\text{true}}}, \mathbf{\predictedvariable}_{p_{\text{pred}}}) = \sqrt{\sum_{j=1}^{\numgenes} (\meanexpression_{p_{\text{true},j}} - \predictedvariable_{p_{\text{pred},j}})^2}
+    \label{eq:app:euclidean_distance}
+\end{equation}
+
+The perturbations in the database are subsequently ranked based on their proximity to the query vector, from the smallest to the largest Euclidean distance.
+This yields a ranked list of predicted perturbations that are most likely to have caused the observed cellular state.
+
+To evaluate the ranking performance, we employ the ``Hit Rate @ K'' metric, which measures the frequency of successful retrievals within the top K predictions.
+We define two variants of this metric to capture different aspects of prediction accuracy.
+
+\emph{Correct Hit Rate @ K}: This is a stringent metric that measures the proportion of queries where the exact true perturbation is correctly identified within the top K ranked predictions.
+It is formally defined as:
+\begin{equation}
+    \text{Correct Hit Rate @ K} = \frac{1}{|\mathcal{Q}|} \sum_{q \in \mathcal{Q}} \mathbb{I}(\text{rank}(p_q) \le K)
+    \label{eq:app:correct_hitrate}
+\end{equation}
+where $\mathcal{Q}$ is the set of all query perturbations, $p_q$ is the true perturbation corresponding to query $q$, and $\mathbb{I}$ is the indicator function, which is 1 if the condition is met and 0 otherwise.
+
+\emph{Relevant Hit Rate @ K}: This is a more lenient metric that assesses whether the model can identify at least one of the correct genetic components of a combinatorial perturbation.
+A prediction is considered "relevant" if its set of perturbed genes has a non-empty intersection with the set of genes in the true perturbation.
+The metric is defined as:
+\begin{equation}
+    \text{Relevant Hit Rate @ K} = \frac{1}{|\mathcal{Q}|} \sum_{q \in \mathcal{Q}} \mathbb{I}(\exists \hat{p} \in \text{TopK}(q) \text{ s.t. } \text{genes}(\hat{p}) \cap \text{genes}(p_q) \neq \emptyset)
+    \label{eq:app:relevant_hitrate}
+\end{equation}
+where $\text{TopK}(q)$ is the set of top K predicted perturbations for query $q$, and $\text{genes}(p)$ is the set of constituent genes in perturbation $p$.
+This metric rewards models that can correctly identify influential genes, even if the exact combination is not perfectly predicted.
+Together, these two metrics provide a comprehensive evaluation of each model's ability to reverse-engineer the mapping from cellular phenotype back to genetic cause.
+
+%===============================================================================
+\subsection{Gene Set Enrichment Analysis}
+\label{app:metrics:gsea_setup}
+%===============================================================================
+
+\revised{To validate the semantic meaning of the learned Directed Acyclic Graph, we performed a systematic Gene Set Enrichment Analysis.
+We employed an in-silico perturbation strategy to define the biological identity of each latent variable:}
+\begin{enumerate}
+    \item \revised{Latent Perturbation: For each causal latent factor $\latentvars_i$ associated with a known gene perturbation, we artificially activated the factor in the latent space by setting the condition vector $\conditionvector$ such that the target component $\conditionvector_i=1$ and all other components $\conditionvector_{j \neq i}=0$.}
+    \item \revised{Counterfactual Decoding: We decoded this perturbed latent state back to the gene expression space $\realnumbers^n$ to generate a batch of ``counterfactual'' expression profiles.}
+    \item \revised{Differential Analysis: We computed the mean differential expression vector $\delta = \bar{x}_{int} - \bar{x}_{ctrl}$ relative to the control baseline.}
+    \item \revised{Enrichment: This vector was used to create a ranked gene list, which was analyzed using the \texttt{gseapy} framework against the MSigDB Hallmark 2020 gene set collection.}
+\end{enumerate}
+
+\revised{This process allows us to independently verify if the latent factor $\latentvars_i$ actually encodes the biological function of its assigned gene $g_i$, assigning a verifiable ``biological label'' to the nodes of our learned graph.}
+%===============================================================================
+\subsection{Rationale for the Exclusion of GEARS from the Benchmark}
+\label{app:metrics:gears_exclusion}
+%===============================================================================
+
+In designing this benchmark, our goal was to establish a fair and methodologically consistent framework for comparing models that predict the full distribution of single-cell gene expression profiles following perturbation.
+While we considered including other prominent models such as GEARS, we ultimately excluded it from the final comparison due to fundamental incompatibilities between its predictive paradigm and our standardized evaluation framework.
+The two primary reasons for its exclusion are its prediction of a single population-average vector rather than a cell distribution, which is incompatible with our \gls{mmd} metric, and its non-equivalent handling of the control state, where it uses the precomputed mean of true control cells as a baseline rather than learning to reconstruct them.
+Given these significant differences, we concluded that a fair and direct comparison between GEARS and the other models within our established framework was not possible.
+
+% %===============================================================================
+% \subsection{Rationale for the Use of a Single Dataset}
+% \label{app:metrics:single_dataset}
+% %===============================================================================
+
+% For our comparative analysis, we exclusively utilized the single-cell perturbation dataset from \citet{norman2019exploring}.
+% This decision was primarily driven by the need to ensure a fair and direct comparison across all evaluated models.
+% Several of the baseline methods, notably SENA and dVAE, have published implementations with specific dependencies on auxiliary files and pre-processed data structures that are tailored to the Norman et al. dataset.
+% Adapting these models to alternative datasets would have necessitated significant modifications to their data loading and processing pipelines.
+% Such alterations could introduce confounding variables and potentially bias the evaluation, as the performance of these models might be sensitive to the specific data format and auxiliary information provided.
