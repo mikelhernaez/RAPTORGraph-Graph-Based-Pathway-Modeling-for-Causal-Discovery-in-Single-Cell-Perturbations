@@ -24,11 +24,11 @@ Since current models are trained to minimize the error across all possible arbit
 We refer to this phenomenon as \emph{mean collapse}, as this regression to the mean erodes cellular diversity.}
 
 To address these critical issues, we present \gls{raptorgraph}, a novel framework that addresses causal identifiability challenges through a structured encoder design. 
-Our first key innovation is the GraphPathway layer, a novel architecture that uses preconditioning to enforce sparse mappings from genes to learned interpretable causal factors, which we term \cmps{}.
-This design enables the model to perform the clean, single-node latent associations required for causal inference, while  maintaining interpretability.
+We first propose a novel GraphPathway layer, which uses preconditioning to enforce sparse mappings from genes to learned interpretable causal factors. We term these factors \emph{\cmps{}}, which encompass the (related) known biological processes associated with a given perturbation.
+Our design enables clean, single-node latent associations required for causal inference while  maintaining interpretability.
 This innovation is complemented by an \gls{ot} preprocessing step, which mitigates the distinct problem of mean collapse.
 
-\revised{We benchmark the generative quality of \glsentryshort{raptorgraph} on the \citet{norman2019exploring} Perturb-seq dataset and the \citet{replogle_combinatorial_2020} CRISPRi dataset, assess the accuracy of inferred genetic interactions under combinations of perturbations, and evaluate the biological interpretability of the inferred \cmps{}. We uncover biologically accurate programs in the K562 cell line, including the differentiation-induced cell cycle arrest driven by EGR1 and the stress-induced growth arrest mediated by JUN.}
+\revised{We benchmark \glsentryshort{raptorgraph} on two well-known datasets: the \citet{norman2019exploring} Perturb-seq dataset, and the \citet{replogle_combinatorial_2020} CRISPRi dataset, assessing, among others, the accuracy of inferred genetic interactions under combinations of perturbations, and the biological plausibility of the inferred \cmps{}. We uncover biologically accurate programs, such as differentiation-induced cell cycle arrest driven by EGR1 and the stress-induced growth arrest mediated by JUN.}
 %\revised{Additionally, we \citet{replogle_combinatorial_2020} CRISPRi dataset}
 
 %We demonstrate strong performance alongside interpretability, which addresses key gaps not filled by current approaches.

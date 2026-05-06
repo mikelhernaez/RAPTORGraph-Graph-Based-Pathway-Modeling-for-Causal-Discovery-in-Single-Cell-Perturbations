@@ -2,11 +2,6 @@
 \subsection{Evaluation Setup, Metrics and Datasets}
 \label{subsec:eval_setup_metrics}
 %===============================================================================
-
-\textbf{Evaluation Metrics.} To ensure a consistent and fair benchmark across all evaluated  models, we use \gls{mmd} to assess the similarity between predicted and true gene expression distributions.
-The \gls{mmd} is calculated per type of perturbation (single or combinations thereof) and then averaged to provide an overall measure of distribution similarity.
-Alongside objective metric comparison, we use Precision@10 to evaluate non-additive interactions of combinatorial perturbations (see \cref{app:metrics}).
-
 \textbf{Datasets.} For evaluation we use two datasets: First, the Perturb-seq single-cell RNA-seq dataset from~\citet{norman2019exploring} and as processed in the CPA study~\citep{lotfollahi2023predicting} and refer to it as the Norman-CPA dataset.
 It profiles 105 gene perturbations in K562 cells, including both single and double perturbations.
 In total, 284 conditions across $\sim$108,000 cells were measured, of which 131 represent unique gene–gene combinations and the remaining 153 represent single perturbations. For each perturbation, associated control cells were also profiled. 
@@ -16,18 +11,22 @@ Additionally, we used the CRISPRi single-cell RNA-seq dataset curated by~\citet{
 This dataset profiles 82 gene perturbations in K562 cells, including both single (44), double perturbations (37), and control.
 The 82 conditions were measured across $\sim$22,740 cells.
 
-\textbf{Benchmarked models.} To first establish the foundational accuracy of \gls{raptorgraph}, we benchmarked its generative performance against four state-of-the-art models: SENA, scGPT, \gls{dvae}, and GEARS.
+\textbf{Benchmarked models.} We benchmark \gls{raptorgraph} generative performance against four state-of-the-art models: SENA, scGPT, \gls{dvae}, and GEARS.
 We start by assessing two key aspects of prediction fidelity using the single-cell perturbation dataset from \citet{norman2019exploring}.
-\revised{ We prioritized the Norman-CPA dataset for this comprehensive quantitative benchmarking because the implementations of several baseline models have auxiliary files and preprocessing steps that are tightly coupled to it, making adaptation to other datasets non-trivial.
+\revised{We prioritized the Norman-CPA dataset for this comprehensive quantitative benchmarking because the implementations of several baseline models have auxiliary files and preprocessing steps that are tightly coupled to it, making adaptation to other datasets non-trivial.
 However, to further demonstrate generalizability, we provide an additional evaluation on the Replogle2020 dataset, restricted to a comparison between \gls{raptorgraph} and scGPT.}
 
-\subsection{Ablation Studies.} 
+\textbf{Evaluation Metrics.} To ensure a consistent and fair benchmark across all evaluated  models, we use \gls{mse} and \gls{mmd} to assess the similarity between predicted and true gene expression distributions.
+The \gls{mmd} is calculated per type of perturbation (single or combinations thereof) and then averaged to provide an overall measure of distribution similarity.
+Alongside objective metric comparison, we use Precision@10 to evaluate non-additive interactions of combinatorial perturbations (see \cref{app:metrics}).
+
+\subsection{Hyperparameter ablation Studies} 
 \revised{
 To validate our hyperparameter selection, we conducted a comprehensive ablation study on the VAE regularization parameter ($\beta$) and the DAGMA score weights ($\mu, \lambda_1$).
 Our analysis reveals a critical trade-off between distribution matching and the preservation of biological heterogeneity.
-Detailed results of the full hyperparameter sweep and the rationale for the selected configuration are provided in \cref{app:extended_results:ablation_study}.}
+See \cref{app:extended_results:ablation_study} for detailed results of the full hyperparameter sweep and the rationale for the selected configuration.}
 %
-\subsection{Reconstruction capabilities.} First, we measured the \gls{mse} between the ground truth and predicted profiles of control cells to evaluate how well each model reconstructs the basal, unperturbed cellular state.
+\subsection{\gls{raptorgraph} Reconstruction capabilities} First, we measured the MSE between the ground truth and predicted profiles of control cells to evaluate how well each model reconstructs the basal, unperturbed cellular state.
 Second, we calculated the \gls{mmd} between the distributions of ground truth and predicted profiles for double-gene perturbations to assess the model's ability to capture the global transcriptional shift following a complex intervention. A detailed description of these metrics is provided in \cref{app:metrics}. 
 
 \begin{table}[htb]
@@ -102,7 +101,8 @@ Specifically, we compared each model based on their ability to predict five dist
 \vskip -0.1in
 \end{table}
 
-\revised{\textbf{OT ablation study.} We further investigated the contribution of \gls{ot} to this performance. Our ablation study reveal that \gls{ot} preprocessing is a key driver of the model's ability to predict complex non-additive interactions, particularly boosting redundancy and epistasis. Importantly, \gls{ot}-based pairing significantly outperforms a random pairing baseline. Note that this benefit comes with negligible computational overhead ($\approx 2.2\%$ of total training time). Detailed analyses of these empirical benefits and the computational cost are provided in \cref{app:extended_results:ot_impact} and \cref{app:extended_results:ot_complexity}, respectively.}
+\textbf{OT ablation study.} We further investigated the contribution of \gls{ot} to this performance. Our ablation study reveal that \gls{ot} preprocessing is a key driver of the model's ability to predict complex non-additive interactions, particularly boosting redundancy and epistasis. Importantly, \gls{ot}-based pairing significantly outperforms a random pairing baseline. Note that this benefit comes with negligible computational overhead ($\approx 2.2\%$ of total training time). See \cref{app:extended_results:ot_impact} and \cref{app:extended_results:ot_complexity} for further details.
+%Detailed analyses of these empirical benefits and the computational cost are provided in \cref{app:extended_results:ot_impact} and \cref{app:extended_results:ot_complexity}, respectively.
 
 \subsection{Reverse Perturbation Analysis} 
 
@@ -160,7 +160,7 @@ This highlights that while pinpointing exact higher-order interactions is an ong
 \end{table}
 
 
-\section{\revised{\gls{raptorgraph} learns biologically meaningful \cmps{}.}}
+\section{\revised{\gls{raptorgraph} learns biologically meaningful \cmps{}}}
 
 \revised{To confirm that \gls{raptorgraph} learns biologically meaningful causal structures rather than arbitrary representations, we examined the functional identity of the \cmps{} using Gene Set Enrichment Analysis (GSEA).
 For each \cmp{}, we identify the $N$ single-gene interventions that induce the greatest change in that meta-pathway.
@@ -170,8 +170,8 @@ For this evaluation, we use the ``Hallmark'' gene sets from the Human Molecular 
 
 \revised{The GSEA analysis reveals that \gls{raptorgraph} captures distinct and biologically accurate programs. \Cref{fig:app:pathway_heatmap_supp} visualizes the Normalized Enrichment Scores (NES) for the top enriched pathways across the learned factors. We highlight distinct biological programs captured by the model, verified against the known functions of their corresponding gene perturbations:}
 %
-\begin{enumerate}
-    \item \revised{\textbf{Differentiation-Induced Arrest:} The \cmp{} linked to \textit{EGR1} displays massive negative enrichment for ``E2F Targets'' and ``G2-M Checkpoint''.
+\begin{enumerate}[leftmargin=*]
+     \item \revised{\textbf{Differentiation-Induced Arrest:} The \cmp{} linked to \textit{EGR1} displays massive negative enrichment for ``E2F Targets'' and ``G2-M Checkpoint''.
     EGR1 is a known tumor suppressor in K562 leukemia cells that drives differentiation along the megakaryocytic lineage, a process that necessitates a complete exit from the cell cycle \citep{ma_emodin_2019}.
     \gls{raptorgraph} correctly identifies this potent anti-proliferative program.}
     \item \revised{\textbf{Stress-Induced Growth Arrest:} The \cmp{} linked to the AP-1 subunit \textit{JUN} shows strong negative enrichment for ``E2F Targets'' and ``G2-M Checkpoint''. While often associated with inflammation, c-Jun is a central stress-response mediator; in the context of K562 cells, its activation drives a termination of cell division required for stress adaptation or differentiation \citep{shaulian_ap-1_2002, shaulian_mammalian_2000}.}
@@ -180,9 +180,7 @@ For this evaluation, we use the ``Hallmark'' gene sets from the Human Molecular 
 \end{enumerate}
 %
 \revised{
-These findings confirm that the nodes in our learned DAG represent specific, identifiable biological mechanisms.
-Consequently, the edges learned by the DAGMA module can be interpreted as causal regulatory links between these verified biological processes.
-A detailed description of the methodology is provided in \cref{app:metrics:gsea_setup}.
+These findings confirm that the nodes in our learned DAG represent specific biological mechanisms, and that the edges learned by the DAGMA module can be interpreted as causal regulatory links between these verified biological processes. A detailed description of the methodology is provided in \cref{app:metrics:gsea_setup}.
 }
 %
 Detailed GSEA results and the associated enrichment heatmap are provided in \cref{app:extended_results:biological_validation}.

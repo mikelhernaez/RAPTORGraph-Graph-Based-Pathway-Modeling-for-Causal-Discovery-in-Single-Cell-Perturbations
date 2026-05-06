@@ -1,7 +1,7 @@
 \begin{abstract}
 Experiments involving perturbation of single cells are central to understanding cellular mechanisms and accelerating therapeutic discovery,  however the space of combinatorial perturbations is intractably large. 
 Causal representation learning has shown great promise for predicting unseen combination of perturbations, but existing methods often violate the theoretical requirements for identifiability guarantees.  
-We introduce \glsentryshort{raptorgraph}, an end-to-end VAE framework that addresses these issues through: i) a preconditioned \emph{GraphPathway} encoder that enforces intervention-guided mappings to \cmps{}, enabling clean single latent-node interventions needed for causal identifiability, and ii) optimal-transport alignment that aligns control and perturbed populations to stabilize conditional generation. 
+We introduce \glsentryshort{raptorgraph}, an end-to-end VAE framework that addresses these issues through: i) a preconditioned \emph{GraphPathway} encoder that enforces soft intervention-guided mappings to \cmps{}, enabling clean single latent-node interventions needed for causal identifiability, and ii) optimal-transport alignment that aligns control and perturbed populations to stabilize conditional generation. 
 Empirical results on Perturb-seq datasets demonstrate that \glsentryshort{raptorgraph} improves the trade-off between reconstruction fidelity and distributional matching, and yields improved performance on predicting non-additive combinatorial effects. 
 Finally, we show that \glsentryshort{raptorgraph} recovers biologically meaningful latent programs and a causal graph over meta-pathways, providing an interpretable bridge between generative quality and mechanistic insight.
 \end{abstract}
