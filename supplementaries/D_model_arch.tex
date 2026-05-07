@@ -45,6 +45,40 @@ The model is trained end-to-end by optimizing a composite loss function that bal
 %-------------------------------------------------------------------------------
 % Subsection: GraphPathway Encoder Architecture
 %-------------------------------------------------------------------------------
+% [ADDITION: Addressing Reviewer yvAn] Reinforcing the end-to-end/joint optimization nature 
+% of the GraphPathway encoder and DAGMA module.
+\revised{The entire framework is trained end-to-end. During optimization, gradients from the \glsentryshort{dagma} loss $\dagmaloss$ backpropagate through the GraphPathway encoder, ensuring that the latent representation is regularized to expose the underlying causal structure.}
+
+%-------------------------------------------------------------------------------
+\subsection{Joint Discovery via Causal Transform Layer}
+\label{app:arch:causal_transform}
+%-------------------------------------------------------------------------------
+
+A common misunderstanding in causal representation learning is the perceived decoupling between representation learning (\glsentryshort{vae}) and causal structure learning (\glsentryshort{dag} discovery). In \glsentryshort{raptorgraph}, these components are architecturally integrated through a \textbf{Causal Transform} layer.
+
+\paragraph{1. The Causal Layer in the Forward Pass}
+The \glsentryshort{dag} module is not a post-hoc analysis tool; it is a differentiable layer situated between the encoder and the decoder. In the forward pass, the exogenous noise $\exonoise$ (output of the GraphPathway encoder) is transformed into endogenous pathway activities $\latentcausalvars$ by solving the structural equation:
+\begin{equation}
+    \latentcausalvars = \latentcausalvars \graphmatrix^T + \exonoise \implies \latentcausalvars = \exonoise(\identitymatrix - \graphmatrix)^{-T}
+\end{equation}
+where $\graphmatrix$ is the learnable adjacency matrix. This $\latentcausalvars$ is then passed to the decoder to produce the reconstruction $\predictedvariable$.
+
+\paragraph{2. Joint Optimization by Reconstruction}
+Because the \glsentryshort{dag} layer is part of the autoencoder's forward pass, the reconstruction loss $\mseloss = \|\variables - \predictedvariable\|^2$ backpropagates gradients through the decoder, the \glsentryshort{dag} layer ($\graphmatrix$), and the encoder. This ensures that the latent space and the causal graph are \textbf{jointly optimized} to satisfy the data-fit objective. 
+
+%-------------------------------------------------------------------------------
+\subsection{The Necessity of Hard Architectural Constraints vs. Soft Alignment}
+\label{app:arch:hard_vs_soft}
+%-------------------------------------------------------------------------------
+
+We formally justify the use of hard architectural constraints (the GraphPathway encoder) over soft alignment mechanisms (e.g., concept bottleneck supervision).
+
+\paragraph{1. Preventing Intervention Spillover}
+Dense encoders (MLPs) suffer from intervention spillover, where a sparse perturbation in gene space propagates into a dense signal in latent space. While soft losses can encourage alignment, they do not provide the \textbf{guaranteed isolation} required for identifiable causal discovery. The hard GraphPathway constraint ensures that the interventional entry point is architecturally limited to a unique node ($\nabla_{do(x_i)} z_j = 0$ for $i \neq j$), eliminating the "winner-take-all" misattribution common in soft-aligned models.
+
+\paragraph{2. Preserving Biological Interpretability for GI Scoring}
+The identification of complex Genetic Interactions (e.g., Synergy, Redundancy) requires a strict 1-1 mapping between perturbation targets and causal factors. Soft alignment often leads to "leaky" representations where a single biological program is smeared across multiple latent variables. Our results demonstrate that the hard structural constraint is essential for maintaining the fidelity required to score these non-additive interactions accurately.
+
 \subsection{GraphPathway Encoder Architecture}
 \label{app:graphpathway}
 %-------------------------------------------------------------------------------

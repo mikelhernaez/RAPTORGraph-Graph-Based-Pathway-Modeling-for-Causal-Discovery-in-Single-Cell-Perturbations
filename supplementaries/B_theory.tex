@@ -181,3 +181,32 @@ This context dependence poses a fundamental barrier to transferring pathway insi
 Consequently, the findings from confirmatory models are difficult to apply to less-researched cell types, which limits the scalability and broader applicability of these approaches.
 Furthermore, this confirmatory strategy may not be suitable for smaller-scale experiments that only incorporate a limited set of genes, making it difficult to map observations to comprehensive pathway definitions.
 
+%-------------------------------------------------------------------------------
+\subsection{Theoretical Necessity of Structured Pairing: Proof of Mean Collapse}
+\label{app:theory:mean_collapse}
+%-------------------------------------------------------------------------------
+
+We formally justify the necessity of \glsentryshort{ot} pairing over the random pairing strategy common in baseline models (e.g., dVAE, SENA).
+
+\paragraph{1. The Model's Goal}
+Let $\variables \in \observsupport$ be a control cell and $\variables' \in \interventionaldist$ be a perturbed cell under intervention $p$. The model $\practicalencoder$ minimizes the reconstruction loss:
+\begin{equation}
+    \min_\theta \mathbb{E}_{\variables \sim \observsupport, \variables' \sim \interventionaldist} [ \| \variables' - \practicalencoder(\variables, p) \|^2 ]
+\end{equation}
+
+\paragraph{2. The Optimal Solution (MMSE)}
+By the principles of Minimum Mean Squared Error (MMSE) estimation, the optimal function $\idealencoder(\variables, p)$ that minimizes this loss is the conditional expectation:
+\begin{equation}
+    \idealencoder(\variables, p) = \mathbb{E}[\variables' \mid \variables, P=p]
+\end{equation}
+
+\paragraph{3. The Case for Random Pairing}
+When pairing is performed randomly, the target $\variables'$ is selected independently of the input $\variables$, given the perturbation label ($\variables' \perp \variables \mid P=p$). This independence eliminates the dependency of the expectation on the specific cell state $\variables$:
+\begin{equation}
+    \mathbb{E}[\variables' \mid \variables, P=p] = \mathbb{E}[\variables' \mid P=p] = \meanexpression_p
+\end{equation}
+where $\meanexpression_p$ is the population mean for perturbation $p$.
+
+\paragraph{4. Conclusion (Mean Collapse)}
+The optimal strategy for the model weights is to predict a constant output $\meanexpression_p$, effectively ignoring the biological variation in the input $\variables$. This sets the Jacobian $\nabla_\variables \predictionfunc \to 0$, precluding the discovery of heterogeneous (cell-specific) treatment effects. \glsentryshort{raptorgraph}'s \glsentryshort{ot} pairing ensures $I(\variables, \variables') > 0$, allowing the model to learn how specific initial states respond to interventions.
+
