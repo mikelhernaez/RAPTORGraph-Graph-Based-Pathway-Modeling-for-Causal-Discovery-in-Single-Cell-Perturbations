@@ -75,9 +75,17 @@ In summary, the compounded limitations of existing CRL methods, including their 
 %-------------------------------------------------------------------------------
 
 While \gls{raptorgraph} significantly advances interpretable causal discovery in single-cell perturbation data, we acknowledge certain limitations.
-First, the framework is primarily optimized for atomic genetic interventions (e.g., CRISPRa/i), where each intervention has a clear, primary target.
-In contrast, chemical or drug perturbations often exhibit complex multi-target profiles or off-target effects that may not map as cleanly to a single node in our GraphPathway encoder.
-Second, the current implementation focuses on transcriptomic readouts; extending \gls{raptorgraph} to multi-omic interventional data (e.g., Perturb-ATAC-seq) to capture the interplay between epigenetic regulatory states and gene expression is a promising direction for future research.
+
+\textbf{Intervention type assumptions.}
+The framework is primarily optimized for atomic genetic interventions (e.g., CRISPRa/i), where each intervention has a clear, primary target gene. This assumption enables the preconditioned GraphPathway encoder to enforce sparse, one-to-one mappings from perturbed genes to causal latent factors. In contrast, chemical or drug perturbations often exhibit complex multi-target profiles or off-target effects that do not conform to the single-gene-to-single-latent assumption. While the DAGMA layer can partially accommodate multi-target interventions through its learned causal structure, the model's ability to disambiguate individual gene contributions diminishes as intervention complexity increases.
+
+\textbf{DAG representation scope.}
+The DAGMA-learned causal graph represents causal relationships among meta-pathways (latent factors), not directly among individual genes. This abstraction is intentional and aligns with the model's goal of capturing higher-level biological mechanisms. However, it implies that gene-level causal relationships must be inferred indirectly through the meta-pathway structure, which may limit the resolution of downstream biological insights in scenarios where gene-level causality is required.
+
+\textbf{Optimal transport alignment assumptions.}
+\Gls{raptorgraph} relies on optimal transport to globally align control and perturbed populations, which implicitly assumes that a meaningful matching between cells across conditions exists. While this assumption holds for relatively homogeneous cell populations, it may break down in highly heterogeneous tissues where cell type compositions differ substantially between conditions. In such cases, the OT alignment may inadvertently match cells of different types, potentially introducing artifacts in the learned representations.
+
+The current implementation focuses on transcriptomic readouts; extending \gls{raptorgraph} to multi-omic interventional data (e.g., Perturb-ATAC-seq) to capture the interplay between epigenetic regulatory states and gene expression is a promising direction for future research.
 
 %===============================================================================
 % END OF DRAFT
