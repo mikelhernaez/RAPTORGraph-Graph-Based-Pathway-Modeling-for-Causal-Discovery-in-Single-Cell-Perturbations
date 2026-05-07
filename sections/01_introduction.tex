@@ -3,7 +3,7 @@
 \label{sec:introduction}
 %===============================================================================
 
-Understanding how cells respond to genetic perturbations, such as those induced by CRISPR screens~\citep{dixit2016perturb}, is fundamental to understand disease biology and advancing therapeutic discovery ~\citep{plenge2013validating,adamson2016multiplexed,norman2019exploring}. 
+Understanding how cells respond to genetic perturbations, such as those induced by CRISPR screens~\citep{dixit2016perturb}, is fundamental to understanding disease biology and advancing therapeutic discovery ~\citep{plenge2013validating,adamson2016multiplexed,norman2019exploring}. 
 However, the combinatorial explosion across $\sim$25,000 genes makes exhaustive perturbation experiments infeasible~\citep{norman2019exploring}, motivating computational models that predict cellular responses to unseen perturbations or combinations thereof.
 
 Existing approaches to predict the transcriptional outcome following a perturbation face a fundamental challenge: generative quality comes at the cost of causal interpretability.
@@ -25,7 +25,7 @@ We refer to this phenomenon as \emph{mean collapse}, as this regression to the m
 
 To address these critical issues, we present \gls{raptorgraph}, a novel framework that addresses causal identifiability challenges through a structured encoder design. 
 We first propose a novel GraphPathway layer, which uses preconditioning to enforce sparse mappings from genes to learned interpretable causal factors. We term these factors \emph{\cmps{}}, which encompass the (related) known biological processes associated with a given perturbation.
-Our design enables clean, single-node latent associations required for causal inference while  maintaining interpretability.
+Our design enables clean, single-node latent associations required for causal inference while maintaining interpretability.
 This innovation is complemented by an \gls{ot} preprocessing step, which mitigates the distinct problem of mean collapse.
 
 \revised{We benchmark \glsentryshort{raptorgraph} on two well-known datasets: the \citet{norman2019exploring} Perturb-seq dataset, and the \citet{replogle_combinatorial_2020} CRISPRi dataset, assessing, among others, the accuracy of inferred genetic interactions under combinations of perturbations, and the biological plausibility of the inferred \cmps{}. We uncover biologically accurate programs, such as differentiation-induced cell cycle arrest driven by EGR1 and the stress-induced growth arrest mediated by JUN.}
