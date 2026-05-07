@@ -124,23 +124,7 @@ Assume a \gls{scm} with a latent \gls{dag} $\graph$ and an invertible mixing fun
 If the set of interventions is atomic (targeting each latent variable at least once), and the assumptions of faithfulness hold, then the latent \gls{dag} $\graph$ and the intervention assignments are identifiable up to permutation, scaling, and translation (the CD-equivalence class).
 \end{theorem}
 
-The reliance on a \textbf{set of atomic interventions}, where each intervention targets a unique latent factor at least once, is the cornerstone of modern \gls{crl}-based prediction of genetic perturbations \citep{zhang2023identifiability,de2025interpretable}.
-
-%-------------------------------------------------------------------------------
-% Subsection: Soft Interventions in Biological Systems
-%-------------------------------------------------------------------------------
-% \subsection{Soft Interventions in Biological Systems}
-% \label{subsec:background:soft_interventions}
-% %-------------------------------------------------------------------------------
-
-% An intervention is considered "hard" if it replaces the causal mechanism of a variable entirely (e.g., setting it to a constant), whereas a "soft" intervention only alters the functional relationship to its parent nodes.
-% The latter case is particularly relevant for biological data from modern experimental techniques like Perturb-seq~\citep{norman2019exploring}.
-% In these \emph{closed-world experiments}, the genetic target of each intervention is known \emph{a priori}, providing a clear causal anchor.
-
-% The study by \citet{norman2019exploring} is a prime example of a soft, gain-of-function intervention.
-% It employed a CRISPR activation (CRISPRa) system, which uses a deactivated Cas9 (dCas9) that cannot cut DNA.
-% Instead, it recruits transcriptional activators to gene promoters, leading to graded, tunable increases in endogenous gene expression.
-% Because this approach modulates gene function rather than ablating it completely, it aligns perfectly with the mathematical definition of a soft intervention.
+The reliance on a \textbf{set of atomic interventions}, where each intervention targets a unique latent factor at least once, is the cornerstone of modern \gls{crl}-based prediction of genetic perturbations \citep{zhang2023identifiability,de2025interpretable}. However, a critical mismatch arises when applying these frameworks to real biological data, where CRISPR activation (CRISPRa) experiments \citep{norman2019exploring} are fundamentally \textit{soft interventions} that upregulate a target gene without severing its causal connections to upstream regulators. Existing works \citep{squires2023linear,buchholz2023learning,varici2024multi,varici2025score,zhang2023identifiability,brehmer2022weakly,von2023nonparametric} demonstrate that CRL methods struggle under soft interventions (see \cref{app:crl_methods} for a detailed analysis).
 
 %-------------------------------------------------------------------------------
 % Subsection: The Intervention Spillover Problem
