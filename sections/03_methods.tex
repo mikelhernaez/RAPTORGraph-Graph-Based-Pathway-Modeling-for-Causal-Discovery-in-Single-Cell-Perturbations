@@ -93,7 +93,7 @@ First, we employ a path-following schedule where the score weight $\mu$ is gradu
 % [MODIFICATION: Addressing Reviewer yvAn] Clarified that the framework is trained end-to-end. 
 % Removed previous mention of "detached" gradients to resolve the misconception 
 % that representation learning and graph discovery are decoupled.
-Second, the entire framework is trained end-to-end. The \glsentryshort{dag} module is integrated as a differentiable \textit{Causal Transform} layer within the autoencoder's forward pass. This ensures that the reconstruction loss jointly optimizes the representation and the graph, while the \glsentryshort{dagma} objective $\dagmaloss$ acts as a structural regularizer to enforce acyclicity (see \cref{app:technical_notes}).
+Second, the entire framework is trained end-to-end. The \glsentryshort{dag} module is integrated as a differentiable \textit{Causal Transform} layer within the autoencoder's forward pass. This ensures that the reconstruction loss jointly optimizes the representation and the graph, while the \glsentryshort{dagma} objective $\dagmaloss$ acts as a structural regularizer to enforce acyclicity (see \cref{app:dagma}).
 }
 A detailed description of the DAGMA layer, its objective, theoretical background, and implementation can be found in \cref{app:dagma}.
 
