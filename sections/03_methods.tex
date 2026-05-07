@@ -90,8 +90,11 @@ The optimization then solves a sequence of unconstrained problems that jointly m
 \revised{\textbf{DAGMA implementation.} We implement a modified DAGMA approach designed to learn the invariant, baseline causal structure of the biological system.
 To ensure stability and manage the trade-off between reconstruction fidelity and acyclicity, we introduce two critical regularization.
 First, we employ a path-following schedule where the score weight $\mu$ is gradually decreased (see \cref{eq:dagma_loss_full}), allowing the model to prioritize feature learning early in training before strictly enforcing the graph constraint.
-Second, we isolate gradient flow by computing the DAGMA-associated loss $\dagmaloss$ on detached latent representations.
-This ensures the acyclicity constraint optimizes the graph structure without distorting the encoder's representation learning.}
+% [MODIFICATION: Addressing Reviewer yvAn] Clarified that the framework is trained end-to-end. 
+% Removed previous mention of "detached" gradients to resolve the misconception 
+% that representation learning and graph discovery are decoupled.
+Second, the entire framework is trained \textbf{end-to-end}. The \glsentryshort{dag} module is integrated as a differentiable \textit{Causal Transform} layer within the autoencoder's forward pass. This ensures that the reconstruction loss jointly optimizes the representation and the graph, while the \glsentryshort{dagma} objective $\dagmaloss$ acts as a \textbf{structural regularizer} to enforce acyclicity (see \cref{app:technical_notes}).
+}
 A detailed description of the DAGMA layer, its objective, theoretical background, and implementation can be found in \cref{app:dagma}.
 
 %===============================================================================
