@@ -68,6 +68,19 @@ Table~\ref{tab:crl_methods_comparison} summarizes the key CRL methods, their int
 
 In summary, the compounded limitations of existing CRL methods, including their vulnerability to ancestor mixing under soft interventions, their reliance on sparse polytree structures, and their requirements for infeasible paired counterfactual observations, render them theoretically and practically unequipped for analyzing CRISPRa datasets.
 
+%-------------------------------------------------------------------------------
+
+\subsection{Limitations of \gls{raptorgraph}}
+\label{app:crl_methods:raptorgraph_limitations}
+%-------------------------------------------------------------------------------
+
+While \gls{raptorgraph} significantly advances interpretable causal discovery in single-cell perturbation data, we acknowledge certain limitations.
+First, the framework is primarily optimized for atomic genetic interventions (e.g., CRISPRa/i), where each intervention has a clear, primary target.
+In contrast, chemical or drug perturbations often exhibit complex multi-target profiles or off-target effects that may not map as cleanly to a single node in our GraphPathway encoder.
+Second, the current implementation focuses on transcriptomic readouts; extending \gls{raptorgraph} to multi-omic interventional data (e.g., Perturb-ATAC-seq) to capture the interplay between epigenetic regulatory states and gene expression is a promising direction for future research.
+
+%===============================================================================
+% END OF DRAFT
 %===============================================================================
 % ORIGINAL DRAFT CONTENT (COMMENTED OUT - REFERENCE)
 %===============================================================================
