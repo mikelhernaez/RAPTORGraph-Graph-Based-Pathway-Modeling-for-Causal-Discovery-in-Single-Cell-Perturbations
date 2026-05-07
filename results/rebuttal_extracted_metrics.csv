@@ -1,0 +1,13 @@
+experiment,synergy,neomorphism,unbiased_mmd,log
+hungarian_41,0.4,0.7,0.10482072830200195,/home/schroeder/Projekte/RAPTORGraph_rebuttal/logs/slurm/hungarian_s41_1994931.log
+hungarian_43,0.5,0.3,0.38389158248901367,/home/schroeder/Projekte/RAPTORGraph_rebuttal/logs/slurm/hungarian_s43_1994933.log
+hungarian_42,0.0,0.6,0.07648563385009766,/home/schroeder/Projekte/RAPTORGraph_rebuttal/logs/slurm/hungarian_s42_1994932.log
+ablation_soft_alignment_44,0.3,0.4,0.06455755233764648,/home/schroeder/Projekte/RAPTORGraph_rebuttal/logs/slurm/ablation_soft_alignment_s44_1994323.log
+ablation_soft_alignment_46,0.4,0.5,0.06382417678833008,/home/schroeder/Projekte/RAPTORGraph_rebuttal/logs/slurm/ablation_soft_alignment_s46_1994325.log
+cap_mult_3.0,0.26666666666666666,0.19999999999999998,0.1843878428141276,/home/schroeder/Projekte/RAPTORGraph_rebuttal/logs/slurm/cap_mult_3.0_1994316.log
+cap_mult_2.0,0.3333333333333333,0.43333333333333335,0.11333998044331868,/home/schroeder/Projekte/RAPTORGraph_rebuttal/logs/slurm/cap_mult_2.0_1994315.log
+cap_mult_1.5,0.2333333333333333,0.5666666666666667,0.09058403968811035,/home/schroeder/Projekte/RAPTORGraph_rebuttal/logs/slurm/cap_mult_1.5_1994314.log
+cap_mult_1.25,0.26666666666666666,0.6,0.10592905680338542,/home/schroeder/Projekte/RAPTORGraph_rebuttal/logs/slurm/cap_mult_1.25_1994313.log
+cap_mult_1.0,0.20000000000000004,0.6,0.13950316111246744,/home/schroeder/Projekte/RAPTORGraph_rebuttal/logs/slurm/cap_mult_1.0_1994312.log
+ablation_joint_opt_43,0.4,0.5,0.1399364471435547,/home/schroeder/Projekte/RAPTORGraph_rebuttal/logs/slurm/ablation_joint_opt_s43_1994317.log
+ablation_soft_alignment_43,0.2,0.4,0.1942000389099121,/home/schroeder/Projekte/RAPTORGraph_rebuttal/logs/slurm/ablation_soft_alignment_s43_1994322.log

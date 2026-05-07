@@ -1,0 +1,8 @@
+{
+    "average_jaccard_thresholded": 1.0,
+    "average_jaccard_raw": 1.0,
+    "average_jaccard_topk": 0.4493905032112307,
+    "average_correlation": 0.996074443746682,
+    "threshold_used": 0.2453,
+    "top_k_used": 100
+}
