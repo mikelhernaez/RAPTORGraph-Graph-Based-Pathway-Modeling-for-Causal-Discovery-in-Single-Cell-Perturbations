@@ -1,0 +1,134 @@
+%===============================================================================
+% DRAFT: Appendix Section - Comparative Analysis of CRL Methods for CRISPRa Data
+%===============================================================================
+
+\section{Comparative Analysis of CRL Methods for Soft Interventions}
+\label{app:crl_methods}
+%-------------------------------------------------------------------------------
+
+\subsection{Hard vs. Soft Interventions}
+\label{app:crl_methods:intervention_types}
+%-------------------------------------------------------------------------------
+
+In the \gls{scm} framework, interventions are characterized by their degree of modification to the causal structure:
+
+\begin{itemize}
+    \item \textbf{Hard interventions} replace the structural equation of a target variable entirely, severing all incoming causal edges. Formally, for a target variable $\latentcausalvar_i$, a hard intervention sets $\latentcausalvar_i = c$ (constant) or $\latentcausalvar_i = \noise_i$, eliminating any dependence on its causal parents. This provides unambiguous statistical signatures for causal discovery.
+    \item \textbf{Soft interventions} modify only the functional relationship between a variable and its parents without breaking causal connections. In CRISPRa, activation of a target gene alters its expression level while maintaining its regulatory relationships with upstream biological regulators. This preserves statistical dependencies, making identifiability fundamentally more challenging.
+\end{itemize}
+
+The majority of existing CRL methods assume hard interventions. However, CRISPR activation (CRISPRa) experiments---the backbone of modern combinatorial perturbation screens such as Norman et al. \citep{norman2019exploring}---are fundamentally soft interventions, creating a critical mismatch between theoretical assumptions and biological reality.
+
+%-------------------------------------------------------------------------------
+
+\subsection{Theoretical Limits of CRL under Soft Interventions}
+\label{app:crl_methods:theory}
+%-------------------------------------------------------------------------------
+
+\citet{squires2023linear} established that under soft interventions, linear latent models are identifiable only up to ancestral relations. Without hard interventions that completely remove causal influence, perfect identifiability is theoretically impossible. Similarly, \citet{varici2024multi} demonstrate that while multi-node hard interventions yield perfect identifiability, multi-node soft interventions degrade to ancestor-level identifiability.
+
+\citet{zhang2023identifiability} provide the most aligned theoretical framework by focusing on identifiability from soft interventions with known targets. However, their guarantee of perfect identifiability holds \textit{only} under the strict assumption that the underlying causal graph is a \emph{polytree}. Because biological gene regulatory networks are inherently dense, this assumption is severely violated, leading directly back to unresolvable ancestor mixing. \citet{buchholz2023learning} extend identifiability results to nonlinear mixing functions but similarly rely on sparsity assumptions that fail in dense biological networks.
+
+Several CRL approaches require weakly supervised paired observations \citep{brehmer2022weakly}. Due to the destructive nature of scRNA-seq (cellular lysing), obtaining paired observations of the exact same cell is physically impossible, rendering these approaches fundamentally incompatible with single-cell datasets. Similarly, \citet{von2023nonparametric} establish identifiability results but under conditions that require unknown interventions, which does not apply in the Perturb-seq setting where intervention targets are known \emph{a priori}.
+
+%-------------------------------------------------------------------------------
+
+\subsection{Comparative Summary}
+\label{app:crl_methods:summary}
+%-------------------------------------------------------------------------------
+
+Table~\ref{tab:crl_methods_comparison} summarizes the key CRL methods, their intervention assumptions, identifiability guarantees, and limitations in the context of CRISPRa data.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Comparative analysis of state-of-the-art CRL methods under soft interventions and their applicability to CRISPRa datasets.}
+    \label{tab:crl_methods_comparison}
+    \small
+    \renewcommand{\arraystretch}{1.4}
+    \begin{tabularx}{\textwidth}{@{} l >{\raggedright\arraybackslash}p{3cm} X X @{}}
+        \toprule
+        \textbf{Method} & \textbf{Intervention Type} & \textbf{Identifiability Result} & \textbf{Limitation for CRISPRa} \\
+        \midrule
+        \citet{squires2023linear} & Soft (linear) & \textbf{Partial:} ID up to ancestors & Cannot distinguish intervened genes from their causal ancestors due to preserved regulatory connections \\
+        \addlinespace
+        \citet{buchholz2023learning} & Soft (nonlinear) & \textbf{Perfect:} Assumes graph sparsity & Guarantees hold only under sparsity assumptions that biological GRNs violate \\
+        \addlinespace
+        \citet{varici2024multi} & Multi-node soft & \textbf{Partial:} ID up to ancestors & Multi-node interventions invariably entangle with parents \\
+        \addlinespace
+        \citet{varici2025score} & Soft (general) & \textbf{Partial:} ID up to ancestors & General transformations still yield ancestor-level identifiability \\
+        \addlinespace
+        \citet{zhang2023identifiability} & Soft (known targets) & \textbf{Perfect:} Requires polytree DAG & Perfect identifiability requires polytree structure; biological networks' density violates this \\
+        \addlinespace
+        \citet{brehmer2022weakly} & Paired observations & \textbf{Perfect:} When paired data exists & Paired observations are physically infeasible in scRNA-seq (lysing) \\
+        \addlinespace
+        \citet{von2023nonparametric} & Unknown interventions & \textbf{Perfect:} Nonparametric ID & Requires unknown targets; not applicable to guided CRISPR screens \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+In summary, the compounded limitations of existing CRL methods, including their vulnerability to ancestor mixing under soft interventions, their reliance on sparse polytree structures, and their requirements for infeasible paired counterfactual observations, render them theoretically and practically unequipped for analyzing CRISPRa datasets.
+
+%===============================================================================
+% ORIGINAL DRAFT CONTENT (COMMENTED OUT - REFERENCE)
+%===============================================================================
+% \begin{comment}
+% Causal Representation Learning (CRL) aims to identify high-level causal variables and their relations from low-level observational and interventional data. However, applying these theoretical frameworks to single-cell RNA sequencing (scRNA-seq) data, specifically the combinatorial CRISPRa dataset introduced by Norman et al. \cite{norman2019}, presents a unique set of challenges.
+%
+% The primary hurdle is the nature of the interventions. CRISPRa (activation) is fundamentally a \textit{soft intervention} (or mechanism change): it upregulates a target gene but does not sever the causal ties from its upstream biological regulators. Furthermore, Gene Regulatory Networks (GRNs) are highly dense, and the interventions often contain unknown off-target effects. As summarized in Table~\ref{tab:crl_sota}, most existing CRL methods are theoretically mismatched with these biological realities.
+%
+% \subsection{The ``CRISPRa Bottleneck'': Ancestor Mixing}
+%
+% When analyzing the Norman dataset through the lens of current CRL literature, the field converges on a single, major bottleneck: \textbf{Ancestor Mixing}. Because CRISPRa does not sever causal connections, methods strictly reliant on perfect (hard) interventions fail.
+%
+% Squires et al. \cite{squires2023} established that under soft interventions, linear latent models are only identifiable up to ancestors. Without hard interventions, perfect identifiability is theoretically impossible. Similarly, Var{\i}c{\i} et al. \cite{varici2024multi, varici2025score} demonstrate that while multi-node hard interventions yield perfect identifiability, multi-node soft interventions degrade to ancestor-level identifiability. Consequently, a model cannot distinguish a CRISPRa-perturbed gene from its upstream biological parents.
+%
+% \subsection{Graph Density and Partial Identifiability}
+%
+% Zhang et al. \cite{zhang2023} provide the most aligned theoretical framework by focusing on identifiability from soft interventions with known targets. They establish perfect identifiability, but \textit{only} under the strict assumption that the underlying causal graph is a polytree. Because biological GRNs are inherently dense, this assumption is severely violated, leading directly back to unresolvable ancestor mixing. Implicit latent frameworks, such as SoftILCM \cite{softilcm2024}, similarly establish that disentanglement bounds degrade significantly as the density of the Directed Acyclic Graph (DAG) increases and the intervention intensity weakens---both characteristic of the Norman CRISPRa setting.
+%
+% \begin{table}[htbp]
+%     \centering
+%     \caption{Comparison of CRL Methods applied to Soft Interventions and the Norman (CRISPRa) Dataset.}
+%     \label{tab:crl_sota}
+%     \small
+%     \renewcommand{\arraystretch}{1.3}
+%     \begin{tabularx}{\textwidth}{@{} l >{\raggedright\arraybackslash}p{2.5cm} X X @{}}
+%         \toprule
+%         \textbf{Paper \& Venue} & \textbf{Transform} & \textbf{ID under Soft Interventions} & \textbf{Norman / CRISPRa Applicability} \\
+%         \midrule
+%         \textbf{Squires et al.} \cite{squires2023} & Linear & \textbf{Partial:} ID up to ancestors. Proved perfect ID is impossible without hard interventions. & Cannot distinguish intervened genes from their causal ancestors due to preserved regulatory connections. \\
+%         (ICML 2023) & & & \\
+%         \addlinespace
+%         \textbf{Buchholz et al.} \cite{buchholz2023} & Linear Gaussian + Nonparametric & \textbf{Perfect:} Explicitly establishes ID for soft shifts under nonlinear mixing. & Guarantees hold only under sparsity assumptions that biological GRNs violate. \\
+%         (NeurIPS 2023) & & & \\
+%         \addlinespace
+%         \textbf{Var{\i}c{\i} et al.} \cite{varici2025score} & Linear / General & \textbf{Partial:} Explicitly guarantees partial ID (up to mixing with parents) for soft interventions. & Entangles target genes with their direct causal parents due to preserved upstream dependencies. \\
+%         (JMLR 2025) & & & \\
+%         \addlinespace
+%         \textbf{Var{\i}c{\i} et al.} \cite{varici2024multi} & Linear & \textbf{Partial:} Multi-node soft degrades to ID up to ancestors. & Presence of off-target effects in multi-node interventions leads to ancestor-level identifiability. \\
+%         (NeurIPS 2024) & & & \\
+%         \addlinespace
+%         \textbf{Zhang et al.} \cite{zhang2023} & Polynomial (Nonlinear) & \textbf{Perfect for Polytrees:} ID up to ancestors for general, dense DAGs. & Perfect identifiability requires polytree structure; biological networks' density causes ancestor mixing. \\
+%         (NeurIPS 2023) & & & \\
+%         \addlinespace
+%         \textbf{Brehmer et al.} \cite{brehmer2022} & Nonparametric & \textbf{Depends:} Works if paired data is observable and targets are known. & Paired observations infeasible due to cellular lysing in scRNA-seq. \\
+%         (NeurIPS 2022) & & & \\
+%         \addlinespace
+%         \textbf{SoftILCM} \cite{softilcm2024} & Implicit (VAE) & \textbf{Partial:} Disentanglement bound relies on graph sparsity and intervention strength. & Interventions in dense GRNs preserve upstream causal effects, degrading disentanglement. \\
+%         (arXiv 2024) & & & \\
+%         \addlinespace
+%         \textbf{Ahuja et al.} \cite{ahuja2023} \& \textbf{v. K{\"u}gelgen} \cite{vonkugelgen2023} & Polynomial / General & \textbf{None:} Score sparsity arguments completely break under parental dependence. & Theoretical guarantees depend on severed causal edges, invalidated by CRISPRa's mechanism. \\
+%         \bottomrule
+%     \end{tabularx}
+% \end{table}
+%
+% \subsection{Data Modality Limitations}
+%
+% Finally, methods like those proposed by Brehmer et al. \cite{brehmer2022} require weakly supervised paired observations (the exact same node observed before and after perturbation). Due to the destructive nature of scRNA-seq (cellular lysing), obtaining paired observations of the exact same cell is physically impossible, rendering these specific weakly supervised CRL approaches incompatible with single-cell datasets.
+%
+% In summary, the compounded limitations of existing CRL methods---namely their vulnerability to ancestor mixing under soft interventions, their reliance on sparse polytree structures, and their requirements for impossible paired counterfactual observations---render them fundamentally unequipped for analyzing CRISPRa datasets. While current state-of-the-art approaches have achieved perfect identifiability in idealized settings with hard interventions or sparse graphs, they mathematically degrade to partial ancestor mixing when confronting soft, multi-node perturbations. Consequently, there remains a critical theoretical gap, as no existing method provides a complete, identifiable solution for dense gene regulatory networks. To address these pervasive theoretical and practical gaps, we introduce Discrepancy VAE and SENA, novel frameworks explicitly designed to disentangle causal representations directly from soft, multi-node interventions in highly dense biological networks without relying on unrealistic data modalities.
+% \end{comment}
+
+%===============================================================================
+% END OF DRAFT
+%===============================================================================
