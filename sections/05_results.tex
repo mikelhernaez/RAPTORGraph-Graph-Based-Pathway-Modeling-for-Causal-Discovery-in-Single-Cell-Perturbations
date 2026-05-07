@@ -2,7 +2,7 @@
 \subsection{Evaluation Setup, Metrics and Datasets}
 \label{subsec:eval_setup_metrics}
 %===============================================================================
-\textbf{Datasets.} For evaluation we use two datasets: First, the Perturb-seq single-cell RNA-seq dataset from~\citet{norman2019exploring} and as processed in the CPA study~\citep{lotfollahi2023predicting} and refer to it as the Norman-CPA dataset.
+\textbf{Datasets.} For evaluation, we use two datasets: First, the Perturb-seq single-cell RNA-seq dataset from~\citet{norman2019exploring} and as processed in the CPA study~\citep{lotfollahi2023predicting} and refer to it as the Norman-CPA dataset.
 It profiles 105 gene perturbations in K562 cells, including both single and double perturbations.
 In total, 284 conditions across $\sim$108,000 cells were measured, of which 131 represent unique gene–gene combinations and the remaining 153 represent single perturbations. For each perturbation, associated control cells were also profiled. 
 We utilize the entire set of single-perturbations during training and evaluate the subsequent methods on the double-perturbations.
@@ -16,7 +16,7 @@ We start by assessing two key aspects of prediction fidelity using the single-ce
 \revised{We prioritized the Norman-CPA dataset for this comprehensive quantitative benchmarking because the implementations of several baseline models have auxiliary files and preprocessing steps that are tightly coupled to it, making adaptation to other datasets non-trivial.
 However, to further demonstrate generalizability, we provide an additional evaluation on the Replogle2020 dataset, restricted to a comparison between \gls{raptorgraph} and scGPT.}
 
-\textbf{Evaluation Metrics.} To ensure a consistent and fair benchmark across all evaluated  models, we use \gls{mse} and \gls{mmd} to assess the similarity between predicted and true gene expression distributions.
+\textbf{Evaluation Metrics.} To ensure a consistent and fair benchmark across all evaluated models, we use \gls{mse} and \gls{mmd} to assess the similarity between predicted and true gene expression distributions.
 The \gls{mmd} is calculated per type of perturbation (single or combinations thereof) and then averaged to provide an overall measure of distribution similarity.
 Alongside objective metric comparison, we use Precision@10 to evaluate non-additive interactions of combinatorial perturbations (see \cref{app:metrics}).
 
@@ -76,8 +76,8 @@ The results in \Cref{tab:MMD_results} highlight a crucial trade-off between reco
 \end{wraptable}
 
 \subsection{Prediction of non-additive genetic perturbations.} 
-This complex and biologically significant benchmark assesses a model's ability to predict complex interaction effects between single-gene perturbations that are beyond simple linear combinations  (\Cref{tab:gi_scores}).
-Specifically, we compared each model based on their ability to predict five distinct interaction types, using Precision@10 to quantify how effectively each model could identify true interactions within its top 10 predictions, a direct measure of its utility for experimental discovery (see \cref{app:metrics:genetic_interaction}). \gls{raptorgraph} is among the top performers in almost all metrics, yielding the best overall performance across all methods.  
+This complex and biologically significant benchmark assesses a model's ability to predict complex interaction effects between single-gene perturbations beyond simple linear combinations  (\Cref{tab:gi_scores}).
+Specifically, we compared each model based on its ability to predict five distinct interaction types, using Precision@10 to quantify how effectively each model could identify true interactions within its top 10 predictions, a direct measure of its utility for experimental discovery (see \cref{app:metrics:genetic_interaction}). \gls{raptorgraph} is among the top performers in almost all metrics, yielding the best overall performance across all methods.  
 
 \begin{table}[htb]
 \centering
@@ -101,7 +101,7 @@ Specifically, we compared each model based on their ability to predict five dist
 \vskip -0.1in
 \end{table}
 
-\textbf{OT ablation study.} We further investigated the contribution of \gls{ot} to this performance. Our ablation study reveal that \gls{ot} preprocessing is a key driver of the model's ability to predict complex non-additive interactions, particularly boosting redundancy and epistasis. Importantly, \gls{ot}-based pairing significantly outperforms a random pairing baseline. Note that this benefit comes with negligible computational overhead ($\approx 2.2\%$ of total training time). See \cref{app:extended_results:ot_impact} and \cref{app:extended_results:ot_complexity} for further details.
+\textbf{OT ablation study.} We further investigated the contribution of \gls{ot} to this performance. Our ablation study reveals that \gls{ot} preprocessing is a key driver of the model's ability to predict complex non-additive interactions, particularly boosting redundancy and epistasis. Importantly, \gls{ot}-based pairing significantly outperforms a random pairing baseline. Note that this benefit comes with negligible computational overhead ($\approx 2.2\%$ of total training time). See \cref{app:extended_results:ot_impact} and \cref{app:extended_results:ot_complexity} for further details.
 %Detailed analyses of these empirical benefits and the computational cost are provided in \cref{app:extended_results:ot_impact} and \cref{app:extended_results:ot_complexity}, respectively.
 
 \subsection{Reverse Perturbation Analysis} 
@@ -180,7 +180,7 @@ For this evaluation, we use the ``Hallmark'' gene sets from the Human Molecular 
 \end{enumerate}
 %
 \revised{
-These findings confirm that the nodes in our learned DAG represent specific biological mechanisms, and that the edges learned by the DAGMA module can be interpreted as causal regulatory links between these verified biological processes. A detailed description of the methodology is provided in \cref{app:metrics:gsea_setup}.
+These findings confirm that the nodes in our learned DAG represent specific biological mechanisms and that the edges learned by the DAGMA module can be interpreted as causal regulatory links between these verified biological processes. A detailed description of the methodology is provided in \cref{app:metrics:gsea_setup}.
 }
 %
 Detailed GSEA results and the associated enrichment heatmap are provided in \cref{app:extended_results:biological_validation}.
