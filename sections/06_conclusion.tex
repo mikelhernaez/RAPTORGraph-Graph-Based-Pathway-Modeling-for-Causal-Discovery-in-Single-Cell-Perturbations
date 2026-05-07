@@ -7,14 +7,13 @@ Developing interpretable \emph{in silico} models is crucial for therapeutic disc
 \revised{This architectural design eliminates the artifactual entanglement of input genes with latent pathways, while the subsequent DAG module explicitly learns the legitimate biological causal relationships and correlations between the resulting sparse pathway activities.}
 To prevent mean collapse, \gls{raptorgraph} globally pairs control and perturbed populations through \gls{ot}.
 \gls{raptorgraph} not only achieves a superior balance between reconstruction fidelity and distributional accuracy compared to state-of-the-art methods, but also demonstrates a superior capability to predict complex, non-additive genetic interactions, and can reverse-engineer genetic drivers to generate testable hypotheses.
-\gls{raptorgraph} bridges predictive power and mechanistic insight, enabling not only the prediction of a perturbation's effect but also understanding the reasoning behind it.
+\gls{raptorgraph} bridges predictive power and mechanistic insight, enabling not only the prediction of a perturbation's effect but also understanding the reasoning behind it. We provide a detailed analysis of the theoretical foundations and limitations of existing CRL methods in \cref{app:crl_methods}.
 
 \section{Limitations}
 \label{sec:limitations}
-While \gls{raptorgraph} significantly advances interpretable causal discovery, several limitations remain. 
-First, the framework is primarily optimized for atomic genetic interventions (e.g., CRISPRa/i), where each intervention has a clear, primary target. 
-In contrast, chemical or drug perturbations often exhibit complex multi-target profiles or off-target effects that may not map as cleanly to a single node in our GraphPathway encoder. 
-Second, the current implementation focuses on transcriptomic readouts; extending \gls{raptorgraph} to multi-omic interventional data (e.g., Perturb-ATAC-seq) to capture the interplay between epigenetic regulatory states and gene expression is a promising direction for future research.
+While \gls{raptorgraph} significantly advances interpretable causal discovery in single-cell perturbation data, we acknowledge certain limitations.
+The framework is primarily designed for transcriptomic readouts under atomic genetic interventions with known targets; extending to multi-omic data or more complex perturbations remains a promising direction.
+We provide a detailed theoretical analysis situating \gls{raptorgraph} within the broader CRL literature in \cref{app:crl_methods}.
 
 Future work will focus on deploying \gls{raptorgraph} for the hypothesis-driven discovery of novel drug targets and exploring its utility in uncovering cell-type specific pathway mechanisms.
 % Future work will focus on deploying \gls{raptorgraph} for the hypothesis-driven discovery of novel drug targets and exploring its utility in uncovering cell-type specific pathway mechanisms.
