@@ -396,7 +396,7 @@ To investigate the effect of the GraphPathway bottleneck, we define the paramete
 
 \begin{table}[h]
 \centering
-\caption{\revised{\textbf{Capacity Sweep Results.} Peak identification of **Genetic Interactions (GI scores)** occurs at tight structural bottlenecks. Results visualized in \cref{fig:rebuttal:capacity_curve}.}}
+\caption{\revised{\textbf{Capacity Sweep Results.} Peak identification of \textbf{Genetic Interactions (GI scores)} occurs at tight structural bottlenecks. Results visualized in \cref{fig:rebuttal:capacity_curve}.}}
 \label{tab:app:capacity_ablation}
 \begin{tabular}{cccccc}
 \toprule
@@ -410,7 +410,7 @@ Unbiased MMD $\downarrow$ & 0.140 & 0.106 & \textbf{0.091} & 0.113 & 0.184 \\
 \end{table}
 
 \revised{
-\textbf{Ablation Insight:} As capacity increases ($mult > 2.0$), **GI scores** (Neomorphism and Synergy) degrade. This confirms that the ``Hard'' structural constraints in \glsentryshort{raptorgraph} are essential for preventing the model from spurious correlations rather than learning causal mechanisms.
+\textbf{Ablation Insight:} As capacity increases ($mult > 2.0$), \textbf{GI scores} (Neomorphism and Synergy) degrade. This confirms that the ``Hard'' structural constraints in \glsentryshort{raptorgraph} are essential for preventing the model from spurious correlations rather than learning causal mechanisms.
 }
 
 %===============================================================================
@@ -444,7 +444,7 @@ The near-perfect correlation (0.996) demonstrates that \glsentryshort{raptorgrap
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{gfx/rebuttal/fig_dag_significance.png}
-    \caption{\revised{\textbf{Significance of the Learned DAG.} Comparative bar chart showing the impact of substituting the learned causal structure with a random sparse matrix. Randomization results in a **52\% drop in synergy accuracy** and a **258\% spike in MMD loss**, proving that the discovered causal edges are indispensable.}}
+    \caption{\revised{\textbf{Significance of the Learned DAG.} Comparative bar chart showing the impact of substituting the learned causal structure with a random sparse matrix. Randomization results in a \textbf{52\% drop in synergy accuracy} and a \textbf{258\% spike in MMD loss}, proving that the discovered causal edges are indispensable.}}
     \label{fig:rebuttal:dag_significance}
 \end{figure}
 
@@ -460,7 +460,7 @@ We substituted the learned DAG with a fixed random sparse matrix (maintaining id
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{gfx/rebuttal/fig_joint_opt_gain.png}
-    \caption{\revised{\textbf{Joint Optimization Performance Gain.} Bar chart demonstrating a **60\% reduction** in distributional alignment error (Unbiased MMD) when the causal DAG gradients are used to guide representation learning.}}
+    \caption{\revised{\textbf{Joint Optimization Performance Gain.} Bar chart demonstrating a \textbf{60\% reduction} in distributional alignment error (Unbiased MMD) when the causal DAG gradients are used to guide representation learning.}}
     \label{fig:rebuttal:joint_opt_gain}
 \end{figure}
 
