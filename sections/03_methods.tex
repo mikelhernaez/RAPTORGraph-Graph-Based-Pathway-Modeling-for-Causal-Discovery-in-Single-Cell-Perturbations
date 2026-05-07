@@ -72,7 +72,7 @@ For a comprehensive architectural description, we refer the reader to \cref{app:
 %These methods impose a strict and arbitrary causal hierarchy, as the influence of one latent variable on another is entirely restricted by their ordering (e.g., latent $i$ can only influence latent $j$ if $i<j$), which would conflict with the true biological relationships we aim to discover.
 %For this, we adapt the DAGMA framework~\citep{bello2022dagma} for its use in a deep learning context.
 
-In models with dense encoders, one can enforce acyclicity in the causal graph with simple structural constraints, such as an upper-triangular adjacency matrix, by assuming an implicit topological ordering of the latent factors (at the cost of the spillover problem). However, as the preconditioned GraphPathway encoder fixes the mapping from perturbed genes to specific causal latent factors, we can no longer assume a topological ordering of the latent factors. Note that such an imposed, arbitrary hierarchy would not match the biology. We therefore adapt the DAGMA framework~\citep{bello2022dagma} to learn the latent causal structure in our deep learning setting.
+In models with dense encoders, one can enforce acyclicity in the causal graph with simple structural constraints, such as an upper-triangular adjacency matrix, and thus assume an implicit topological ordering of the latent factors (at the cost of the spillover problem). However, due to the fixed mapping of the preconditioned GraphPathway encoder, we no longer can assume such topological ordering as it would not match the biology. We therefore adapt the DAGMA framework~\citep{bello2022dagma} to learn the latent causal structure in our deep learning setting.
 
 \textbf{DAGMA} reformulates the combinatorial search for a \gls{dag} into a continuous optimization problem.
 This is achieved by minimizing a score function that measures data fit, subject to a differentiable constraint that is satisfied only if the graph is acyclic.
@@ -93,7 +93,7 @@ First, we employ a path-following schedule where the score weight $\mu$ is gradu
 % [MODIFICATION: Addressing Reviewer yvAn] Clarified that the framework is trained end-to-end. 
 % Removed previous mention of "detached" gradients to resolve the misconception 
 % that representation learning and graph discovery are decoupled.
-Second, the entire framework is trained \textbf{end-to-end}. The \glsentryshort{dag} module is integrated as a differentiable \textit{Causal Transform} layer within the autoencoder's forward pass. This ensures that the reconstruction loss jointly optimizes the representation and the graph, while the \glsentryshort{dagma} objective $\dagmaloss$ acts as a \textbf{structural regularizer} to enforce acyclicity (see \cref{app:technical_notes}).
+Second, the entire framework is trained end-to-end. The \glsentryshort{dag} module is integrated as a differentiable \textit{Causal Transform} layer within the autoencoder's forward pass. This ensures that the reconstruction loss jointly optimizes the representation and the graph, while the \glsentryshort{dagma} objective $\dagmaloss$ acts as a structural regularizer to enforce acyclicity (see \cref{app:technical_notes}).
 }
 A detailed description of the DAGMA layer, its objective, theoretical background, and implementation can be found in \cref{app:dagma}.
 
@@ -123,8 +123,8 @@ The model is trained end-to-end by jointly minimizing a composite objective func
 where the scalar hyperparameters $\alpharec, \betakl, \gammammd$, and $\deltadagma$ balance each term's contribution. 
 Specifically, we employ a reconstruction loss ($\mseloss$) to maintain high-fidelity control unperturbed cell reconstruction; 
 a KL divergence ($\kldloss$) to regularize the meta-pathway manifold; 
-an interventional prediction loss ($\mmdloss$) to align distributions of predicted perturbed gene expressions with the experimental ground truth; 
-and a causal graph loss ($\dagmaloss$) to enforce structural acyclicity and data fit:
+an interventional prediction loss ($\mmdloss$) to align distributions of predicted perturbed gene expressions with  experimental ground truth; 
+and a causal graph loss ($\dagmaloss$) to enforce structural acyclicity:
 \begin{equation}
     \dagmaloss = \mu(\scorefunc(\graphmatrix; \datamatrix) + \lambda_1 \|\graphmatrix\|_1) + \acyclicityfunc(\graphmatrix),
     \label{eq:dagma_loss_full}

@@ -20,13 +20,13 @@ However, to further demonstrate generalizability, we provide an additional evalu
 The \gls{mmd} is calculated per type of perturbation (single or combinations thereof) and then averaged to provide an overall measure of distribution similarity.
 Alongside objective metric comparison, we use Precision@10 to evaluate non-additive interactions of combinatorial perturbations (see \cref{app:metrics}).
 
-\subsection{Hyperparameter ablation Studies} 
+\subsection{Hyperparameter ablation studies} 
 \revised{
 To validate our hyperparameter selection, we conducted a comprehensive ablation study on the VAE regularization parameter ($\beta$) and the DAGMA score weights ($\mu, \lambda_1$).
 Our analysis reveals a critical trade-off between distribution matching and the preservation of biological heterogeneity.
 See \cref{app:extended_results:ablation_study} for detailed results of the full hyperparameter sweep and the rationale for the selected configuration.}
 %
-\subsection{\gls{raptorgraph} Reconstruction capabilities} First, we measured the MSE between the ground truth and predicted profiles of control cells to evaluate how well each model reconstructs the basal, unperturbed cellular state.
+\subsection{Learning capabilities of \gls{raptorgraph}} First, we measured the MSE between the ground truth and predicted profiles of control cells to evaluate how well each model reconstructs the basal, unperturbed cellular state.
 Second, we calculated the \gls{mmd} between the distributions of ground truth and predicted profiles for double-gene perturbations to assess the model's ability to capture the global transcriptional shift following a complex intervention. A detailed description of these metrics is provided in \cref{app:metrics}. 
 
 \begin{table}[htb]
@@ -59,6 +59,7 @@ The results in \Cref{tab:MMD_results} highlight a crucial trade-off between reco
 
 \begin{wraptable}{r}{0.48\textwidth}
     \centering
+    \vspace{-6pt}
     \vspace{-0.5\baselineskip}
     \caption{\revised{Results using the Replogle2020 dataset are averaged over $3$ runs. Values are mean $\pm$ variance. Bold: best results.}}
     \resizebox{0.48\textwidth}{!}{%
@@ -76,7 +77,8 @@ The results in \Cref{tab:MMD_results} highlight a crucial trade-off between reco
 \end{wraptable}
 
 \subsection{Prediction of non-additive genetic perturbations.} 
-This complex and biologically significant benchmark assesses a model's ability to predict complex interaction effects between single-gene perturbations beyond simple linear combinations  (\Cref{tab:gi_scores}).
+%This complex and biologically significant benchmark 
+We next assess model's ability to predict complex interaction effects between single-gene perturbations beyond simple linear combinations  (\Cref{tab:gi_scores}).
 Specifically, we compared each model based on its ability to predict five distinct interaction types, using Precision@10 to quantify how effectively each model could identify true interactions within its top 10 predictions, a direct measure of its utility for experimental discovery (see \cref{app:metrics:genetic_interaction}). \gls{raptorgraph} is among the top performers in almost all metrics, yielding the best overall performance across all methods.  
 
 \begin{table}[htb]
