@@ -4,23 +4,23 @@
 
 \item {\bf Claims}
     \item[] Question: Do the main claims made in the abstract and introduction accurately reflect the paper's contributions and scope?
-    \item[] Answer: \answerYes{} 
-    \item[] Justification: The abstract and introduction accurately summarize our contributions, including the GraphPathway layer, the Causal Transform integration, and the OT-based alignment, all of which are supported by experimental results in Section 5.
+    \item[] Answer: \answerYes{}
+    \item[] Justification: The abstract and introduction accurately summarize our contributions, including the GraphPathway layer, the Causal Transform integration, and the OT-based alignment, all of which are supported by experimental results in \cref{sec:results}.
 
 \item {\bf Limitations}
     \item[] Question: Does the paper discuss the limitations of the work performed by the authors?
     \item[] Answer: \answerYes{}
-    \item[] Justification: Limitations regarding the handling of complex multi-target drug perturbations and the current focus on single-omic data are discussed in \cref{app:crl_methods}.
+    \item[] Justification: Limitations are discussed in \cref{app:crl_methods:raptorgraph_limitations}.
 
 \item {\bf Theory assumptions and proofs}
     \item[] Question: For each theoretical result, does the paper provide the full set of assumptions and a complete (and correct) proof?
     \item[] Answer: \answerYes{}
-    \item[] Justification: Formal proofs for the necessity of OT pairing (Mean Collapse) and the mathematical derivation of the Causal Transform layer are provided in Appendix B and D, respectively.
+    \item[] Justification: Formal proofs for the necessity of OT pairing (Mean Collapse) and the mathematical derivation of the Causal Transform layer are provided in \cref{app:theory:mean_collapse} and \cref{app:dagma}, respectively.
 
 \item {\bf Experimental result reproducibility}
     \item[] Question: Does the paper fully disclose all the information needed to reproduce the main experimental results of the paper to the extent that it affects the main claims and/or conclusions of the paper (regardless of whether the code and data are provided or not)?
     \item[] Answer: \answerYes{}
-    \item[] Justification: We provide full architectural details (Appendix D), hyperparameter settings (Appendix E), and data preprocessing steps (Appendix H) required for reproduction.
+    \item[] Justification: We provide full architectural details (\cref{app:architecture}), hyperparameter settings (\cref{app:training_configs}), and data preprocessing steps (\cref{app:methodology}) required for reproduction.
 
 \item {\bf Open access to data and code}
     \item[] Question: Does the paper provide open access to the data and code, with sufficient instructions to faithfully reproduce the main experimental results, as described in supplemental material?
@@ -30,12 +30,12 @@
 \item {\bf Experimental setting/details}
     \item[] Question: Does the paper specify all the training and test details (e.g., data splits, hyperparameters, how they were chosen, type of optimizer) necessary to understand the results?
     \item[] Answer: \answerYes{}
-    \item[] Justification: Comprehensive training details, including data splits and optimization hyperparameters, are detailed in Appendix E.
+    \item[] Justification: Comprehensive training details, including data splits and optimization hyperparameters, are detailed in \cref{app:training_configs}.
 
 \item {\bf Experiment statistical significance}
     \item[] Question: Does the paper report error bars suitably and correctly defined or other appropriate information about the statistical significance of the experiments?
     \item[] Answer: \answerYes{}
-    \item[] Justification: Key performance metrics are reported with standard deviations across 7 independent seeds in Section 5 and Appendix F.
+    \item[] Justification: Key performance metrics are reported with standard deviations across 7 independent seeds in \cref{sec:results} and \cref{app:extended_results}.
 
 \item {\bf Experiments compute resources}
     \item[] Question: For each experiment, does the paper provide sufficient information on the computer resources (type of compute workers, memory, time of execution) needed to reproduce the experiments?
@@ -50,7 +50,7 @@
 \item {\bf Broader impacts}
     \item[] Question: Does the paper discuss both potential positive societal impacts and negative societal impacts of the work performed?
     \item[] Answer: \answerYes{}
-    \item[] Justification: Potential positive impacts on drug discovery and the importance of experimental validation for clinical applications are discussed in the Conclusion.
+    \item[] Justification: Potential positive impacts on drug discovery and the importance of experimental validation for clinical applications are discussed in \cref{sec:conclusion}.
 
 \item {\bf Safeguards}
     \item[] Question: Does the paper describe safeguards that have been put in place for responsible release of data or models that have a high risk for misuse (e.g., pre-trained language models, image generators, or scraped datasets)?
