@@ -1,78 +1,64 @@
-%===============================================================================
-% SECTION: METHODS
-%===============================================================================
-\section{RAPTORGraph: model architecture and learning}
-\label{sec:methods}
-%===============================================================================
+\section*{Materials and methods}
 
-\gls{raptorgraph} is an end-to-end framework designed to learn causal relationships from interventional single-cell data (Perturb-seq data). It consists of two novel modules: a preconditioned GraphPathway encoder~(\cref{subsec:methods:graphpathway}) that maps genes to learned interpretable causal latent factors (the \cmps{}),  and a DAGMA-based DAG module~(\cref{subsec:methods:dagma}) that infers the causal graph.
-The proposed design directly addresses the Intervention Spillover Problem, ensuring that individual gene interventions target a unique \cmp{} (\cref{app:architecture:overview} for a detailed description of the model).
-
-%-------------------------------------------------------------------------------
-% Subsection: GraphPathway Encoder for Deconfounding through Preconditioning
-%-------------------------------------------------------------------------------
-\subsection{GraphPathway encoder with preconditioning}
-\label{subsec:methods:graphpathway}
-%-------------------------------------------------------------------------------
-
-To address the Intervention Spillover Problem, we introduce a novel encoder architecture, the GraphPathway Encoder, which enforces the theoretical requirement for single-causal-factor interventions through preconditioning.
-%This approach requires a specific ordering of the input data.
+\subsection*{GraphPathway encoder for deconfounding through preconditioning}
+To address the Intervention Spillover Problem and enforce the theoretical requirement for single-causal-factor interventions, we introduce a novel encoder architecture, the GraphPathway Encoder, which features a deconfounding approach through preconditioning.
+This approach requires a specific ordering of the input data.
 Let $\numperturbedgenes$ be the number of known perturbed genes in the experiment.
 Without loss of generality, we assume the input gene vector $\variables \in \realnumbers^\observeddim$ is sorted such that the first $\numperturbedgenes$ genes are those perturbed, followed by the remaining $\observeddim-\numperturbedgenes$ unperturbed genes.
 
-\textbf{Pre-conditioning module (\cref{fig:arch:graphpathway_encoder}-A)}. Given this sorted input, we define our model with $\latentdim$ learned \cmps{}, where we require that the number of learned \cmps{} is at least the number of perturbed genes ($\latentdim \ge \numperturbedgenes$).
-We then structure the encoder's primary weight matrix $\weightmatrix$ as a block matrix that enforces a sparse, one-to-one mapping for perturbed genes while allowing dense interactions for the unperturbed components (see \cref{app:graphpathway} for the formal definition of $\weightmatrix$).
-%
-This diagonal structure ensures that each of the $\numperturbedgenes$ perturbed genes directly influences only one of the first $\numperturbedgenes$ learned \cmps{} (\cref{fig:arch:graphpathway_encoder}-\textbf{A}).
-The zero block in $\weightmatrix$ explicitly blocks the influence of perturbed genes on the remaining \cmps{}, thereby satisfying the key structural requirements for identifiability.
-The other submatrices are learnable and dense, allowing the model to discover complex gene-gene relationships and associate them with the learned \cmps{}. %Crucially, this preconditioned structure specified which \cmp{} to shift for each intervention, to be predefined and fixed rather than learned, .
+\textbf{Pre-conditioning module.} Given this sorted input, we define our model with $\latentdim$ learned causal latents (meta-pathways), where we require that the number of learned meta-pathways is at least the number of perturbed genes ($\latentdim \ge \numperturbedgenes$).
+We then structure the encoder's primary weight matrix $\weightmatrix$ as a block matrix:
+\begin{equation}
+    \weightmatrix =
+    \begin{pmatrix}
+        \Lambda_{11}   & \weightmatrix_{12} \\
+        \vzero_{(\latentdim-\numperturbedgenes) \times \numperturbedgenes} & \weightmatrix_{22}
+    \end{pmatrix}
+    \in \realnumbers^{\latentdim \times \observeddim}
+    , \quad
+    \Lambda_{11} =
+    \begin{pmatrix}
+        w_{11} & 0      & \dots  & 0 \\
+        0      & w_{22} & \dots  & 0 \\
+        \vdots & \vdots & \ddots & \vdots \\
+        0      & 0      & \dots  & w_{\numperturbedgenes\numperturbedgenes}
+    \end{pmatrix}
+    \label{eq:preconditioning_matrix}
+\end{equation}
+where the top-left submatrix $\Lambda_{11} \in \realnumbers^{\numperturbedgenes \times \numperturbedgenes}$ is a learnable, strictly diagonal matrix.
 
-\textbf{Latent grouping via an interaction block (\cref{fig:arch:graphpathway_encoder}-B)}. To further model complex non-linear gene-gene dynamics, our architecture extends the preconditioning by learning multiple distinct subgraph representations for each meta-pathway.
-An intermediate \emph{Interaction Block} then processes these subgraph activations, allowing the model to capture higher-order dependencies by learning unique interaction patterns among the subgraphs within each learned meta-pathway (\cref{fig:arch:graphpathway_encoder}-\textbf{B}).
+This diagonal structure enforces a direct, one-to-one mapping, ensuring each of the $\numperturbedgenes$ perturbed genes directly influences only one of the first $\numperturbedgenes$ learned meta-pathways.
+The bottom-left zero block, $\vzero_{(\latentdim-\numperturbedgenes) \times \numperturbedgenes}$, is critical for preventing intervention spillover by explicitly blocking the influence of perturbed genes on the remaining learned meta-pathways.
+The other submatrices, $\weightmatrix_{12}$ and $\weightmatrix_{22}$, are learnable and dense, allowing the model flexibility to discover complex relationships between unperturbed genes and all learned meta-pathways.
+Crucially, this preconditioned structure allows the intervention mask $\maskvector$ to be predefined and fixed rather than learned, directly satisfying the theoretical requirements for identifiability.
 
-\textbf{Meta-pathway inference via VAE (\cref{fig:arch:graphpathway_encoder}-C)}. Next, an aggregation layer combines these processed features to compute the VAE parameters ($\vect{\mu}_{\latentvars}$ and $\vect{\sigma}_{\latentvars}$) for the meta-pathway distributions (\cref{fig:arch:graphpathway_encoder}-\textbf{C}). Thus, the final stochastic representations of the meta-pathways are then obtained using the reparameterization trick $\latentvars = \vect{\mu}_{\latentvars} + \vect{\sigma}_{\latentvars} \circ \vect{\epsilon}; \quad \vect{\epsilon} \sim \normaldist(\vect{0}, \identitymatrix)$.
+\textbf{Latent grouping via an interaction block}. To model the complex non-linear dynamics of biological systems, our architecture extends this preconditioning approach by learning multiple distinct subgraph representations for each (exogenous) latent factor.
+An intermediate \emph{Interaction Block} then processes these subgraph activations, allowing the model to capture higher-order dependencies by learning unique interaction patterns among the subgraphs within each learned latent factor.
 
-\revised{\textbf{Causal meta-pathway inference via DAGMA (\cref{fig:arch:graphpathway_encoder}-D, see \cref{subsec:methods:dagma})}. The model then represents the downstream biological consequences of genetic interventions through the activities of \cmps{}. Specifically, a DAGMA layer propagates the VAE-learned (independent) meta-pathway activities through a learned DAG, yielding the final causally dependent meta-pathway activities.}
+\textbf{Exogeneous latent factor inference via VAE}. Next, an aggregation layer combines these processed features to compute the parameters ($\vect{\mu}_{\latentvars}$ and $\vect{\sigma}_{\latentvars}$) for the (exogenous) latent distributions.
+Thus, the final stochastic representations of the latent factors are then obtained using the reparameterization trick $\latentvars = \vect{\mu}_{\latentvars} + \vect{\sigma}_{\latentvars} \odot \vect{\epsilon}; \quad \vect{\epsilon} \sim \normaldist(\vect{0}, \identitymatrix)$.
+Subsequently, a latent modulator predicts a conditional shift for the targeted latent variables, strictly modifying only the specific latent variable associated with the perturbation while preserving the independence of the others.
 
-\textbf{Decoder.} As the last step of the model, a non-linear dense decoder maps these causal states back to the high-dimensional gene expression space to predict the post-perturbation (or unperturbed/control) gene expression. 
-For a comprehensive architectural description, we refer the reader to \cref{app:graphpathway}.
+\textbf{Causal latent factor (causal meta-pathway) inference via DAGMA}. To capture the downstream biological consequences, a DAGMA layer propagates these atomic interventions through a learned directed acyclic graph, transforming the independent noise terms into causally dependent pathway activities.
+Finally, a non-linear dense decoder maps these propagated causal states back to the high-dimensional gene expression space to predict the final post-perturbation phenotype.
 
-\begin{figure}[t]
+\begin{figure}[htbp]
     \centering
-    \includegraphics[width=\linewidth]{gfx/GraphPathway_modified.png}
-    \caption{
-        \textbf{The GraphPathway Encoder architecture of \gls{raptorgraph}.}
-        \textbf{A}: \revised{Gene expression of control cells ($\variables$) is fed to} the preconditioned linear layer, \revised{which} enforces a one-to-one mapping from perturbed genes to a (subset) of meta-pathways.
-        \textbf{B}: \revised{Complex gene-gene dependencies are captured by learning} multiple parallel representations, \revised{which are then} aggregated via MLP.
-        \textbf{C}: A \gls{vae} reparameterization head \revised{generates} the stochastic latent variables \revised{($\latentvars$)}.
-        \textbf{D}: A latent modulator takes the perturbation index ($\{1,\cdots,k\}$) and the associated learned distribution shift \revised{($\effectvector$)} and applies it to the observed latent state ($\zobs$) to generate the interventional latent state ($\zint$). Both $\zobs$ and $\zint$ are then transformed by the learned \gls{dag} to \revised{yield} the final causal states \revised{($\latentcausalvars$), which are reconstructed into the predicted control ($\hat{\variables}_{\text{obs}}$) and perturbed ($\hat{\variables}_{\text{int}}$) gene expression profiles by a dense decoder.}
-    }
+    \includegraphics[width=1\linewidth]{Bildschirmfoto 2025-12-04 um 09.33.46.png}
+    \caption{\textbf{The GraphPathway Encoder architecture of \gls{raptorgraph}.}
+        \textbf{A}: Gene expression of control cells ($\zobs$) is fed as input to the preconditioned linear layer, which enforces a sparse, one-to-one mapping for known perturbed genes to explicitly prevent intervention spillover.
+        \textbf{B}: Complex dependencies are captured by learning multiple parallel graph representations, which are then aggregated to model non-linear interactions.
+        \textbf{C}: A standard \gls{vae} reparameterization head generates the stochastic latent variables ($\latentvars$).
+        \textbf{D}: A Latent Modulator takes the perturbation label as input and applies atomic perturbations ($\effectvector$) to the independent latents ($\latentvars$), shifting the distribution from the observed latent state ($\zobs$) to the interventional latent state ($\zint$). Both $\zobs$ and $\zint$ are then transformed by the DAGMA layer through the learned \gls{dag} via linear mixing to yield the final causal states ($\latentcausalvars$), which are reconstructed into the predicted control ($\hat{\variables}_{\text{obs}}$) and perturbed ($\hat{\variables}_{\text{int}}$) gene expression profiles by a dense decoder.}
     \label{fig:arch:graphpathway_encoder}
 \end{figure}
 
-% \begin{figure}[htbp]
-%     \centering\includegraphics[width=1\linewidth]{gfx/GraphPathwayLayer_final.png}
-%     \caption{
-%         The GraphPathway Encoder architecture of \gls{raptorgraph}.
-%         \textbf{A}: The preconditioned linear layer enforces a sparse, one-to-one mapping for known perturbed genes, preventing spillover.
-%         \textbf{B}: Multiple parallel graph representations are learned and then aggregated to model non-linear interactions.
-%         \textbf{C}: A standard \gls{vae} reparameterization head produces the final stochastic latent variables.
-%     }\label{fig:arch:graphpathway_encoder}
-% \end{figure}
-
-%-------------------------------------------------------------------------------
-% Subsection: Deep Causal Graph Learning with DAGMA
-%-------------------------------------------------------------------------------
-\subsection{Deep Causal Graph Learning with DAGMA}
-\label{subsec:methods:dagma}
-%-------------------------------------------------------------------------------
-
-%The GraphPathway Encoder fundamentally alters the causal structure discovery task. By fixing the mapping to specific latent variables, it eliminates the need for permutation-based discovery methods that assume a dense, entangled encoder.
-%However, this fixed ordering makes simple acyclicity constraints, such as enforcing an upper-triangular adjacency matrix, unsuitable.
-%These methods impose a strict and arbitrary causal hierarchy, as the influence of one latent variable on another is entirely restricted by their ordering (e.g., latent $i$ can only influence latent $j$ if $i<j$), which would conflict with the true biological relationships we aim to discover.
-%For this, we adapt the DAGMA framework~\citep{bello2022dagma} for its use in a deep learning context.
-
-In models with dense encoders, one can enforce acyclicity in the causal graph with simple structural constraints, such as an upper-triangular adjacency matrix, and thus assume an implicit topological ordering of the latent factors (at the cost of the spillover problem). However, due to the fixed mapping of the preconditioned GraphPathway encoder, we no longer can assume such topological ordering as it would not match the biology. We therefore adapt the DAGMA framework~\citep{bello2022dagma} to learn the latent causal structure in our deep learning setting.
+\subsection*{Deep causal graph learning with DAGMA}
+The GraphPathway Encoder with preconditioning fundamentally alters the causal discovery task.
+By fixing the mapping from known interventions to specific latent variables, it eliminates the need for permutation-based discovery methods that assume a dense, entangled encoder.
+However, this fixed ordering makes simple acyclicity constraints, such as enforcing an upper-triangular adjacency matrix, unsuitable.
+These methods impose a strict and arbitrary causal hierarchy, as the influence of one latent variable on another is entirely restricted by their ordering (e.g., latent $i$ can only influence latent $j$ if $i<j$), which would conflict with the true biological relationships we aim to discover.
+For this, we adapt the DAGMA framework~\cite{bello2022dagma} for use in a deep learning context.
 
 \textbf{DAGMA} reformulates the combinatorial search for a \gls{dag} into a continuous optimization problem.
 This is achieved by minimizing a score function that measures data fit, subject to a differentiable constraint that is satisfied only if the graph is acyclic.
@@ -80,54 +66,90 @@ The DAGMA acyclicity constraint, $\acyclicityfunc_s(\graphmatrix)$, is based on 
 \begin{equation}
     \acyclicityfunc_s(\graphmatrix) = -\log\det(s\identitymatrix - \graphmatrix \circ \graphmatrix) + \latentdim\log s = 0
 \end{equation}
-where $\graphmatrix \in \realnumbers^{\latentdim \times \latentdim}$ is the weighted adjacency matrix of the latent graph, $s > 0$ is a scaling scalar, and $\circ$ represents the Hadamard product. Note that the condition holds if and only if $\graphmatrix$ represents a \gls{dag}.
+where $\graphmatrix \in \realnumbers^{\latentdim \times \latentdim}$ is the weighted adjacency matrix of the latent graph, $s > 0$ is a scaling scalar, and the condition holds if and only if $\graphmatrix$ represents a \gls{dag}.
 The optimization then solves a sequence of unconstrained problems that jointly minimize a data-fit score and the acyclicity penalty.
 
-%We implement a modified DAGMA approach with a dual-gradient system to ensure stability and causal fidelity.
-%The causal graph is learned by computing the DAGMA loss exclusively on the latent representations of observational data.
-%This encourages the model to learn the invariant, baseline causal structure of the biological system.
-%Our implementation includes several key modifications for stable and effective graph discovery within a deep generative model.
-\revised{\textbf{DAGMA implementation.} We implement a modified DAGMA approach designed to learn the invariant, baseline causal structure of the biological system.
+\textbf{DAGMA implementation.} We implement a modified DAGMA approach designed to learn the invariant, baseline causal structure of the biological system.
 To ensure stability and manage the trade-off between reconstruction fidelity and acyclicity, we introduce two critical regularizations.
 First, we employ a path-following schedule where the score weight $\mu$ is gradually decreased (see \cref{eq:dagma_loss_full}), allowing the model to prioritize feature learning early in training before strictly enforcing the graph constraint.
-% [MODIFICATION: Addressing Reviewer yvAn] Clarified that the framework is trained end-to-end. 
-% Removed previous mention of "detached" gradients to resolve the misconception 
-% that representation learning and graph discovery are decoupled.
-Second, the entire framework is trained end-to-end. The \glsentryshort{dag} module is integrated as a differentiable \textit{Causal Transform} layer within the autoencoder's forward pass. This ensures that the reconstruction loss jointly optimizes the representation and the graph, while the \glsentryshort{dagma} objective $\dagmaloss$ acts as a structural regularizer to enforce acyclicity (see \cref{app:dagma}).
-}
-A detailed description of the DAGMA layer, its objective, theoretical background, and implementation can be found in \cref{app:dagma}.
+Second, we isolate gradient flow by computing $\dagmaloss$ on detached latent representations.
+This ensures the acyclicity constraint optimizes the graph structure without distorting the encoder's feature extraction.
 
-%===============================================================================
-\subsection{Optimal Transport for Deterministic Interventional Learning}
-%===============================================================================
-
-A fundamental challenge in single-cell interventional modeling is the lack of a direct one-to-one mapping between control and perturbed cells, creating a counterfactual gap.
-Standard approaches often address this by randomly pairing control and interventional samples during training.
-However, this random pairing may pair cells with poor counterfactuals, providing inconsistent gradient signals that force the model to minimize loss by predicting the average of the target distribution---a phenomenon termed \textit{mean collapse} (see \cref{fig:app:ot_comparison}).
-To resolve this, we employ a Wasserstein-based \gls{ot} framework to establish a deterministic, globally optimal mapping.
-By minimizing the total transport cost between the control and perturbed populations, \gls{ot} pairs each cell with its most biologically similar counterpart.
-This preserves heterogeneous subpopulation structures and ensures stable, structure-preserving representations for causal discovery (see \cref{app:ot} for mathematical details).
-
-%-------------------------------------------------------------------------------
-% Subsection: Training Objective
-%-------------------------------------------------------------------------------
-\subsection{Training Objective}
-\label{subsec:methods:loss}
-%-------------------------------------------------------------------------------
-
-The model is trained end-to-end by jointly minimizing a composite objective function, $\totalloss$, which balances four specialized components to ensure robust representation learning and causal discovery:
+\subsection*{Training objective}
+The model is trained end-to-end by minimizing a composite objective function, $\totalloss$, that integrates four distinct components, each tailored to a specific aspect of the learning problem.
+The overall objective is a weighted sum of these individual losses:
 \begin{equation}
-    \totalloss = \alpharec\mseloss + \betakl\kldloss +\quad \gammammd\mmdloss + \deltadagma\dagmaloss
+    \totalloss = \alpharec\mseloss + \betakl\kldloss + \gammammd\mmdloss + \deltadagma\dagmaloss
     \label{eq:total_loss}
 \end{equation}
-where the scalar hyperparameters $\alpharec, \betakl, \gammammd$, and $\deltadagma$ balance each term's contribution. 
-Specifically, we employ a reconstruction loss ($\mseloss$) to maintain high-fidelity control unperturbed cell reconstruction; 
-a KL divergence ($\kldloss$) to regularize the meta-pathway manifold; 
-an interventional prediction loss ($\mmdloss$) to align distributions of predicted perturbed gene expressions with  experimental ground truth; 
-and a causal graph loss ($\dagmaloss$) to enforce structural acyclicity:
+where $\alpharec, \betakl, \gammammd$, and $\deltadagma$ are scalar hyperparameters that balance the contribution of each term.
+
+\textbf{Reconstruction Loss ($\mseloss$).}
+For observational data, the model is trained to faithfully reconstruct the input gene expression profiles.
+This is measured by the \gls{mse} between the decoder's output and the original unperturbed input, ensuring the model learns a high-fidelity representation of the basal cellular state.
+
+\textbf{KL Divergence ($\kldloss$).}
+As a standard component of a \gls{vae}, a Kullback-Leibler divergence term is included to regularize the latent space.
+It encourages the learned posterior distribution over the latent variables, $q(\latentvars|\variables)$, to be close to a prior distribution, $p(\latentvars)$, which is typically a standard normal distribution.
+This promotes a smooth and well-structured latent space.
+
+\textbf{Interventional Prediction Loss ($\mmdloss$).}
+For interventional data, the model's ability to predict out-of-distribution outcomes is evaluated using the \gls{mmd}.
+This loss measures the distributional distance between the model-predicted cell states following a perturbation and the ground-truth distribution of experimentally observed cells for that same perturbation.
+
+\textbf{Causal Graph Loss ($\dagmaloss$).}
+The DAGMA loss is computed on the latent representations of observational data to learn the invariant causal graph structure between the learned meta-pathways.
+This objective integrates three key components: a data-fit score, an L1 penalty to encourage sparsity, and the differentiable acyclicity constraint.
+The loss is defined as:
 \begin{equation}
-    \dagmaloss = \mu(\scorefunc(\graphmatrix; \datamatrix) + \lambda_1 \|\graphmatrix\|_1) + \acyclicityfunc(\graphmatrix),
+    \dagmaloss = \mu(\scorefunc(\graphmatrix; \datamatrix) + \lambda_1 \|\graphmatrix\|_1) + \acyclicityfunc(\graphmatrix)
     \label{eq:dagma_loss_full}
 \end{equation}
-where $\scorefunc(\graphmatrix; \datamatrix)$ is a score function (see \cref{app:dagma:optimization}), $\|\graphmatrix\|_1$ is the L1 norm, and $\acyclicityfunc(\graphmatrix)$ is the acyclicity penalty.
-A comprehensive derivation and discussion of each term is provided in \cref{app:metrics}.
+where $\scorefunc(\graphmatrix; \datamatrix)$ is a score, $\|\graphmatrix\|_1$ is the L1 norm of the adjacency matrix, and $\acyclicityfunc(\graphmatrix)$ is the acyclicity penalty.
+The hyperparameters $\mu$ and $\lambda_1$ control the weighting of the score and sparsity terms, respectively.
+
+\subsection*{Optimal transport for deterministic interventional learning}
+A fundamental challenge in learning from single-cell perturbation data is the absence of a direct one-to-one mapping between control and perturbed cell populations, as it is impossible to observe the same cell before and after the intervention.
+This makes learning the treatment effect a fundamental counterfactual problem, where the central challenge is to identify a general transformation that maps the control distribution to the perturbed distribution in the absence of paired examples.
+To address this counterfactual gap, many models create training pairs by randomly matching control and interventional samples.
+While computationally efficient, this random pairing is a primary cause of what we term \emph{mean collapse}: a process where the model learns the average response, collapsing the distribution towards its mean and eroding cellular diversity (\cref{fig:ot_comparison}).
+\begin{wrapfigure}[13]{r}{.395\textwidth}
+    \vspace{-8pt}
+    \begin{subfigure}{0.49\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{OT.png}
+    \subcaption{}
+    \label{fig:ot_comparison_a}
+    \end{subfigure}
+    \begin{subfigure}{0.49\linewidth}
+    \includegraphics[width=\linewidth]{ot_comparison.png}
+    \subcaption{}
+    \label{fig:ot_comparison_b}
+    \end{subfigure}
+\caption{
+    Illustrative example of mean collapse problem.
+    (a) Random pairing collapses the source distribution towards the target mean.
+    (b) The \gls{ot} preserves the underlying population structure.
+    }
+    \label{fig:ot_comparison}
+\end{wrapfigure}
+To address these issues, we employ a Wasserstein-based \gls{ot}~\cite{cuturi2013sinkhorn,flamary2021pot} framework to globally pair control cells with perturbed cells under unique conditions (\cref{fig:ot_comparison_b}).
+Although several recent methods address unpaired single-cell perturbation data~\cite{bunne2023learning,dong2023causal}, we adopt \gls{ot} as an offline pairing step for simplicity while avoiding mean collapse.
+
+\subsection*{Evaluation setup and metrics}
+To ensure a consistent and fair benchmark across all models taken into account, we use \gls{mkmmd} to assess the similarity between predicted and true gene expression distributions.
+The MK-MMD is calculated per-condition and then averaged to provide an overall measure of distribution similarity.
+Alongside objective metric comparison, we use Precision@10 to evaluate non-additive interactions of combinatorial perturbations.
+
+We used the Perturb-seq single-cell RNA-seq dataset curated by Norman et al.~\cite{norman2019exploring} as processed in the CPA study~\cite{lotfollahi_predicting_2023} and refer to it as the Norman-CPA dataset.
+It profiles 105 gene perturbations in K562 cells, including both single and double perturbations.
+In total, 284 conditions across $\sim$108{,}000 cells were measured, of which 131 represent unique gene--gene combinations and the remainder single perturbations or controls, respectively.
+We utilize the entire set of single-perturbations during training and evaluate the subsequent methods on the double-perturbations.
+
+Additionally, we used the CRISPRi single-cell RNA-seq dataset (exp6) curated by Replogle et al.~\cite{replogle_combinatorial_2020} as processed in the PerturBase study~\cite{wei_perturbase_2024} and refer to it as the Replogle2020 dataset.
+This dataset profiles 82 gene perturbations in K562 cells, including both single (44) and double (37) perturbations and control.
+The 82 conditions were measured across $\sim$22{,}740 cells.
+
+%=====================================================================
+% RESULTS
+%=====================================================================

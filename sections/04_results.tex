@@ -1,0 +1,98 @@
+\section*{Results}
+To first establish the foundational accuracy of \gls{raptorgraph}, we benchmarked its generative performance against four state-of-the-art models: SENA, scGPT, \gls{dvae}, and GEARS.
+We assessed two key aspects of prediction fidelity primarily using the single-cell perturbation dataset from Norman et al.~\cite{norman2019exploring}.
+We prioritized this dataset for the comprehensive comparison because the implementations of several baseline models have auxiliary files and preprocessing steps that are tightly coupled to it, making adaptation to other datasets non-trivial.
+However, to further demonstrate generalizability, we provide an additional evaluation on the Replogle2020 dataset, restricted to a comparison between \gls{raptorgraph} and scGPT.
+
+To validate our hyperparameter selection, we conducted a comprehensive ablation study on the $\beta$-VAE regularization parameter ($\beta$) and the DAGMA loss weights ($\mu, \lambda_1$).
+Our analysis reveals a critical trade-off between distribution matching and the preservation of biological heterogeneity.
+While higher regularization ($\beta \geq 0.8$) achieves competitive \gls{mkmmd} scores, it induces severe posterior collapse, with the variance of predicted control cell states dropping by an order of magnitude compared to the optimal setting ($10^{-4}$ vs $10^{-3}$).
+Conversely, lower regularization ($\beta = 0.1$) preserves higher variance but results in unstable training and significantly higher \gls{mkmmd}.
+We identified $\beta \approx 0.4$ as the optimal operating point, minimizing \gls{mkmmd} while maintaining a latent KL divergence ($\approx 10^{-3}$) consistent with established baselines (dVAE and SENA), thereby ensuring the model captures meaningful cellular diversity rather than regressing to the population mean.
+
+\textbf{Reconstruction capabilities.} First, we measured the \gls{mse} between the ground truth and predicted profiles of control cells to evaluate how well each model reconstructs the basal, unperturbed cellular state.
+Second, we calculated the \gls{mkmmd} between the distributions of ground truth and predicted profiles for double-gene perturbations to assess the model's ability to capture the global transcriptional shift following a complex intervention.
+
+The results in \Cref{tab:MMD_results} highlight a crucial trade-off between reconstruction fidelity (\gls{mse}) and distributional accuracy (\gls{mkmmd}).
+\Gls{raptorgraph} achieves a strong overall balance, demonstrating highly competitive performance across both reconstruction and generative capabilities.
+
+% Place tables after the first paragraph in which they are cited.
+\begin{table}[!ht]
+\centering
+\caption{\textbf{Results using the Norman-CPA dataset}, averaged over 3 runs. Bold: best results; Italics: second best. Values are mean $\pm$ variance.
+*We excluded the GEARS model because it behaves in a fundamentally different way that is incompatible with our evaluation framework, making a fair and direct comparison impossible.}
+\begin{tabular}{lccccc}
+\toprule
+{Metric} & {SENA} & {scGPT} & {\gls{dvae}} & {GEARS} & {\gls{raptorgraph}} (ours) \\
+\midrule
+\gls{mkmmd} & 0.522 $\pm$ 0.003 & 0.176 $\pm$ 0.001 & \textbf{0.076 $\pm$ 0.000} & {--}* & \textit{0.112 $\pm$ 0.001} \\
+\gls{mse} & \textbf{0.043 $\pm$ 0.000} & 0.066 $\pm$ 0.000 & 0.062 $\pm$ 0.000 & {--}* & \textit{0.045 $\pm$ 0.000} \\
+\bottomrule
+\end{tabular}
+\label{tab:MMD_results}
+\end{table}
+
+\textbf{Prediction of non-additive genetic perturbations.} This complex and biologically significant benchmark assesses a model's ability to predict emergent effects that are not simple linear combinations of single-gene perturbations (\Cref{tab:gi_scores}).
+Specifically, we compared the models based on their ability to predict five distinct interaction types, using Precision@10 to quantify how effectively each model could identify true interactions within its top 10 predictions, a direct measure of its utility for experimental discovery.
+
+\begin{table}[!ht]
+\centering
+\caption{\textbf{Comparison of non-additive genetic interaction prediction.} Precision@10 scores for five models across distinct genetic interaction subtypes on the Norman et al. dataset. Higher is better. Values are mean $\pm$ variance over 3 runs.}
+\begin{tabular}{lccccc}
+\toprule
+Metric & \gls{dvae} & SENA & GEARS & scGPT & \gls{raptorgraph} (ours) \\
+\midrule
+Synergy & 0.000 $\pm$ 0.000 & 0.233 $\pm$ 0.153 & 0.333 $\pm$ 0.115 & 0.100 $\pm$ 0.000 & \textbf{0.367 $\pm$ 0.058} \\
+Suppression & 0.000 $\pm$ 0.000 & 0.167 $\pm$ 0.115 & 0.333 $\pm$ 0.115 & \textbf{0.400 $\pm$ 0.000} & 0.267 $\pm$ 0.153 \\
+Neomorphism & 0.333 $\pm$ 0.153 & 0.333 $\pm$ 0.115 & 0.133 $\pm$ 0.058 & 0.100 $\pm$ 0.000 & \textbf{0.433 $\pm$ 0.058} \\
+Redundancy & \textbf{0.933 $\pm$ 0.115} & 0.467 $\pm$ 0.058 & 0.567 $\pm$ 0.115 & 0.100 $\pm$ 0.000 & 0.800 $\pm$ 0.100 \\
+Epistasis & 0.567 $\pm$ 0.153 & \textbf{0.800 $\pm$ 0.100} & 0.533 $\pm$ 0.115 & 0.400 $\pm$ 0.000 & 0.433 $\pm$ 0.115 \\
+\bottomrule
+\end{tabular}
+\label{tab:gi_scores}
+\end{table}
+
+We further investigated the contribution of \gls{ot} to this performance. Our ablation studies reveal that \gls{ot} preprocessing is a key driver of the model's ability to predict complex non-additive interactions, particularly redundancy and epistasis, significantly outperforming a random pairing baseline. Importantly, this benefit comes with negligible computational overhead ($\approx 2.2\%$ of total training time).
+
+\textbf{Reverse perturbation analysis.} While predicting genetic interactions demonstrates a model's forward predictive power, a more profound test is its ability to reverse-engineer the genetic cause of an observed phenotype.
+To this end, we challenged a model to identify the specific genetic perturbation responsible for a given cellular gene expression profile.
+The analysis was performed on a controlled combinatorial space of 20 transcription factors from the Norman et al.~\cite{norman2019exploring} dataset.
+For each model, we generated a database of predicted expression profiles for all possible double-gene perturbations within this subset.
+We then used the ground truth mean expression profiles from experimentally observed double perturbations as queries, ranking the database entries by similarity to identify the most likely causal perturbation.
+
+We first evaluated the models on the highly stringent task of identifying the exact causal gene combination, quantified by the Correct (Exact Match) Hit Rate @ K.
+As shown in the Supporting information, all models achieve modest hit rates, underscoring the profound difficulty of this reverse-engineering challenge.
+However, a more practical measure of a model's utility is its ability to identify biologically influential genes.
+We assessed this using the Relevant (Gene Overlap) Hit Rate @ K, which credits a model for retrieving perturbations containing at least one of the correct genes (see the Supporting information and \Cref{tab:hit_rate}).
+\Gls{raptorgraph} demonstrates exceptional performance, consistently ranking among the top models.
+This highlights that while pinpointing exact higher-order interactions is an ongoing challenge, \gls{raptorgraph} is highly effective at identifying the key genetic players driving a cellular response, making it a valuable tool for hypothesis generation and experimental design.
+
+\begin{table}[!ht]
+\centering
+\caption{\textbf{Hit Rate @ K (relevant)} for the reverse perturbation task.
+The metric measures the fraction of queries where at least one correct gene was identified in the top K predictions.
+Higher values are better.
+Values are mean $\pm$ variance over 3 runs.}
+\begin{tabular}{lccccc}
+\toprule
+$k$ & \gls{dvae} & SENA & GEARS & scGPT & \gls{raptorgraph} (ours) \\
+\midrule
+1 & 0.333 $\pm$ 0.115 & 0.244 $\pm$ 0.019 & \textbf{0.344 $\pm$ 0.051} & 0.233 $\pm$ 0.000 & 0.294 $\pm$ 0.059 \\
+3 & 0.556 $\pm$ 0.051 & 0.444 $\pm$ 0.069 & 0.578 $\pm$ 0.051 & 0.533 $\pm$ 0.000 & \textbf{0.608 $\pm$ 0.122} \\
+5 & 0.733 $\pm$ 0.088 & 0.600 $\pm$ 0.058 & 0.722 $\pm$ 0.077 & 0.700 $\pm$ 0.000 & \textbf{0.784 $\pm$ 0.090} \\
+\bottomrule
+\end{tabular}
+\label{tab:hit_rate}
+\end{table}
+
+\textbf{\gls{raptorgraph} learns biologically meaningful causal latent factors.} To confirm that \gls{raptorgraph} learns biologically meaningful structures rather than arbitrary representations, we examined the functional identity of the latent factors using gene set enrichment analysis.
+We utilized an in-silico perturbation approach to generate transcriptional signatures for each latent factor and tested them against the MSigDB Hallmark collection~\cite{liberzon_molecular_2015}.
+We observed a robust alignment between the known biological roles of perturbed genes and the pathway enrichments of their corresponding latent factors.
+For instance, the latent factor constrained to the stress-response transcription factor \textit{JUN} displayed strong negative enrichment for cell cycle signatures (``E2F Targets,'' FDR $< 0.001$), consistent with its role in stress-induced growth arrest.
+Similarly, the factor associated with the tumor suppressor \textit{TP73} showed significant negative enrichment for ``G2-M Checkpoint'' targets (FDR $< 0.03$).
+Furthermore, the factor linked to the differentiation regulator \textit{EGR1} exhibited massive downregulation of E2F targets (FDR $\approx 0.0$), consistent with the cell cycle exit necessary for differentiation.
+These results demonstrate that the model successfully disentangles complex transcriptomic profiles into interpretable, functionally coherent modules.
+
+%=====================================================================
+% DISCUSSION
+%=====================================================================

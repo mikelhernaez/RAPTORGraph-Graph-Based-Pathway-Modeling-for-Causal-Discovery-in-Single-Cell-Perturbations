@@ -1,34 +1,34 @@
-%===============================================================================
-\section{Introduction}
-\label{sec:introduction}
-%===============================================================================
-
-Understanding how cells respond to genetic perturbations, such as those induced by CRISPR screens~\citep{dixit2016perturb}, is fundamental to understanding disease biology and advancing therapeutic discovery ~\citep{plenge2013validating,adamson2016multiplexed,norman2019exploring}. 
-However, the combinatorial explosion across $\sim$25,000 genes makes exhaustive perturbation experiments infeasible~\citep{norman2019exploring}, motivating computational models that predict cellular responses to unseen perturbations or combinations thereof.
+%=====================================================================
+% INTRODUCTION
+%=====================================================================
+\section*{Introduction}
+Understanding how cells respond to genetic perturbations, such as those induced by CRISPR screens~\cite{dixit2016perturb}, is fundamental to advancing our understanding of basic biology and therapeutic discovery~\cite{plenge2013validating,adamson2016multiplexed,norman2019exploring}.
+However, the combinatorial explosion across $\sim$20{,}000 protein-coding genes makes exhaustive perturbation experiments infeasible~\cite{norman2019exploring}, motivating computational models that predict cellular responses to unseen perturbations or combinations thereof.
 
 Existing approaches to predict the transcriptional outcome following a perturbation face a fundamental challenge: generative quality comes at the cost of causal interpretability.
-For example, recent methods like GEARS~\citep{roohani2024predicting} or scGPT~\citep{cui2024scgpt} achieve strong predictive performance in cellular response to perturbations; however, they act as ``black boxes'' providing little mechanistic insight into how perturbations affect cellular systems,
-%This opacity prevents researchers from understanding why certain combinations of perturbations produce synergistic effects, 
-failing to provide testable biological hypotheses.
+For example, recent methods like GEARS~\cite{roohani2022gears} or scGPT~\cite{cui2024scgpt} achieve strong predictive performance in cellular response to perturbations; however, they act as ``black boxes'' providing little mechanistic insight into how perturbations affect cellular systems.
+This opacity prevents researchers from understanding why certain combinations of perturbations produce synergistic effects, failing to provide testable biological hypotheses.
 
+As such, computational biology demands models that provide mechanistic insights into cellular function~\cite{chen_applying_2024}, making \gls{crl}~\cite{scholkopf2021toward} a promising approach for mapping genes to biological processes.
+In particular, recent \gls{crl} approaches such as \gls{dvae}~\cite{zhang2023identifiability} or SENA~\cite{de2025interpretable} aim at recovering the underlying causal generative factors and their interactions, enabling counterfactual reasoning.
+However, these \gls{crl} approaches suffer from fundamental architectural limitations that prevent them from fulfilling their theoretical causal identifiability guarantees: the use of a dense interventional encoder inherently means that every gene, including those intervened upon, can influence all latent variables.
+We term this phenomenon \emph{intervention spillover}, as it renders the task of identifying a unique latent target for an intervention ill-posed.
+Consequently, any mechanism designed to apply the intervention is forced to converge to a suboptimal solution, because it cannot perform the clean, single-node manipulation required for valid causal inference~\cite{brehmer2022weakly,lippe2022citris}.
 
-Computational biology demands models that provide mechanistic insights into cellular function~\citep{chen_applying_2024}, making \gls{crl}~\citep{scholkopf2021toward} a promising approach for mapping (intervened) genes to biological processes.
-Recent \gls{crl} approaches such as \gls{dvae}~\citep{zhang2023identifiability} or SENA~\citep{de2025interpretable} aim at recovering the underlying causal factors aligned with the interventions, enabling counterfactual reasoning.
-However, these \gls{crl} approaches suffer from a fundamental architectural limitation: a dense interventional encoder allows every gene, including the intervened ones, to influence many or all latent variables, undermining the requirements for their identifiability guarantees.
-We term this phenomenon \emph{intervention spillover}, which renders identifying the unique latent target for a given intervention ill-posed.
-Consequently, the intervention mechanism cannot perform the clean, single-node manipulation required for valid causal inference~\citep{brehmer2022weakly,lippe2022citris}.
-
-\revised{Further, the destructive nature of \gls{scRNAseq} makes it impossible to observe the same cell before and after a genetic intervention, complicating the prediction of cell-specific responses.
+Further, the destructive nature of \gls{scRNAseq} makes it impossible to observe the same cell before and after a genetic intervention, complicating the prediction of cell-specific responses.
 Existing methods address this issue by randomly pairing control and perturbed cells.
-Since current models are trained to minimize the error across all possible arbitrary pairings, they are incentivized to (suboptimally) learn the population-mean response.
-We refer to this phenomenon as \emph{mean collapse}, as this regression to the mean erodes cellular diversity.}
+Since the model must minimize error across all possible arbitrary pairings, it is incentivized to learn the population-mean response.
+We refer to this phenomenon as \emph{mean collapse}, as this regression to the mean erodes cellular diversity.
 
-To address these critical issues, we present \gls{raptorgraph}, a novel framework that addresses causal identifiability challenges through a structured encoder design. 
-We first propose a novel GraphPathway layer, which uses preconditioning to enforce sparse mappings from genes to learned interpretable causal factors. We term these factors \emph{\cmps{}}, which encompass the (related) known biological processes associated with a given perturbation.
-Our design enables clean, single-node latent associations required for causal inference while maintaining interpretability.
-This innovation is complemented by an \gls{ot} preprocessing step, which mitigates the distinct problem of mean collapse.
+We present \gls{raptorgraph}, a novel framework that addresses causal identifiability challenges in perturbation prediction through structured encoder design.
+Our first key innovation is the GraphPathway layer, a novel architecture that uses preconditioning to enforce sparse mappings from genes to learned latent factors.
+This design enables the model to perform the clean, single-node manipulations required for valid causal inference, directly maintaining interpretability.
+This innovation is complemented by a novel \gls{ot} preprocessing step, which mitigates the distinct problem of mean collapse.
+We benchmark the generative quality of \glsentryshort{raptorgraph} on the Norman~\cite{norman2019exploring} Perturb-seq dataset and the Replogle~\cite{replogle_combinatorial_2020} CRISPRi dataset.
+For the Norman data, we further evaluate the accuracy of genetic interaction in perturbation combinations, and the biological interpretability of the inferred latent factors.
+Specifically, when applied to scRNA-seq data from a K562 cell line, \glsentryshort{raptorgraph} uncovered distinct, biologically accurate programs, such as the differentiation-induced cell cycle arrest driven by EGR1 and stress-induced growth arrest mediated by JUN.
+We demonstrate strong performance alongside interpretability, which addresses key gaps not filled by current approaches.
 
-\revised{We benchmark \glsentryshort{raptorgraph} on two well-known datasets: the \citet{norman2019exploring} Perturb-seq dataset, and the \citet{replogle_combinatorial_2020} CRISPRi dataset, assessing, among others, the accuracy of inferred genetic interactions under combinations of perturbations, and the biological plausibility of the inferred \cmps{}. We uncover biologically accurate programs, such as differentiation-induced cell cycle arrest driven by EGR1 and the stress-induced growth arrest mediated by JUN.}
-%\revised{Additionally, we \citet{replogle_combinatorial_2020} CRISPRi dataset}
-
-%We demonstrate strong performance alongside interpretability, which addresses key gaps not filled by current approaches.
+%=====================================================================
+% BACKGROUND
+%=====================================================================

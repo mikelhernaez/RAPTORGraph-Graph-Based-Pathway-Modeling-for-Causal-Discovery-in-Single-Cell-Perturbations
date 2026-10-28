@@ -1,117 +1,116 @@
 %=====================================================================
-%  main.tex  –  Master file for the NeurIPS submission
+%  main.tex - Master file for the PLOS Computational Biology submission
+%             (RAPTORGraph: Graph-Based Pathway Modeling for Causal
+%             Discovery in Single-Cell Perturbations)
+%
+%  Built on the PLOS LaTeX template (plos_latex_template.tex, v3.8).
+%  Content adapted from the ICLR 2026 RAPTORGraph manuscript.
+%
+%  NOTE FOR FINAL SUBMISSION TO PLOS:
+%    - PLOS requires the source to be a SINGLE self-contained .tex file.
+%      This manuscript uses a modular layout (latex/, sections/) for
+%      development; flatten it into one file (inline the \input'd
+%      content) before submission.
+%    - Figures must be uploaded separately and REMOVED from the PDF
+%      before submission. Remove the \includegraphics commands and keep
+%      only the \caption blocks, or strip the figure environments.
+%    - Do not include colors or graphics in the body text.
 %=====================================================================
-\documentclass{article}
 
-% Suppress benign warnings
-\usepackage{silence}
-\WarningFilter{microtype}{Command \showhyphens has changed}
-\WarningFilter{hyperref}{Ignoring empty anchor}
-
-% Recommended, but optional, packages for figures and better typesetting:
-\usepackage{microtype}
-\usepackage{graphicx}
-\usepackage{subcaption}
-\usepackage{booktabs} % for professional tables
-
-% hyperref makes hyperlinks in the resulting PDF.
-\usepackage{hyperref}
-
-% Attempt to make hyperref and algorithmic work together better:
-\newcommand{\theHalgorithm}{\arabic{algorithm}}
-
-% Use the following line for the initial blind version submitted for review:
-\usepackage{neurips_2026}
-
-% For preprint, use
-% \usepackage[preprint]{neurips_2026}
-
-% If accepted, instead use the following line for the camera-ready submission:
-% \usepackage[final]{neurips_2026}
+\documentclass[10pt,letterpaper]{article}
 
 %---------------------------------------------------------------------
-% Global package imports
+% Global package imports + PLOS layout (see latex/packages.tex)
 %---------------------------------------------------------------------
-\input{latex/packages}               % Loads all required \usepackage statements
+\input{latex/packages}
 
 %---------------------------------------------------------------------
-% Global macro definitions
+% Global macro definitions (math notation, theorem envs, acronyms,
+% project-specific commands - see latex/custom_commands.tex)
 %---------------------------------------------------------------------
-\input{latex/custom_commands}        % Loads macros, math shortcuts, etc.
+\input{latex/custom_commands}
 
 %---------------------------------------------------------------------
-% NeurIPS Title and Authors
+% Document metadata
 %---------------------------------------------------------------------
-%\title{RAPTORGraph: Graph-Based Pathway Modeling for Causal Discovery in Single-Cell Perturbations}
-
-%\title{Modeling Single-Cell Perturbations through Interpretable Causal Latent Structure with identifiability guarantees}
-\title{Learning Interpretable Causal Latent Structure for Genetic Perturbations with Identifiability Guarantees}
-%\title{Single-Cell Perturbation Prediction with Interpretable Causal Latent Structure}
-
-%\author{%
-%  Anonymous Authors
-%}
-
 \begin{document}
+\vspace*{0.2in}
 
-\maketitle
+% Title must be 250 characters or less.
+\begin{flushleft}
+{\Large
+\textbf{RAPTORGraph: graph-based pathway modeling for causal discovery in single-cell perturbations} % sentence case
+}
+\newline
+\\
+Yeremia Gunawan Adhisantoso\textsuperscript{1,2\Yinyang},
+Stephanie Kristin Schr\"oder\textsuperscript{2\Yinyang},
+Maximilian Gre\ss\textsuperscript{2,3\textcurrency},
+Mikel Hernaez\textsuperscript{2},
+Jan Voges\textsuperscript{2\ddag}
+\\
+\bigskip
+\textbf{1} Affiliation Dept/Program/Center, Institution Name, City, State, Country
+\\
+\textbf{2} Affiliation Dept/Program/Center, Institution Name, City, State, Country
+\\
+\textbf{3} Affiliation Dept/Program/Center, Institution Name, City, State, Country
+\\
+\bigskip
 
-% Reset glossary entries so that the first use prints the long form
-\glsresetall
+\Yinyang These authors contributed equally to this work.
+\ddag These authors also contributed equally to this work.
+\textcurrency Current Address: Dept/Program/Center, Institution Name, City, State, Country
+* correspondingauthor@institute.edu
 
-\input{sections/00_abstract}
+\end{flushleft}
 
-% Original Abstract (Reference)
-% \begin{abstract}
-%
-% Experiments involving the perturbation of individual cells are central to understanding cellular mechanisms and can accelerate drug discovery.
-% \Gls{crl} allows us to uncover the latent factors that regulate biological systems and predict the impact of novel perturbations.
-% Unfortunately, existing methods fail to address intervention spillover in a closed-world setting where intervention targets are known \apriori, such as in Perturb-seq experiments, due to their reliance on dense encoders.
-% Furthermore, incorporating curated biological pathways into the model imposes a confirmatory bias, forcing it to explain the data through preexisting pathways and reducing the set of hypotheses the model can explore, while discarding novel signals that lie outside the annotated pathways.
-% In this work, we introduce \glsentryshort{raptorgraph}, a \betavae{} with a GraphPathway encoder that explicitly models complex gene-to-gene interactions within learned pathways.
-% Moreover, our model's preconditioning isolates the influence of perturbed genes, yielding clean, single-node latent interventions required for identifiable causal discovery and eliminating spillover.
-% Finally, we train the model on data preprocessed with optimal-transport alignment, which guarantees a well-defined mapping between control and perturbed samples and further stabilizes the learned latent representations.
-% We demonstrate that \glsentryshort{raptorgraph} improves state-of-the-art performance on downstream analyses of unseen perturbations, such as non-additive interactions, while outperforming other approaches on objective metrics, such as \glsentryshort{mse} and \glsentryshort{mmd}.
-% The code will be made publicly available upon publication of this paper.
-%
-% \end{abstract}
+% Abstract below 300 words
+\section*{Abstract}
+Experiments involving the perturbation of individual cells are central to understanding cellular mechanisms and can accelerate drug discovery.
+\Gls{crl} allows us to uncover the latent factors that regulate biological systems and predict the impact of novel perturbations.
+Unfortunately, existing methods fail to address intervention spillover in a closed-world setting where intervention targets are known \apriori, such as in Perturb-seq experiments, due to their reliance on dense encoders.
+Furthermore, incorporating curated biological pathways into the model imposes a confirmatory bias, forcing it to explain the data through preexisting pathways and reducing the set of hypotheses the model can explore, while discarding novel signals that lie outside the annotated pathways.
+In this work, we introduce \glsentryshort{raptorgraph}, a \betavae{} with a GraphPathway encoder that explicitly models complex gene-to-gene interactions within learned pathways.
+Moreover, our model's preconditioning isolates the influence of perturbed genes, yielding clean, single-node latent interventions required for identifiable causal discovery and eliminating spillover.
+Finally, we train the model on data preprocessed with optimal-transport alignment, which guarantees a well-defined mapping between control and perturbed samples and further stabilizes the learned latent representations.
+We demonstrate that \glsentryshort{raptorgraph} improves state-of-the-art performance on downstream analyses of unseen perturbations, such as non-additive interactions, while outperforming other approaches on objective metrics, such as \glsentryshort{mse} and \glsentryshort{mkmmd}.
+The code will be made publicly available upon publication of this paper.
 
-\glsresetall
+% Author Summary between 150 and 200 words, first person.
+\section*{Author summary}
+Single-cell perturbation experiments let us study how individual genetic changes reshape cellular behavior, but exhaustively testing every combination of genes is infeasible.
+Computational models that predict the response to unseen perturbations therefore promise to accelerate biological discovery and drug development.
+However, existing predictive models often behave as ``black boxes'' and, even when designed for causal inference, rely on dense neural encoders that entangle the signal of a targeted genetic intervention across many latent factors.
+We identify two specific failure modes --- intervention spillover and mean collapse --- and introduce RAPTORGraph, a framework that addresses both.
+A preconditioned graph pathway encoder enforces sparse, one-to-one mappings from perturbed genes to learned latent pathways, enabling the clean single-node interventions that valid causal inference requires, while a separate module discovers the causal graph among those pathways.
+An optimal-transport preprocessing step globally pairs control and perturbed cells, preserving cellular diversity that random pairing destroys.
+Across benchmarks on two single-cell datasets, RAPTORGraph balances reconstruction fidelity and distributional accuracy, better predicts complex non-additive genetic interactions, and can reverse-engineer the genetic drivers of an observed phenotype, generating testable hypotheses.
+
+\clearpage
+\newgeometry{top=0.85in,left=1in,right=1in,footskip=0.75in}
+\linenumbers
 
 %---------------------------------------------------------------------
-% Content Injection
+% Main content (modular; flatten before PLOS submission)
 %---------------------------------------------------------------------
 \input{sections/01_introduction}
 \input{sections/02_background}
 \input{sections/03_methods}
-
-%\section{Experimental Settings}
-%\label{sec:experiments}
-%\input{sections/04_experimental_settings}
-
-\section{Experiments}
-\label{sec:results}
-\input{sections/05_results}
-
+\input{sections/04_results}
+\input{sections/05_discussion}
 \input{sections/06_conclusion}
+\input{sections/08_acknowledgments}
 
 %---------------------------------------------------------------------
-% Bibliography
+% Bibliography (uses plos2025.bst; see latex/packages.tex)
 %---------------------------------------------------------------------
-\bibliography{raptor_references}
-\bibliographystyle{plainnat}
+\bibliography{references}
 
 %---------------------------------------------------------------------
-% Paper Checklist
+% Supporting information captions come last, after the references,
+% per the PLOS submission guidelines.
 %---------------------------------------------------------------------
-\input{checklist}
-
-%---------------------------------------------------------------------
-% Appendix
-%---------------------------------------------------------------------
-\newpage
-\appendix
-\onecolumn
-\input{supplementary}
+\input{sections/07_supporting}
 
 \end{document}

@@ -1,82 +1,102 @@
-% ------------------------------------------------- 
-%  Global LaTeX package imports
-%  (All packages are loaded once, in a logical order,
-%   with no duplicate entries.)
-% ------------------------------------------------- 
+\usepackage[top=0.85in,left=2.75in,footskip=0.75in]{geometry}
 
-%--- Core encoding and font handling --------------------------------------------
-\usepackage{iftex}
-\ifPDFTeX
-  % pdfLaTeX (Overleaf default)
-  \usepackage[T1]{fontenc}
-  \usepackage[utf8]{inputenc}
-  \usepackage{times}
-\else
-  % XeLaTeX (Local Tectonic) or LuaLaTeX
-  \usepackage{fontspec}
-  \setmainfont{Nimbus Roman}
-  \setsansfont{Nimbus Sans}
-  \setmonofont{Nimbus Mono PS}
-\fi
+% amsmath and amssymb packages, useful for mathematical formulas and symbols
+\usepackage{amsmath,amssymb}
 
-%--- Mathematics ---------------------------------------------------------------
-\usepackage{amsmath,amssymb,amsthm}   % AMS math environments and symbols
-\usepackage{mathtools}                % Extensions to amsmath (optional but useful)
+% Use adjustwidth environment to exceed column width (see example table in text)
+\usepackage{changepage}
 
-%--- Graphics & figures ---------------------------------------------------------
-%\usepackage{graphicx}                % (Loaded by ICML template)
-\usepackage{tikz}                    % Vector graphics language
-\usepackage{pgfplots}                % Plotting with pgf/TikZ
-\pgfplotsset{compat=1.17}            % Compatibility version for pgfplots
-\usepackage{wrapfig}                 % Text wrapping around figures
-%\usepackage{subcaption}              % (Loaded by ICML template)
-\usepackage{caption}                 % Caption customisation
-\usepackage{float}                   % Improved float placement (e.g., [H])
-\usepackage{adjustbox}               % Box-adjustment utilities
+% textcomp package and marvosym package for additional characters
+\usepackage{textcomp,marvosym}
 
-%--- Tables --------------------------------------------------------------------
-%\usepackage{booktabs}                % (Loaded by ICML template)
-\usepackage{tabularx}                % Flexible column widths
-\usepackage{multirow}                % Multi-row cells
-\usepackage{siunitx}                 % Typeset numbers and units
-\sisetup{
-    round-mode             = places,
-    round-precision        = 3,
-    table-alignment-mode   = none,
-    % New v3 replacement for all "detect" options:
-    mode                   = match,
-    reset-text-family      = false,
-    reset-text-series      = false
+% cite package, to clean up citations in the main text. Do not remove.
+\usepackage{cite}
+
+% Use nameref to cite supporting information files (see Supporting Information section for more info)
+\usepackage{nameref,hyperref}
+
+% line numbers
+\usepackage[right]{lineno}
+
+% ligatures disabled
+\usepackage[nopatch=eqnum]{microtype}
+\DisableLigatures[f]{encoding = *, family = * }
+
+% color can be used to apply background shading to table cells only
+\usepackage[table]{xcolor}
+
+% array package and thick rules for tables
+\usepackage{array}
+
+% create "+" rule type for thick vertical lines
+\newcolumntype{+}{!{\vrule width 2pt}}
+
+% create \thickcline for thick horizontal lines of variable length
+\newlength\savedwidth
+\newcommand\thickcline[1]{%
+  \noalign{\global\savedwidth\arrayrulewidth\global\arrayrulewidth 2pt}%
+  \cline{#1}%
+  \noalign{\vskip\arrayrulewidth}%
+  \noalign{\global\arrayrulewidth\savedwidth}%
 }
-%\usepackage{array}                   % Extended column definitions (optional)
 
-%--- Algorithms ---------------------------------------------------------------
-%\usepackage{algorithm}               % (Loaded by icml2026.sty)
-%\usepackage{algorithmic}             % (Loaded by icml2026.sty)
+% \thickhline command for thick horizontal lines that span the table
+\newcommand\thickhline{\noalign{\global\savedwidth\arrayrulewidth\global\arrayrulewidth 2pt}%
+\hline
+\noalign{\global\arrayrulewidth\savedwidth}}
 
-%--- Hyperlinks & cross-references ---------------------------------------------
-%\usepackage{hyperref}                % (Loaded by ICML template)
-\usepackage{cleveref}                % Smart cross-reference formatting
-\usepackage{url}                     % URL typesetting (fallback for hyperref)
-\usepackage{xurl}                     % Allow breaks anywhere in long URLs
-\usepackage{doi}                     % DOI hyperlink formatting
+% Remove comment for double spacing
+%\usepackage{setspace}
+%\doublespacing
 
-%--- Glossaries / Acronyms ------------------------------------------------------
-\usepackage[acronym]{glossaries}     % Acronym handling (acronym list)
-\makeglossaries                       % Initialise glossaries (called once)
+% Text layout
+\raggedright
+\setlength{\parindent}{0.5cm}
+\textwidth 5.25in
+\textheight 8.75in
 
-%--- Miscellaneous -------------------------------------------------------------
-\usepackage{xcolor}                  % Colour definitions
-%\usepackage{microtype}               % (Loaded by ICML template)
-\usepackage{enumitem}                % Customisable list environments
-\usepackage{float}                   % (already loaded above – kept for clarity)
-\usepackage{todonotes}
-\usepackage{csvsimple}               %  Csv loading
+% Bold the 'Figure #' in the caption and separate it from the title/caption with a period
+% Captions will be left justified
+\usepackage[aboveskip=1pt,labelfont=bf,labelsep=period,justification=raggedright,singlelinecheck=off]{caption}
+\renewcommand{\figurename}{Fig}
 
-%--- User-defined helper commands -----------------------------------------------
-% Circled characters (used throughout the manuscript)
-\newcommand*\circled[1]{
-  \tikz[baseline=(char.base)]{
-    \node[shape=circle,draw,inner sep=2pt] (char) {#1};
-  }
-}
+% Please use the included `plos2025.bst` as your BibTeX style
+\bibliographystyle{plos2025}
+
+% Remove brackets from numbering in List of References
+\makeatletter
+\renewcommand{\@biblabel}[1]{\quad#1.}
+\makeatother
+
+% Header and Footer with logo
+\usepackage{lastpage,fancyhdr,graphicx}
+\usepackage{epstopdf}
+\pagestyle{fancy}
+\fancyhf{}
+\rfoot{\thepage/\pageref{LastPage}}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrule}{\hrule height 2pt \vspace{2mm}}
+\fancyheadoffset[L]{2.25in}
+\fancyfootoffset[L]{2.25in}
+\lfoot{\today}
+
+%=====================================================================
+% Additional packages required by the manuscript content
+%=====================================================================
+\usepackage{amsfonts,bm}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+\usepackage{wrapfig}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{adjustbox}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{url}
+\usepackage{cleveref}
+\usepackage[acronym]{glossaries}
+\makeglossaries

@@ -1,0 +1,15 @@
+\section*{Discussion}
+\gls{raptorgraph} was designed to resolve two failure modes that limit existing perturbation-prediction models: intervention spillover, where dense encoders create entangled latent signals that confound causal discovery, and mean collapse, where the absence of one-to-one cell pairings erodes cellular diversity.
+Our results indicate that a preconditioned GraphPathway encoder can enforce the sparse, single-node interventions that causal identifiability theory requires, while a DAGMA module subsequently learns the legitimate biological causal relationships among the resulting sparse pathway activities.
+Because the model does not rely on predefined pathway annotations, it avoids the confirmatory bias of methods such as SENA, which must explain the data through preexisting pathways and cannot readily accommodate novel signals outside those annotations.
+
+A recurring theme in our findings is the trade-off between reconstruction fidelity and distributional accuracy. \gls{raptorgraph} achieves a competitive balance, and the optimal-transport preprocessing step proves important for predicting complex, non-additive interactions, particularly redundancy and epistasis, at negligible computational cost.
+The reverse-perturbation analysis further shows that the model can identify the key genetic drivers of an observed phenotype, supporting its use for hypothesis generation.
+
+Several limitations remain. Our comprehensive baseline comparison was performed primarily on the Norman-CPA dataset because several baselines are tightly coupled to its preprocessing; generalizability evidence on the Replogle2020 dataset is currently limited to a comparison with scGPT.
+The exact-match hit rates in the reverse-perturbation task remain modest for all models, indicating that pinpointing precise higher-order combinations is an open challenge.
+Future work will focus on deploying \gls{raptorgraph} for the hypothesis-driven discovery of novel drug targets and exploring its utility in uncovering cell-type-specific pathway mechanisms.
+
+%=====================================================================
+% CONCLUSION
+%=====================================================================
