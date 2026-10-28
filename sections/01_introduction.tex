@@ -1,9 +1,10 @@
-%=====================================================================
-% INTRODUCTION
-%=====================================================================
-\section*{Introduction}
-Understanding how cells respond to genetic perturbations, such as those induced by CRISPR screens~\cite{dixit2016perturb}, is fundamental to advancing our understanding of basic biology and therapeutic discovery~\cite{plenge2013validating,adamson2016multiplexed,norman2019exploring}.
-However, the combinatorial explosion across $\sim$20{,}000 protein-coding genes makes exhaustive perturbation experiments infeasible~\cite{norman2019exploring}, motivating computational models that predict cellular responses to unseen perturbations or combinations thereof.
+%===============================================================================
+\section{Introduction}
+\label{sec:introduction}
+%===============================================================================
+
+Understanding how cells respond to genetic perturbations, such as those induced by CRISPR screens~\citep{dixit2016perturb}, is fundamental to understanding disease biology and advancing therapeutic discovery ~\citep{adamson2016multiplexed,norman2019exploring}. 
+However, the combinatorial explosion across $\sim$25,000 genes makes exhaustive perturbation experiments infeasible, motivating computational models that predict cellular responses to unseen perturbations or combinations thereof.
 
 Existing approaches to predict the transcriptional outcome following a perturbation face a fundamental challenge: generative quality comes at the cost of causal interpretability.
 For example, recent methods like GEARS~\cite{roohani2022gears} or scGPT~\cite{cui2024scgpt} achieve strong predictive performance in cellular response to perturbations; however, they act as ``black boxes'' providing little mechanistic insight into how perturbations affect cellular systems.

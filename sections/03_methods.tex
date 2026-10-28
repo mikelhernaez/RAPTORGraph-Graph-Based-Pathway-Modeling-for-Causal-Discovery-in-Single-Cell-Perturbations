@@ -44,12 +44,14 @@ Finally, a non-linear dense decoder maps these propagated causal states back to 
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=1\linewidth]{Bildschirmfoto 2025-12-04 um 09.33.46.png}
-    \caption{\textbf{The GraphPathway Encoder architecture of \gls{raptorgraph}.}
-        \textbf{A}: Gene expression of control cells ($\zobs$) is fed as input to the preconditioned linear layer, which enforces a sparse, one-to-one mapping for known perturbed genes to explicitly prevent intervention spillover.
-        \textbf{B}: Complex dependencies are captured by learning multiple parallel graph representations, which are then aggregated to model non-linear interactions.
-        \textbf{C}: A standard \gls{vae} reparameterization head generates the stochastic latent variables ($\latentvars$).
-        \textbf{D}: A Latent Modulator takes the perturbation label as input and applies atomic perturbations ($\effectvector$) to the independent latents ($\latentvars$), shifting the distribution from the observed latent state ($\zobs$) to the interventional latent state ($\zint$). Both $\zobs$ and $\zint$ are then transformed by the DAGMA layer through the learned \gls{dag} via linear mixing to yield the final causal states ($\latentcausalvars$), which are reconstructed into the predicted control ($\hat{\variables}_{\text{obs}}$) and perturbed ($\hat{\variables}_{\text{int}}$) gene expression profiles by a dense decoder.}
+    \includegraphics[width=0.9\linewidth]{gfx/GraphPathway_modified.png}
+    \caption{
+        \textbf{The GraphPathway Encoder architecture of \gls{raptorgraph}.}
+        \textbf{A}: \revised{Gene expression of control cells ($\variables$) is fed to} the preconditioned linear layer, \revised{which} enforces a one-to-one mapping from perturbed genes to a (subset) of meta-pathways.
+        \textbf{B}: \revised{Complex gene-gene dependencies are captured by learning} multiple parallel representations, \revised{which are then} aggregated via MLP.
+        \textbf{C}: A \gls{vae} reparameterization head \revised{generates} the stochastic latent variables \revised{($\latentvars$)}.
+        \textbf{D}: A latent modulator takes the perturbation index ($\{1,\cdots,k\}$) and the associated learned distribution shift \revised{($\effectvector$)} and applies it to the observed latent state ($\zobs$) to generate the interventional latent state ($\zint$). Both $\zobs$ and $\zint$ are then transformed by the learned \gls{dag} to \revised{yield} the final causal states \revised{($\latentcausalvars$), which are reconstructed into the predicted control ($\hat{\variables}_{\text{obs}}$) and perturbed ($\hat{\variables}_{\text{int}}$) gene expression profiles by a dense decoder.}
+    }
     \label{fig:arch:graphpathway_encoder}
 \end{figure}
 
@@ -66,18 +68,36 @@ The DAGMA acyclicity constraint, $\acyclicityfunc_s(\graphmatrix)$, is based on 
 \begin{equation}
     \acyclicityfunc_s(\graphmatrix) = -\log\det(s\identitymatrix - \graphmatrix \circ \graphmatrix) + \latentdim\log s = 0
 \end{equation}
-where $\graphmatrix \in \realnumbers^{\latentdim \times \latentdim}$ is the weighted adjacency matrix of the latent graph, $s > 0$ is a scaling scalar, and the condition holds if and only if $\graphmatrix$ represents a \gls{dag}.
-The optimization then solves a sequence of unconstrained problems that jointly minimize a data-fit score and the acyclicity penalty.
+where $\graphmatrix \in \realnumbers^{\latentdim \times \latentdim}$ is the adjacency matrix of the latent graph, $s > 0$ is a scaling scalar, and $\circ$ the Hadamard product. Note that the condition holds if and only if $\graphmatrix$ is a \gls{dag}.
+The optimization then solves a sequence of unconstrained problems jointly minimizing data-fit and the acyclicity penalty.
 
 \textbf{DAGMA implementation.} We implement a modified DAGMA approach designed to learn the invariant, baseline causal structure of the biological system.
 To ensure stability and manage the trade-off between reconstruction fidelity and acyclicity, we introduce two critical regularizations.
 First, we employ a path-following schedule where the score weight $\mu$ is gradually decreased (see \cref{eq:dagma_loss_full}), allowing the model to prioritize feature learning early in training before strictly enforcing the graph constraint.
-Second, we isolate gradient flow by computing $\dagmaloss$ on detached latent representations.
-This ensures the acyclicity constraint optimizes the graph structure without distorting the encoder's feature extraction.
+% [MODIFICATION: Addressing Reviewer yvAn] Clarified that the framework is trained end-to-end. 
+% Removed previous mention of "detached" gradients to resolve the misconception 
+% that representation learning and graph discovery are decoupled.
+Second, the entire framework is trained end-to-end. The \glsentryshort{dag} module is integrated as a differentiable \textit{Causal Transform} layer within the autoencoder's forward pass. This ensures that the reconstruction loss jointly optimizes the representation and the graph, while the \glsentryshort{dagma} objective $\dagmaloss$ acts as a structural regularizer to enforce acyclicity (see \cref{app:dagma} for a detailed description of the DAGMA layer, its objective, theoretical background, and implementation)}.
 
-\subsection*{Training objective}
-The model is trained end-to-end by minimizing a composite objective function, $\totalloss$, that integrates four distinct components, each tailored to a specific aspect of the learning problem.
-The overall objective is a weighted sum of these individual losses:
+%===============================================================================
+\subsection{Optimal Transport for Deterministic Interventional Learning}
+%===============================================================================
+
+A fundamental challenge in single-cell interventional modeling is the lack of a direct one-to-one mapping between control and perturbed cells, creating a counterfactual gap.
+Standard approaches often address this by randomly pairing control and interventional samples during training.
+However, this random pairing may pair cells with poor counterfactuals, providing inconsistent gradient signals that force the model to minimize loss by predicting the average of the target distribution, a phenomenon termed \textit{mean collapse} (see \cref{fig:app:ot_comparison}).
+To resolve this, we employ a Wasserstein-based \gls{ot} framework to establish a deterministic, globally optimal mapping.
+By minimizing the total transport cost between the control and perturbed populations, \gls{ot} pairs each cell with its most biologically similar counterpart.
+This preserves heterogeneous subpopulation structures and ensures stable, structure-preserving representations for causal discovery (see \cref{app:ot} for mathematical details).
+
+%-------------------------------------------------------------------------------
+% Subsection: Training Objective
+%-------------------------------------------------------------------------------
+\subsection{Training Objective}
+\label{subsec:methods:loss}
+%-------------------------------------------------------------------------------
+
+The model is trained end-to-end by jointly minimizing a composite objective function, $\totalloss$, which balances four specialized components to ensure robust representation learning and causal discovery:
 \begin{equation}
     \totalloss = \alpharec\mseloss + \betakl\kldloss + \gammammd\mmdloss + \deltadagma\dagmaloss
     \label{eq:total_loss}
