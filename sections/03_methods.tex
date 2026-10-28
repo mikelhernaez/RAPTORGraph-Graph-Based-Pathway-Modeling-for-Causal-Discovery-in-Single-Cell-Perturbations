@@ -39,7 +39,7 @@ For a comprehensive architectural description, we refer the reader to \cref{app:
 
 \begin{figure}[t]
     \centering
-    \includegraphics[width=\linewidth]{gfx/GraphPathway_modified.png}
+    \includegraphics[width=0.9\linewidth]{gfx/GraphPathway_modified.png}
     \caption{
         \textbf{The GraphPathway Encoder architecture of \gls{raptorgraph}.}
         \textbf{A}: \revised{Gene expression of control cells ($\variables$) is fed to} the preconditioned linear layer, \revised{which} enforces a one-to-one mapping from perturbed genes to a (subset) of meta-pathways.
@@ -80,8 +80,8 @@ The DAGMA acyclicity constraint, $\acyclicityfunc_s(\graphmatrix)$, is based on 
 \begin{equation}
     \acyclicityfunc_s(\graphmatrix) = -\log\det(s\identitymatrix - \graphmatrix \circ \graphmatrix) + \latentdim\log s = 0
 \end{equation}
-where $\graphmatrix \in \realnumbers^{\latentdim \times \latentdim}$ is the weighted adjacency matrix of the latent graph, $s > 0$ is a scaling scalar, and $\circ$ represents the Hadamard product. Note that the condition holds if and only if $\graphmatrix$ represents a \gls{dag}.
-The optimization then solves a sequence of unconstrained problems that jointly minimize a data-fit score and the acyclicity penalty.
+where $\graphmatrix \in \realnumbers^{\latentdim \times \latentdim}$ is the adjacency matrix of the latent graph, $s > 0$ is a scaling scalar, and $\circ$ the Hadamard product. Note that the condition holds if and only if $\graphmatrix$ is a \gls{dag}.
+The optimization then solves a sequence of unconstrained problems jointly minimizing data-fit and the acyclicity penalty.
 
 %We implement a modified DAGMA approach with a dual-gradient system to ensure stability and causal fidelity.
 %The causal graph is learned by computing the DAGMA loss exclusively on the latent representations of observational data.
@@ -93,9 +93,7 @@ First, we employ a path-following schedule where the score weight $\mu$ is gradu
 % [MODIFICATION: Addressing Reviewer yvAn] Clarified that the framework is trained end-to-end. 
 % Removed previous mention of "detached" gradients to resolve the misconception 
 % that representation learning and graph discovery are decoupled.
-Second, the entire framework is trained end-to-end. The \glsentryshort{dag} module is integrated as a differentiable \textit{Causal Transform} layer within the autoencoder's forward pass. This ensures that the reconstruction loss jointly optimizes the representation and the graph, while the \glsentryshort{dagma} objective $\dagmaloss$ acts as a structural regularizer to enforce acyclicity (see \cref{app:dagma}).
-}
-A detailed description of the DAGMA layer, its objective, theoretical background, and implementation can be found in \cref{app:dagma}.
+Second, the entire framework is trained end-to-end. The \glsentryshort{dag} module is integrated as a differentiable \textit{Causal Transform} layer within the autoencoder's forward pass. This ensures that the reconstruction loss jointly optimizes the representation and the graph, while the \glsentryshort{dagma} objective $\dagmaloss$ acts as a structural regularizer to enforce acyclicity (see \cref{app:dagma} for a detailed description of the DAGMA layer, its objective, theoretical background, and implementation)}.
 
 %===============================================================================
 \subsection{Optimal Transport for Deterministic Interventional Learning}
@@ -103,7 +101,7 @@ A detailed description of the DAGMA layer, its objective, theoretical background
 
 A fundamental challenge in single-cell interventional modeling is the lack of a direct one-to-one mapping between control and perturbed cells, creating a counterfactual gap.
 Standard approaches often address this by randomly pairing control and interventional samples during training.
-However, this random pairing may pair cells with poor counterfactuals, providing inconsistent gradient signals that force the model to minimize loss by predicting the average of the target distribution---a phenomenon termed \textit{mean collapse} (see \cref{fig:app:ot_comparison}).
+However, this random pairing may pair cells with poor counterfactuals, providing inconsistent gradient signals that force the model to minimize loss by predicting the average of the target distribution, a phenomenon termed \textit{mean collapse} (see \cref{fig:app:ot_comparison}).
 To resolve this, we employ a Wasserstein-based \gls{ot} framework to establish a deterministic, globally optimal mapping.
 By minimizing the total transport cost between the control and perturbed populations, \gls{ot} pairs each cell with its most biologically similar counterpart.
 This preserves heterogeneous subpopulation structures and ensures stable, structure-preserving representations for causal discovery (see \cref{app:ot} for mathematical details).
