@@ -804,7 +804,7 @@ Finally, a non-linear dense decoder maps these propagated causal states back to 
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=1\linewidth]{Bildschirmfoto 2025-12-04 um 09.33.46.png}
+    \includegraphics[width=\linewidth,height=0.85\textheight,keepaspectratio]{Bildschirmfoto 2025-12-04 um 09.33.46.png}
     \caption{\textbf{The GraphPathway Encoder architecture of \gls{raptorgraph}.}
         \textbf{A}: Gene expression of control cells ($\zobs$) is fed as input to the preconditioned linear layer, which enforces a sparse, one-to-one mapping for known perturbed genes to explicitly prevent intervention spillover.
         \textbf{B}: Complex dependencies are captured by learning multiple parallel graph representations, which are then aggregated to model non-linear interactions.
@@ -907,7 +907,7 @@ It profiles 105 gene perturbations in K562 cells, including both single and doub
 In total, 284 conditions across $\sim$108{,}000 cells were measured, of which 131 represent unique gene--gene combinations and the remainder single perturbations or controls, respectively.
 We utilize the entire set of single-perturbations during training and evaluate the subsequent methods on the double-perturbations.
 
-Additionally, we used the CRISPRi single-cell RNA-seq dataset (exp6) curated by Replogle et al.~\cite{replogle_combinatorial_2020} as processed in the PerturBase study~\cite{wei_perturbase_2024} and refer to it as the Replogle2020 dataset.
+Additionally, we used the CRISPRi single-cell RNA-seq dataset curated by Replogle et al.~\cite{replogle_combinatorial_2020} as processed in the PerturBase study~\cite{wei_perturbase_2024} and refer to it as the Replogle2020 dataset.
 This dataset profiles 82 gene perturbations in K562 cells, including both single (44) and double (37) perturbations and control.
 The 82 conditions were measured across $\sim$22{,}740 cells.
 
