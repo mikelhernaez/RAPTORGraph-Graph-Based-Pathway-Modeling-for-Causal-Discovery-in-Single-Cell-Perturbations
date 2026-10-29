@@ -953,6 +953,22 @@ The results in \Cref{tab:MMD_results} highlight a crucial trade-off between reco
 \label{tab:MMD_results}
 \end{table}
 
+The evaluation on the independent Replogle2020 dataset, restricted to a direct comparison with scGPT, further demonstrates robust reconstruction fidelity and distributional accuracy on unseen biological data (\Cref{tab:objective_results_replogle}).
+
+\begin{table}[!ht]
+\centering
+\caption{\textbf{Results using the Replogle2020 dataset}, averaged over 3 runs. Bold: best results. Values are mean $\pm$ variance.}
+\begin{tabular}{lcc}
+\toprule
+{Metric} & {scGPT} & {\gls{raptorgraph}} (ours) \\
+\midrule
+\gls{mmd} & 0.138 $\pm$ 0.000 & \textbf{0.137 $\pm$ 0.000} \\
+\gls{mse} & 0.069 $\pm$ 0.000 & \textbf{0.054 $\pm$ 0.000} \\
+\bottomrule
+\end{tabular}
+\label{tab:objective_results_replogle}
+\end{table}
+
 \textbf{Prediction of non-additive genetic perturbations.} This complex and biologically significant benchmark assesses a model's ability to predict emergent effects that are not simple linear combinations of single-gene perturbations (\Cref{tab:gi_scores}).
 Specifically, we compared the models based on their ability to predict five distinct interaction types, using Precision@10 to quantify how effectively each model could identify true interactions within its top 10 predictions, a direct measure of its utility for experimental discovery.
 
@@ -981,12 +997,26 @@ The analysis was performed on a controlled combinatorial space of 20 transcripti
 For each model, we generated a database of predicted expression profiles for all possible double-gene perturbations within this subset.
 We then used the ground truth mean expression profiles from experimentally observed double perturbations as queries, ranking the database entries by similarity to identify the most likely causal perturbation.
 
-We first evaluated the models on the highly stringent task of identifying the exact causal gene combination, quantified by the Correct (Exact Match) Hit Rate @ K.
-As shown in the Supporting information, all models achieve modest hit rates, underscoring the profound difficulty of this reverse-engineering challenge.
+We first evaluated the models on the highly stringent task of identifying the exact causal gene combination, quantified by the Correct (Exact Match) Hit Rate @ K (\Cref{fig:hit_rate_exact}).
+As shown there, all models achieve modest hit rates, underscoring the profound difficulty of this reverse-engineering challenge.
 However, a more practical measure of a model's utility is its ability to identify biologically influential genes.
-We assessed this using the Relevant (Gene Overlap) Hit Rate @ K, which credits a model for retrieving perturbations containing at least one of the correct genes (see the Supporting information and \Cref{tab:hit_rate}).
+We assessed this using the Relevant (Gene Overlap) Hit Rate @ K, which credits a model for retrieving perturbations containing at least one of the correct genes (\Cref{fig:hit_rate_relevant} and \Cref{tab:hit_rate}).
 \Gls{raptorgraph} demonstrates exceptional performance, consistently ranking among the top models.
 This highlights that while pinpointing exact higher-order interactions is an ongoing challenge, \gls{raptorgraph} is highly effective at identifying the key genetic players driving a cellular response, making it a valuable tool for hypothesis generation and experimental design.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.9\linewidth]{gfx/results/hit_rate_at_k_correct_exact_match.png}
+    \caption{\textbf{Correct (Exact Match) Hit Rate @ K} for the reverse perturbation task. The metric measures the fraction of queries where the exact causal gene combination was identified in the top K predictions. Higher is better. Values are mean $\pm$ variance over 3 runs.}
+    \label{fig:hit_rate_exact}
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.9\linewidth]{gfx/results/hit_rate_at_k_relevant_gene_overlap.png}
+    \caption{\textbf{Relevant (Gene Overlap) Hit Rate @ K} for the reverse perturbation task. The metric measures the fraction of queries where at least one correct gene was identified in the top K predictions. Higher is better. Values are mean $\pm$ variance over 3 runs.}
+    \label{fig:hit_rate_relevant}
+\end{figure}
 
 \begin{table}[!ht]
 \centering
@@ -1006,13 +1036,25 @@ $k$ & \gls{dvae} & SENA & GEARS & scGPT & \gls{raptorgraph} (ours) \\
 \label{tab:hit_rate}
 \end{table}
 
-\textbf{\gls{raptorgraph} learns biologically meaningful causal latent factors.} To confirm that \gls{raptorgraph} learns biologically meaningful structures rather than arbitrary representations, we examined the functional identity of the latent factors using \gls{gsea}.
-We utilized an in-silico perturbation approach to generate transcriptional signatures for each latent factor and tested them against the MSigDB Hallmark collection~\cite{liberzon_molecular_2015}.
-We observed a robust alignment between the known biological roles of perturbed genes and the pathway enrichments of their corresponding latent factors.
-For instance, the latent factor constrained to the stress-response transcription factor \textit{JUN} displayed strong negative enrichment for cell cycle signatures (``E2F Targets,'' FDR $< 0.001$), consistent with its role in stress-induced growth arrest.
-Similarly, the factor associated with the tumor suppressor \textit{TP73} showed significant negative enrichment for ``G2-M Checkpoint'' targets (FDR $< 0.03$).
-Furthermore, the factor linked to the differentiation regulator \textit{EGR1} exhibited massive downregulation of E2F targets (FDR $\approx 0.0$), consistent with the cell cycle exit necessary for differentiation.
-These results demonstrate that the model successfully disentangles complex transcriptomic profiles into interpretable, functionally coherent modules.
+\textbf{\gls{raptorgraph} learns biologically meaningful causal latent factors.} To confirm that \gls{raptorgraph} learns biologically meaningful structures rather than arbitrary representations, we examined the functional identity of the latent factors using gene set enrichment analysis (\gls{gsea}).
+For each learned latent factor, we identified the single-gene interventions that induce the greatest change in that factor and tested the resulting gene signatures against the ``Hallmark'' gene sets from the Human Molecular Signatures Database (MSigDB)~\cite{liberzon_molecular_2015}.
+It is important to distinguish these GSEA-derived pathways, which are well-described biological processes from curated databases, from the learned causal meta-pathways, which are latent factors associated with single interventions; our goal is to assess whether the learned meta-pathways encompass relevant and related biological processes.
+\Cref{fig:pathway_heatmap} visualizes the Normalized Enrichment Scores (NES) for the top enriched pathways across the learned factors.
+
+The GSEA analysis reveals that \gls{raptorgraph} captures distinct and biologically accurate programs, verified against the known functions of their corresponding gene perturbations:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Differentiation-induced arrest:} The latent factor linked to \textit{EGR1} displays massive negative enrichment for ``E2F Targets'' and ``G2-M Checkpoint''. EGR1 is a known tumor suppressor in K562 leukemia cells that drives differentiation along the megakaryocytic lineage, a process that necessitates a complete exit from the cell cycle~\cite{ma_emodin_2019}; \gls{raptorgraph} correctly identifies this potent anti-proliferative program.
+    \item \textbf{Stress-induced growth arrest:} The factor linked to the AP-1 subunit \textit{JUN} shows strong negative enrichment for ``E2F Targets'' and ``G2-M Checkpoint''. While often associated with inflammation, c-Jun is a central stress-response mediator; in K562 cells its activation drives a termination of cell division required for stress adaptation or differentiation~\cite{shaulian_ap-1_2002,shaulian_mammalian_2000}.
+    \item \textbf{p53-like tumor suppression:} The \textit{TP73}-associated factor is negatively enriched for ``G2-M Checkpoint''. \textit{TP73} is a functional homolog of \textit{TP53} that triggers downstream checkpoint signaling to arrest the cell cycle and prevent genomic instability~\cite{kaghad_monoallelically_1997}.
+\end{enumerate}
+These findings confirm that the nodes in our learned DAG represent specific biological mechanisms and that the edges learned by the DAGMA module can be interpreted as causal regulatory links between verified biological processes.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.9\linewidth]{gfx/results/pathway_enrichment_heatmap.png}
+    \caption{Normalized Enrichment Scores (NES) of the top enriched Hallmark pathways across the learned latent factors of \gls{raptorgraph}.}
+    \label{fig:pathway_heatmap}
+\end{figure}
 
 %=====================================================================
 % DISCUSSION
@@ -1085,10 +1127,6 @@ The Norman-CPA Perturb-seq dataset is available from the original Norman et al. 
 % ==== inlined: 07_supporting.tex ====
 \section*{Supporting information}
 \begin{itemize}
-\item \textbf{S1 Fig.} The GraphPathway encoder architecture and its components.
-\item \textbf{S2 Fig.} Illustrative example of the mean collapse problem and the effect of optimal-transport pairing.
-\item \textbf{S3 Fig.} Hit Rate @ K (exact match) for the reverse perturbation task.
-\item \textbf{S4 Fig.} Hit Rate @ K (relevant gene overlap) for the reverse perturbation task.
 \item \textbf{S1 Table.} Full hyperparameter sweep and ablation results for the $\beta$-VAE regularization parameter and DAGMA loss weights.
 \end{itemize}
 
