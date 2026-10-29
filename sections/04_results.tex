@@ -85,7 +85,7 @@ $k$ & \gls{dvae} & SENA & GEARS & scGPT & \gls{raptorgraph} (ours) \\
 \label{tab:hit_rate}
 \end{table}
 
-\textbf{\gls{raptorgraph} learns biologically meaningful causal latent factors.} To confirm that \gls{raptorgraph} learns biologically meaningful structures rather than arbitrary representations, we examined the functional identity of the latent factors using gene set enrichment analysis.
+\textbf{\gls{raptorgraph} learns biologically meaningful causal latent factors.} To confirm that \gls{raptorgraph} learns biologically meaningful structures rather than arbitrary representations, we examined the functional identity of the latent factors using \gls{gsea}.
 We utilized an in-silico perturbation approach to generate transcriptional signatures for each latent factor and tested them against the MSigDB Hallmark collection~\cite{liberzon_molecular_2015}.
 We observed a robust alignment between the known biological roles of perturbed genes and the pathway enrichments of their corresponding latent factors.
 For instance, the latent factor constrained to the stress-response transcription factor \textit{JUN} displayed strong negative enrichment for cell cycle signatures (``E2F Targets,'' FDR $< 0.001$), consistent with its role in stress-induced growth arrest.
