@@ -36,12 +36,13 @@ Instead, we only observe the high-dimensional data $\variables$, which are gener
 \end{equation}
 
 \subsection*{Identifiability from targeted interventions}
-\begin{wrapfigure}{r}{0.49\textwidth}
-    \includegraphics[width=\linewidth]{Latent_interventions.png}
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.6\linewidth]{Latent_interventions.png}
     \caption{Illustration of an atomic intervention in the latent space. An intervention in the observed gene expression space $\variables$ causes a shift in a single latent pathway activity $\latentcausalvar_i$.
         This alters the conditional distribution $p^I(\latentcausalvar_i \mid \parentnodes(\latentcausalvar_i))$ while leaving unrelated latent variables unaffected, a key requirement for identifiability.}
     \label{fig:single_node_intervention}
-\end{wrapfigure}
+\end{figure}
 
 The central challenge of \gls{crl} is \emph{identifiability}: learning an encoder function $\practicalencoder$ that can uniquely recover the true latents $\latentcausalvars$ from only observations $\variables$.
 However, using observational data alone, this goal is theoretically intractable~\cite{pearl2009causality}.
