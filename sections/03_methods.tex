@@ -157,8 +157,9 @@ To address these issues, we employ a Wasserstein-based \gls{ot}~\cite{cuturi2013
 Although several recent methods address unpaired single-cell perturbation data~\cite{bunne2023learning,dong2023causal}, we adopt \gls{ot} as an offline pairing step for simplicity while avoiding mean collapse.
 
 \subsection*{Evaluation setup and metrics}
-To ensure a consistent and fair benchmark across all models taken into account, we use \gls{mkmmd} to assess the similarity between predicted and true gene expression distributions.
-The MK-MMD is calculated per-condition and then averaged to provide an overall measure of distribution similarity.
+To ensure a consistent and fair benchmark across all models taken into account, we use \gls{mmd} to assess the similarity between predicted and true gene expression distributions.
+The \gls{mmd} is calculated per-condition and then averaged to provide an overall measure of distribution similarity.
+Following common practice, we estimate \gls{mmd} with a multi-kernel (multi-window) Gaussian kernel, i.e. a weighted combination of Gaussian kernels at several bandwidths; we refer to this estimator simply as \gls{mmd} throughout.
 Alongside objective metric comparison, we use Precision@10 to evaluate non-additive interactions of combinatorial perturbations.
 
 We used the Perturb-seq single-cell RNA-seq dataset curated by Norman et al.~\cite{norman2019exploring} as processed in the CPA study~\cite{lotfollahi_predicting_2023} and refer to it as the Norman-CPA dataset.

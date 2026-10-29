@@ -401,7 +401,6 @@
 \newacronym{vae}{VAE}{Variational Autoencoder}
 \newacronym{mse}{MSE}{Mean Squared Error}
 \newacronym{mmd}{MMD}{Maximum Mean Discrepancy}
-\newacronym{mkmmd}{MK-MMD}{Multi-Kernel Maximum Mean Discrepancy}
 \newacronym{dvae}{dVAE}{DiscrepancyVAE}
 \newacronym{gsea}{GSEA}{gene set enrichment analysis}
 \newcommand{\insilico}{\emph{in silico}}
@@ -487,7 +486,6 @@
 
 \newcommand{\mmdsigma}{\sigma}
 \newcommand{\mmdsigmaMMD}{\sigma_{\text{MMD}}}
-\newcommand{\mkmmdweights}{\beta}
 \newcommand{\numkernels}{L}
 \newcommand{\numsamplesobs}{i}
 \newcommand{\numsamplespred}{j}
@@ -534,7 +532,6 @@
 
 \newcommand{\kernel}{k}
 \newcommand{\mmd}{\operatorname{MMD}}
-\newcommand{\mkmmd}{\operatorname{MK-MMD}}
 
 % ==== end inlined: custom_commands.tex ====
 
@@ -552,11 +549,11 @@
 }
 \newline
 \\
-Yeremia Gunawan Adhisantoso\textsuperscript{1\Yinyang},
-Stephanie Kristin Schr\"oder\textsuperscript{1\Yinyang},
+Yeremia Gunawan Adhisantoso\textsuperscript{1},
+Stephanie Kristin Schr\"oder\textsuperscript{1},
 Maximilian Gre\ss\textsuperscript{1},
 Mikel Hernaez\textsuperscript{2,3,4*},
-Jan Voges\textsuperscript{1,5,6,7*\ddag}
+Jan Voges\textsuperscript{1,5,6,7*}
 \\
 \bigskip
 \textbf{1} Institute of Information Processing, Leibniz Universit\"at Hannover, Hannover, Germany
@@ -575,8 +572,6 @@ Jan Voges\textsuperscript{1,5,6,7*\ddag}
 \\
 \bigskip
 
-\Yinyang These authors contributed equally to this work.
-\ddag These authors also contributed equally to this work.
 * Corresponding authors: Mikel Hernaez (\texttt{mhernaez@unav.es}) and Jan Voges (\texttt{voges@tnt.uni-hannover.de})
 
 \end{flushleft}
@@ -590,7 +585,7 @@ Furthermore, incorporating curated biological pathways into the model imposes a 
 In this work, we introduce \glsentryshort{raptorgraph}, a \betavae{} with a GraphPathway encoder that explicitly models complex gene-to-gene interactions within learned pathways.
 Moreover, our model's preconditioning isolates the influence of perturbed genes, yielding clean, single-node latent interventions required for identifiable causal discovery and eliminating spillover.
 Finally, we train the model on data preprocessed with optimal-transport alignment, which guarantees a well-defined mapping between control and perturbed samples and further stabilizes the learned latent representations.
-We demonstrate that \glsentryshort{raptorgraph} improves state-of-the-art performance on downstream analyses of unseen perturbations, such as non-additive interactions, while outperforming other approaches on objective metrics, such as \glsentryshort{mse} and \glsentryshort{mkmmd}.
+We demonstrate that \glsentryshort{raptorgraph} improves state-of-the-art performance on downstream analyses of unseen perturbations, such as non-additive interactions, while outperforming other approaches on objective metrics, such as \glsentryshort{mse} and \glsentryshort{mmd}.
 The code will be made publicly available upon publication of this paper.
 
 % Author Summary between 150 and 200 words, first person.
@@ -902,8 +897,9 @@ To address these issues, we employ a Wasserstein-based \gls{ot}~\cite{cuturi2013
 Although several recent methods address unpaired single-cell perturbation data~\cite{bunne2023learning,dong2023causal}, we adopt \gls{ot} as an offline pairing step for simplicity while avoiding mean collapse.
 
 \subsection*{Evaluation setup and metrics}
-To ensure a consistent and fair benchmark across all models taken into account, we use \gls{mkmmd} to assess the similarity between predicted and true gene expression distributions.
-The MK-MMD is calculated per-condition and then averaged to provide an overall measure of distribution similarity.
+To ensure a consistent and fair benchmark across all models taken into account, we use \gls{mmd} to assess the similarity between predicted and true gene expression distributions.
+The \gls{mmd} is calculated per-condition and then averaged to provide an overall measure of distribution similarity.
+Following common practice, we estimate \gls{mmd} with a multi-kernel (multi-window) Gaussian kernel, i.e. a weighted combination of Gaussian kernels at several bandwidths; we refer to this estimator simply as \gls{mmd} throughout.
 Alongside objective metric comparison, we use Precision@10 to evaluate non-additive interactions of combinatorial perturbations.
 
 We used the Perturb-seq single-cell RNA-seq dataset curated by Norman et al.~\cite{norman2019exploring} as processed in the CPA study~\cite{lotfollahi_predicting_2023} and refer to it as the Norman-CPA dataset.
@@ -931,14 +927,14 @@ However, to further demonstrate generalizability, we provide an additional evalu
 
 To validate our hyperparameter selection, we conducted a comprehensive ablation study on the $\beta$-VAE regularization parameter ($\beta$) and the DAGMA loss weights ($\mu, \lambda_1$).
 Our analysis reveals a critical trade-off between distribution matching and the preservation of biological heterogeneity.
-While higher regularization ($\beta \geq 0.8$) achieves competitive \gls{mkmmd} scores, it induces severe posterior collapse, with the variance of predicted control cell states dropping by an order of magnitude compared to the optimal setting ($10^{-4}$ vs $10^{-3}$).
-Conversely, lower regularization ($\beta = 0.1$) preserves higher variance but results in unstable training and significantly higher \gls{mkmmd}.
-We identified $\beta \approx 0.4$ as the optimal operating point, minimizing \gls{mkmmd} while maintaining a latent KL divergence ($\approx 10^{-3}$) consistent with established baselines (dVAE and SENA), thereby ensuring the model captures meaningful cellular diversity rather than regressing to the population mean.
+While higher regularization ($\beta \geq 0.8$) achieves competitive \gls{mmd} scores, it induces severe posterior collapse, with the variance of predicted control cell states dropping by an order of magnitude compared to the optimal setting ($10^{-4}$ vs $10^{-3}$).
+Conversely, lower regularization ($\beta = 0.1$) preserves higher variance but results in unstable training and significantly higher \gls{mmd}.
+We identified $\beta \approx 0.4$ as the optimal operating point, minimizing \gls{mmd} while maintaining a latent KL divergence ($\approx 10^{-3}$) consistent with established baselines (dVAE and SENA), thereby ensuring the model captures meaningful cellular diversity rather than regressing to the population mean.
 
 \textbf{Reconstruction capabilities.} First, we measured the \gls{mse} between the ground truth and predicted profiles of control cells to evaluate how well each model reconstructs the basal, unperturbed cellular state.
-Second, we calculated the \gls{mkmmd} between the distributions of ground truth and predicted profiles for double-gene perturbations to assess the model's ability to capture the global transcriptional shift following a complex intervention.
+Second, we calculated the \gls{mmd} between the distributions of ground truth and predicted profiles for double-gene perturbations to assess the model's ability to capture the global transcriptional shift following a complex intervention.
 
-The results in \Cref{tab:MMD_results} highlight a crucial trade-off between reconstruction fidelity (\gls{mse}) and distributional accuracy (\gls{mkmmd}).
+The results in \Cref{tab:MMD_results} highlight a crucial trade-off between reconstruction fidelity (\gls{mse}) and distributional accuracy (\gls{mmd}).
 \Gls{raptorgraph} achieves a strong overall balance, demonstrating highly competitive performance across both reconstruction and generative capabilities.
 
 % Place tables after the first paragraph in which they are cited.
@@ -950,7 +946,7 @@ The results in \Cref{tab:MMD_results} highlight a crucial trade-off between reco
 \toprule
 {Metric} & {SENA} & {scGPT} & {\gls{dvae}} & {GEARS} & {\gls{raptorgraph}} (ours) \\
 \midrule
-\gls{mkmmd} & 0.522 $\pm$ 0.003 & 0.176 $\pm$ 0.001 & \textbf{0.076 $\pm$ 0.000} & {--}* & \textit{0.112 $\pm$ 0.001} \\
+\gls{mmd} & 0.522 $\pm$ 0.003 & 0.176 $\pm$ 0.001 & \textbf{0.076 $\pm$ 0.000} & {--}* & \textit{0.112 $\pm$ 0.001} \\
 \gls{mse} & \textbf{0.043 $\pm$ 0.000} & 0.066 $\pm$ 0.000 & 0.062 $\pm$ 0.000 & {--}* & \textit{0.045 $\pm$ 0.000} \\
 \bottomrule
 \end{tabular}

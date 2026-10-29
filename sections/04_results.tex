@@ -6,14 +6,14 @@ However, to further demonstrate generalizability, we provide an additional evalu
 
 To validate our hyperparameter selection, we conducted a comprehensive ablation study on the $\beta$-VAE regularization parameter ($\beta$) and the DAGMA loss weights ($\mu, \lambda_1$).
 Our analysis reveals a critical trade-off between distribution matching and the preservation of biological heterogeneity.
-While higher regularization ($\beta \geq 0.8$) achieves competitive \gls{mkmmd} scores, it induces severe posterior collapse, with the variance of predicted control cell states dropping by an order of magnitude compared to the optimal setting ($10^{-4}$ vs $10^{-3}$).
-Conversely, lower regularization ($\beta = 0.1$) preserves higher variance but results in unstable training and significantly higher \gls{mkmmd}.
-We identified $\beta \approx 0.4$ as the optimal operating point, minimizing \gls{mkmmd} while maintaining a latent KL divergence ($\approx 10^{-3}$) consistent with established baselines (dVAE and SENA), thereby ensuring the model captures meaningful cellular diversity rather than regressing to the population mean.
+While higher regularization ($\beta \geq 0.8$) achieves competitive \gls{mmd} scores, it induces severe posterior collapse, with the variance of predicted control cell states dropping by an order of magnitude compared to the optimal setting ($10^{-4}$ vs $10^{-3}$).
+Conversely, lower regularization ($\beta = 0.1$) preserves higher variance but results in unstable training and significantly higher \gls{mmd}.
+We identified $\beta \approx 0.4$ as the optimal operating point, minimizing \gls{mmd} while maintaining a latent KL divergence ($\approx 10^{-3}$) consistent with established baselines (dVAE and SENA), thereby ensuring the model captures meaningful cellular diversity rather than regressing to the population mean.
 
 \textbf{Reconstruction capabilities.} First, we measured the \gls{mse} between the ground truth and predicted profiles of control cells to evaluate how well each model reconstructs the basal, unperturbed cellular state.
-Second, we calculated the \gls{mkmmd} between the distributions of ground truth and predicted profiles for double-gene perturbations to assess the model's ability to capture the global transcriptional shift following a complex intervention.
+Second, we calculated the \gls{mmd} between the distributions of ground truth and predicted profiles for double-gene perturbations to assess the model's ability to capture the global transcriptional shift following a complex intervention.
 
-The results in \Cref{tab:MMD_results} highlight a crucial trade-off between reconstruction fidelity (\gls{mse}) and distributional accuracy (\gls{mkmmd}).
+The results in \Cref{tab:MMD_results} highlight a crucial trade-off between reconstruction fidelity (\gls{mse}) and distributional accuracy (\gls{mmd}).
 \Gls{raptorgraph} achieves a strong overall balance, demonstrating highly competitive performance across both reconstruction and generative capabilities.
 
 % Place tables after the first paragraph in which they are cited.
@@ -25,7 +25,7 @@ The results in \Cref{tab:MMD_results} highlight a crucial trade-off between reco
 \toprule
 {Metric} & {SENA} & {scGPT} & {\gls{dvae}} & {GEARS} & {\gls{raptorgraph}} (ours) \\
 \midrule
-\gls{mkmmd} & 0.522 $\pm$ 0.003 & 0.176 $\pm$ 0.001 & \textbf{0.076 $\pm$ 0.000} & {--}* & \textit{0.112 $\pm$ 0.001} \\
+\gls{mmd} & 0.522 $\pm$ 0.003 & 0.176 $\pm$ 0.001 & \textbf{0.076 $\pm$ 0.000} & {--}* & \textit{0.112 $\pm$ 0.001} \\
 \gls{mse} & \textbf{0.043 $\pm$ 0.000} & 0.066 $\pm$ 0.000 & 0.062 $\pm$ 0.000 & {--}* & \textit{0.045 $\pm$ 0.000} \\
 \bottomrule
 \end{tabular}
