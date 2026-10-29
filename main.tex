@@ -586,7 +586,7 @@ In this work, we introduce \glsentryshort{raptorgraph}, a \betavae{} with a Grap
 Moreover, our model's preconditioning isolates the influence of perturbed genes, yielding clean, single-node latent interventions required for identifiable causal discovery and eliminating spillover.
 Finally, we train the model on data preprocessed with optimal-transport alignment, which guarantees a well-defined mapping between control and perturbed samples and further stabilizes the learned latent representations.
 We demonstrate that \glsentryshort{raptorgraph} improves state-of-the-art performance on downstream analyses of unseen perturbations, such as non-additive interactions, while outperforming other approaches on objective metrics, such as \glsentryshort{mse} and \glsentryshort{mmd}.
-The code will be made publicly available upon publication of this paper.
+The source code is available at \url{https://github.com/sXperfect/RAPTORGraph}.
 
 % Author Summary between 150 and 200 words, first person.
 \section*{Author summary}
@@ -1059,11 +1059,12 @@ Future work will focus on deploying \gls{raptorgraph} for the hypothesis-driven 
 
 % ==== inlined: 08_acknowledgments.tex ====
 \section*{Acknowledgments}
-This section is intended only for general acknowledgements and thanks. Any
-information related to funding, data availability, author contributions, etc.
-should be entered directly into their dedicated fields in the PLOS Editorial
-Manager submission system, which will then be incorporated into the appropriate
-section in your article during the production process.
+The authors acknowledge the financial support by the Ministry of Science and Culture of Lower Saxony through the \textit{zukunft.niedersachsen} program of the Volkswagen Foundation via the CAIMed (Lower Saxony Center for Artificial Intelligence and Causal Methods in Medicine) project under project number ZN4257, and by the German Federal Ministry of Education and Research (BMBF) in the framework of the P4D (Personalisierte, pr\"adiktive, pr\"azise und pr\"aventive Medizin zur Verbesserung der Fr\"uherkennung, Diagnostik, Therapie und Pr\"avention depressiver Erkrankungen) project under project number 01EK2204F.
+Mikel Hernaez was supported by a Ram\'on y Cajal fellowship (RYC2021-033127-I) and the DL2CURE project (PID2023-151980OB-I00), funded by MCIN/AEI/10.13039/501100011033 and ``NextGenerationEU''/PRTR, the Palatchi Foundation, and the AECC Proyectos generales 2025 (PRYGN259200HERN).
+
+\section*{Data Availability}
+The source code of \gls{raptorgraph} is available at \url{https://github.com/sXperfect/RAPTORGraph}.
+The Norman-CPA Perturb-seq dataset is available from the original Norman et al. study as processed in the CPA study~\cite{norman2019exploring,lotfollahi2023predicting}; the Replogle2020 CRISPRi dataset is available from Replogle et al. as processed in the PerturBase study~\cite{replogle_combinatorial_2020,wei_perturbase_2024}.
 
 \nolinenumbers
 
