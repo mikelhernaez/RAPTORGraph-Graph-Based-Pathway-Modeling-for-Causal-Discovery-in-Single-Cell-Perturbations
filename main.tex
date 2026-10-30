@@ -838,19 +838,12 @@ The analysis was performed on a controlled combinatorial space of 20 transcripti
 For each model, we generated a database of predicted expression profiles for all possible double-gene perturbations within this subset.
 We then used the ground truth mean expression profiles from experimentally observed double perturbations as queries, ranking the database entries by similarity to identify the most likely causal perturbation.
 
-We first evaluated the models on the highly stringent task of identifying the exact causal gene combination, quantified by the Correct (Exact Match) Hit Rate @ K (\Cref{fig:hit_rate_exact}).
+We first evaluated the models on the highly stringent task of identifying the exact causal gene combination, quantified by the Correct (Exact Match) Hit Rate @ K (S1 Fig).
 As shown there, all models achieve modest hit rates, underscoring the profound difficulty of this reverse-engineering challenge.
 However, a more practical measure of a model's utility is its ability to identify biologically influential genes.
 We assessed this using the Relevant (Gene Overlap) Hit Rate @ K, which credits a model for retrieving perturbations containing at least one of the correct genes (\Cref{fig:hit_rate_relevant} and \Cref{tab:hit_rate}).
 \Gls{raptorgraph} demonstrates exceptional performance, consistently ranking among the top models.
 This highlights that while pinpointing exact higher-order interactions is an ongoing challenge, \gls{raptorgraph} is highly effective at identifying the key genetic players driving a cellular response, making it a valuable tool for hypothesis generation and experimental design.
-
-\begin{figure}[!ht]
-    \centering
-    \includegraphics[width=0.9\linewidth]{gfx/results/hit_rate_at_k_correct_exact_match.png}
-    \caption{\textbf{Correct (Exact Match) Hit Rate @ K} for the reverse perturbation task. The metric measures the fraction of queries where the exact causal gene combination was identified in the top K predictions. Higher is better. Values are mean $\pm$ variance over 3 runs.}
-    \label{fig:hit_rate_exact}
-\end{figure}
 
 \begin{figure}[!ht]
     \centering
@@ -1129,6 +1122,7 @@ The Norman-CPA Perturb-seq dataset is available from the original Norman et al. 
 % ==== inlined: 07_supporting.tex ====
 \section*{Supporting information}
 \begin{itemize}
+\item \textbf{S1 Fig. Correct (Exact Match) Hit Rate @ K} for the reverse perturbation task. The metric measures the fraction of queries where the exact causal gene combination was identified in the top K predictions. Higher is better. Values are mean $\pm$ variance over 3 runs.
 \item \textbf{S1 Table.} Full hyperparameter sweep and ablation results for the $\beta$-VAE regularization parameter and DAGMA loss weights.
 \end{itemize}
 
