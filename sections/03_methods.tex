@@ -188,7 +188,7 @@ The squared \gls{mmd} between the true distribution $\pdata$ and the model's dis
     + \E_{\predictedvariable, \predictedvariable' \sim \pmodel}\bigl[\kernel(\predictedvariable, \predictedvariable')\bigr] .
     \label{eq:metrics:mmd}
 \end{equation}
-In practice we use a multi-kernel (multi-window) estimate, i.e.\ a weighted combination of Gaussian kernels at several bandwidths, and the unbiased empirical estimator on batches; we refer to this estimator simply as \gls{mmd} throughout.
+In practice we use a multi-kernel (multi-window) estimate, i.e.\ a weighted combination of Gaussian kernels at several bandwidths, and the unbiased empirical estimator on batches; we refer to this estimator as \gls{mmd} throughout.
 The \gls{mmd} is calculated per-condition and then averaged to provide an overall measure of distribution similarity.
 
 \paragraph{Precision@10 for non-additive genetic interactions.}
