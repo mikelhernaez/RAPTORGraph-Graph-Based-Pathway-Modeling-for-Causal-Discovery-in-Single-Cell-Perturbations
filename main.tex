@@ -594,7 +594,7 @@ The source code is available at \url{https://github.com/sXperfect/RAPTORGraph}.
 Single-cell perturbation experiments let us study how individual genetic changes reshape cellular behavior, but exhaustively testing every combination of genes is infeasible.
 Computational models that predict the response to unseen perturbations therefore promise to accelerate biological discovery and drug development.
 However, existing predictive models often behave as ``black boxes'' and, even when designed for causal inference, rely on dense neural encoders that entangle the signal of a targeted genetic intervention across many latent factors.
-We identify two specific failure modes --- intervention spillover and mean collapse --- and introduce RAPTORGraph, a framework that addresses both.
+We identify two specific failure modes, intervention spillover and mean collapse, and introduce RAPTORGraph, a framework that addresses both.
 A preconditioned graph pathway encoder enforces sparse, one-to-one mappings from perturbed genes to learned latent pathways, enabling the clean single-node interventions that valid causal inference requires, while a separate module discovers the causal graph among those pathways.
 An optimal-transport preprocessing step globally pairs control and perturbed cells, preserving cellular diversity that random pairing destroys.
 Across benchmarks on two single-cell datasets, RAPTORGraph balances reconstruction fidelity and distributional accuracy, better predicts complex non-additive genetic interactions, and can reverse-engineer the genetic drivers of an observed phenotype, generating testable hypotheses.
