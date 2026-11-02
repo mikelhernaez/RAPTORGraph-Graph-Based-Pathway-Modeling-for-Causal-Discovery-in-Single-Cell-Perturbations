@@ -591,13 +591,16 @@ The source code is available at \url{https://github.com/sXperfect/RAPTORGraph}.
 
 % Author Summary between 150 and 200 words, first person.
 \section*{Author summary}
-Single-cell perturbation experiments let us study how individual genetic changes reshape cellular behavior, but exhaustively testing every combination of genes is infeasible.
-Computational models that predict the response to unseen perturbations therefore promise to accelerate biological discovery and drug development.
-However, existing predictive models often behave as ``black boxes'' and, even when designed for causal inference, rely on dense neural encoders that entangle the signal of a targeted genetic intervention across many latent factors.
-We identify two specific failure modes, intervention spillover and mean collapse, and introduce RAPTORGraph, a framework that addresses both.
-A preconditioned graph pathway encoder enforces sparse, one-to-one mappings from perturbed genes to learned latent pathways, enabling the clean single-node interventions that valid causal inference requires, while a separate module discovers the causal graph among those pathways.
-An optimal-transport preprocessing step globally pairs control and perturbed cells, preserving cellular diversity that random pairing destroys.
-Across benchmarks on two single-cell datasets, RAPTORGraph balances reconstruction fidelity and distributional accuracy, better predicts complex non-additive genetic interactions, and can reverse-engineer the genetic drivers of an observed phenotype, generating testable hypotheses.
+Understanding how genes work together can help explain changes in cell behavior and guide the search for treatments.
+Yet testing every possible combination of genetic changes is impractical.
+We developed a computer model to predict how individual cells respond to changes that have not been tested experimentally.
+We address two problems: existing models can obscure how a change leads to a predicted outcome and overlook differences between individual cells.
+In our model, each genetic change enters through a single starting point, and its effects can spread through a network learned from the data.
+This allows us to examine how a predicted response develops.
+We also match cells from separate groups with and without genetic changes, helping our model retain the diversity of cellular responses.
+In tests on two datasets, we improved predictions of responses to combined genetic changes whose effects could not be explained by adding the effects of individual changes.
+We also used the model to suggest genetic changes that could explain an observed cellular response.
+Our approach could help researchers choose informative experiments and investigate how genes jointly shape cell behavior.
 
 \clearpage
 \newgeometry{top=0.85in,left=1in,right=1in,footskip=0.75in}
@@ -750,7 +753,7 @@ Rather, dense encoders fail by transforming a sparse perturbation into a dense e
 By enforcing a sparse mapping for the intervention target, our proposed architecture satisfies identifiability while still modeling complex gene--gene correlations downstream via the dense components of the encoder and the learned causal graph.
 
 \subsection*{The dilemma of prior knowledge in causal discovery}
-Existing causal discovery models can be positioned on a spectrum~\cite{pmlr-v235-herrmann24b} from purely exploratory approaches like \gls{dvae}, which learns all components from data, to more confirmatory models like SENA, which leverages predefined biological pathways to enhance interpretability. While this confirmatory strategy aims to ground the model in known biology, it introduces a significant limitation stemming from poor knowledge transfer. Biological pathways are known to exhibit strong cell-type and cell-line specificity~\cite{schneider2017tissue,gamazon2018using,walter2019biological,hekselman2020mechanisms}, meaning that mechanisms characterized in one cellular context often do not generalize to another.
+Existing causal discovery models can be positioned on a spectrum from purely exploratory approaches like \gls{dvae}, which learns all components from data, to more confirmatory models like SENA, which leverages predefined biological pathways to enhance interpretability. While this confirmatory strategy aims to ground the model in known biology, it introduces a significant limitation stemming from poor knowledge transfer. Biological pathways are known to exhibit strong cell-type and cell-line specificity~\cite{schneider2017tissue,gamazon2018using,walter2019biological,hekselman2020mechanisms}, meaning that mechanisms characterized in one cellular context often do not generalize to another.
 
 %=====================================================================
 % MATERIALS AND METHODS
