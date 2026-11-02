@@ -62,7 +62,6 @@ This assumption provides a well-defined causal ordering and excludes directed fe
 Several causal representation learning methods establish identifiability guarantees under atomic interventions, in which each intervention directly modifies the causal mechanism of a single latent variable~\cite{zhang2023identifiability,von2023nonparametric}.
 In particular, Zhang et al.~\cite{zhang2023identifiability} consider single-target soft interventions and assume that every latent variable is targeted at least once.
 Under additional assumptions, this setting permits recovery of causal ancestry and the latent causal graph up to the relevant equivalence class.
-Although single-target interventions are common in identifiability theory, they are not universally necessary: recent work has established identifiability guarantees under sufficiently diverse unknown multi-node interventions~\cite{varici2024linear}.
 
 \textbf{Requirement 3 (Faithfulness).}
 Causal discovery commonly assumes faithfulness, meaning that conditional independencies in the observed distribution reflect graphical separation rather than coincidental cancellations of causal effects.
@@ -82,7 +81,7 @@ This reliance on an \textbf{atomic set of interventions}, where each latent vari
 It forms the basis for models applied to Perturb-seq data, as seen in recent methods~\cite{zhang2023identifiability,de2025interpretable}.
 
 Importantly, we distinguish modeling requirements from theoretical identifiability assumptions and from empirical validation.
-The DAG structure and the sparse, single-target intervention mapping are \emph{modeling requirements} imposed by our architecture.
+The directed acyclic structure (Requirement 1) and the atomic, single-target intervention mapping (Requirement 2) are modeling requirements adopted in our architecture.
 Theoretical identifiability guarantees instead require intervention coverage, restrictions on the observation map, and the appropriate faithfulness conditions described above.
 Finally, whether the learned representations and perturbation effects are biologically meaningful is an \emph{empirical} question.
 This distinction matters because Zhang et al.~\cite{zhang2023identifiability} prove identifiability under their specified generative assumptions; those guarantees do not automatically transfer to \gls{raptorgraph} merely because it enforces a sparse intervention mapping and an acyclic graph.
