@@ -23,9 +23,7 @@ Generated 2026-11-02.
 - **REFS WITHOUT LABEL (broken): none** ✅ (`#1..#4` are macro-parameter
   false positives from `\def` helpers).
 - Unreferenced labels (GS017, 10): all equations + `thm:zhang_full_dag`.
-  Equations unreferenced is normal; `thm:zhang_full_dag` (the main
-  identifiability theorem) is worth citing from the text if the theorem is
-  meant to be the formal anchor.
+  Equations unreferenced is normal; `thm:zhang_full_dag` ~~the main identifiability theorem~~ — **now cited** (\Cref{thm:zhang_full_dag} in the introducing sentence, main.tex:722).
 
 ## 3. gunz-style tex rules (structural)
 
