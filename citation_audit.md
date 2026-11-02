@@ -636,7 +636,7 @@ Cited **6** time(s):
 
 Theoretical results for the manuscript's "Identifiability from targeted interventions" section and its supplement. All statements are **paraphrased** from the published sources (not verbatim), attributed to original authors, and are established results — **not** new theorems proved for RAPTORGraph.
 
-> **Architecture note:** RAPTORGraph is a **β-VAE** (reparameterization trick + KL-divergence loss; see `Exogeneous latent factor inference via VAE`, main.tex ~977–978, 1030). The comparison baselines are likewise β-VAEs: **dVAE (Zhang et al.)** and **SENA** are both variational autoencoders with a β-weight on the KL term. This determines which identifiability results are load-bearing: VAE-relevant results (Zhang, Khemakhem) are core; **deterministic**-autoencoder results (Ahuja) are **not** applicable.
+> **Architecture note:** RAPTORGraph is a **β-VAE** (reparameterization trick + KL-divergence loss with a β-weight; see `Exogeneous latent factor inference via VAE`, main.tex ~977–978, 1030). The comparison baselines are comparable in kind: **dVAE (Zhang et al.)** and **SENA** describe their models as VAEs, but their training uses a β-weighted KL term, i.e. effectively a β-VAE. (Phrase carefully — the papers call themselves VAEs; calling them β-VAEs is our characterization of their objective.) This determines which identifiability results are load-bearing: VAE-relevant results (Zhang, Khemakhem) are core; **deterministic**-autoencoder results (Ahuja) are **not** applicable.
 
 ### Role table (what to cite where)
 
