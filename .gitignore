@@ -21,3 +21,6 @@
 *.vrb
 *.run.xml
 main.pdf
+
+# tool caches
+.gunz_style_cache.json

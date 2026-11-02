@@ -649,7 +649,7 @@ Theoretical results for the manuscript's "Identifiability from targeted interven
 | **Core** | Predictions for unseen intervention combinations | Zhang Thm 3 | `zhang2023identifiability` ✓ |
 | **Core** | VAE identifiability with conditional/auxiliary latents | Khemakhem Thms 1–2 | `khemakhem2020variational` ✓ |
 | **Core** | Acyclicity of learned graphs (not causal identifiability) | DAGMA Thm 1 | `bello2022dagma` ✓ |
-| Contrast | Generalizations to multiple intervention targets (single-node framing) | Varıcı Thms 1–2 | `varici2024linear` **MISSING** |
+| Contrast | Generalizations to multiple intervention targets (single-node framing) | Varıcı Thms 1–2 | `varici2024linear` ✓ added 2026-11-02 (NeurIPS 2024, doi 10.52202/079017-3545) |
 | ~~Not applicable~~ | ~~Deterministic autoencoder identification~~ | ~~Ahuja Thm 4.4~~ | ~~`ahuja2023interventional` — RAPTORGraph is a VAE, not deterministic~~ |
 
 ### Key attribution results
@@ -663,12 +663,12 @@ Theoretical results for the manuscript's "Identifiability from targeted interven
 
 ### Missing bibliography keys (need adding to references.bib)
 
-The essential set only requires `varici2024linear` (the single-node contrast). The classical graph results below are **optional** and only needed if the manuscript discusses observational graph identifiability:
+The essential set only requires `varici2024linear` (the single-node contrast) — **added 2026-11-02** and cited in Requirement 2 of main.tex / 02_background.tex. The classical graph results below are **optional** and only needed if the manuscript discusses observational graph identifiability (currently not discussed, so not yet added):
 
-- `varici2024linear` — Varıcı et al., *Linear Causal Representation Learning from Unknown Multi-node Interventions*, NeurIPS 2024
+- ~~`varici2024linear`~~ — **DONE** — Varıcı et al., *Linear Causal Representation Learning from Unknown Multi-node Interventions*, NeurIPS 2024, doi 10.52202/079017-3545
 - `shimizu2006linear` — Shimizu et al., *A Linear Non-Gaussian Acyclic Model for Causal Discovery*, JMLR 2006 *(optional)*
 - `peters2014causal` — Peters et al., *Causal inference with the additive noise model*, 2014 *(optional)*
-- `peters2014identifiability` — Peters & Bühlmann, *Identifiability of Gaussian structural equation models with equal error variances*, 2014 *(optional)*
+- `peters2014identifiability` — Peters & Bühlmann, *Identifiability of Gaussian structural equation models with equal error variances*, Biometrika 2014, doi 10.1093/biomet/ast043 *(optional)*
 
 ### Caveats for the manuscript
 

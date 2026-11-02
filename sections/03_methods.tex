@@ -6,7 +6,7 @@ This approach requires a specific ordering of the input data.
 Let $\numperturbedgenes$ be the number of known perturbed genes in the experiment.
 Without loss of generality, we assume the input gene vector $\variables \in \realnumbers^\observeddim$ is sorted such that the first $\numperturbedgenes$ genes are those perturbed, followed by the remaining $\observeddim-\numperturbedgenes$ unperturbed genes.
 
-\textbf{Pre-conditioning module.} Given this sorted input, we define our model with $\latentdim$ learned causal latents (meta-pathways), where we require that the number of learned meta-pathways is at least the number of perturbed genes ($\latentdim \ge \numperturbedgenes$).
+\textbf{Pre-conditioning module (\Cref{fig:arch:graphpathway_encoder}-A)}. Given this sorted input, we define our model with $\latentdim$ learned causal latents (meta-pathways), where we require that the number of learned meta-pathways is at least the number of perturbed genes ($\latentdim \ge \numperturbedgenes$).
 We then structure the encoder's primary weight matrix $\weightmatrix$ as a block matrix:
 \begin{equation}
     \weightmatrix =
@@ -32,14 +32,14 @@ The bottom-left zero block, $\vzero_{(\latentdim-\numperturbedgenes) \times \num
 The other submatrices, $\weightmatrix_{12}$ and $\weightmatrix_{22}$, are learnable and dense, allowing the model flexibility to discover complex relationships between unperturbed genes and all learned meta-pathways.
 Crucially, this preconditioned structure allows the intervention mask $\maskvector$ to be predefined and fixed rather than learned, directly satisfying the theoretical requirements for identifiability.
 
-\textbf{Latent grouping via an interaction block}. To model the complex non-linear dynamics of biological systems, our architecture extends this preconditioning approach by learning multiple distinct subgraph representations for each (exogenous) latent factor.
+\textbf{Latent grouping via an interaction block (\Cref{fig:arch:graphpathway_encoder}-B)}. To model the complex non-linear dynamics of biological systems, our architecture extends this preconditioning approach by learning multiple distinct subgraph representations for each (exogenous) latent factor.
 An intermediate \emph{Interaction Block} then processes these subgraph activations, allowing the model to capture higher-order dependencies by learning unique interaction patterns among the subgraphs within each learned latent factor.
 
-\textbf{Exogeneous latent factor inference via VAE}. Next, an aggregation layer combines these processed features to compute the parameters ($\vect{\mu}_{\latentvars}$ and $\vect{\sigma}_{\latentvars}$) for the (exogenous) latent distributions.
+\textbf{Exogeneous latent factor inference via VAE (\Cref{fig:arch:graphpathway_encoder}-C)}. Next, an aggregation layer combines these processed features to compute the parameters ($\vect{\mu}_{\latentvars}$ and $\vect{\sigma}_{\latentvars}$) for the (exogenous) latent distributions.
 Thus, the final stochastic representations of the latent factors are then obtained using the reparameterization trick $\latentvars = \vect{\mu}_{\latentvars} + \vect{\sigma}_{\latentvars} \odot \vect{\epsilon}; \quad \vect{\epsilon} \sim \normaldist(\vect{0}, \identitymatrix)$.
 Subsequently, a latent modulator predicts a conditional shift for the targeted latent variables, strictly modifying only the specific latent variable associated with the perturbation while preserving the independence of the others.
 
-\textbf{Causal latent factor (causal meta-pathway) inference via DAGMA}. To capture the downstream biological consequences, a DAGMA layer propagates these atomic interventions through a learned directed acyclic graph, transforming the independent noise terms into causally dependent pathway activities.
+\textbf{Causal latent factor (causal meta-pathway) inference via DAGMA (\Cref{fig:arch:graphpathway_encoder}-D)}. To capture the downstream biological consequences, a DAGMA layer propagates these atomic interventions through a learned directed acyclic graph, transforming the independent noise terms into causally dependent pathway activities.
 Finally, a non-linear dense decoder maps these propagated causal states back to the high-dimensional gene expression space to predict the final post-perturbation phenotype.
 
 \begin{figure}[htbp]
@@ -73,7 +73,7 @@ The optimization then solves a sequence of unconstrained problems jointly minimi
 
 \textbf{DAGMA implementation.} We implement a modified DAGMA approach designed to learn the invariant, baseline causal structure of the biological system.
 To ensure stability and manage the trade-off between reconstruction fidelity and acyclicity, we introduce two critical regularizations.
-First, we employ a path-following schedule where the score weight $\mu$ is gradually decreased (see \cref{eq:dagma_loss_full}), allowing the model to prioritize feature learning early in training before strictly enforcing the graph constraint.
+First, we employ a path-following schedule where the score weight $\mu$ is gradually decreased (see~\cref{eq:dagma_loss_full}), allowing the model to prioritize feature learning early in training before strictly enforcing the graph constraint.
 % [MODIFICATION: Addressing Reviewer yvAn] Clarified that the framework is trained end-to-end. 
 % Removed previous mention of "detached" gradients to resolve the misconception 
 % that representation learning and graph discovery are decoupled.
@@ -157,10 +157,60 @@ To address these issues, we employ a Wasserstein-based \gls{ot}~\cite{cuturi2013
 Although several recent methods address unpaired single-cell perturbation data~\cite{bunne2023learning,dong2023causal}, we adopt \gls{ot} as an offline pairing step for simplicity while avoiding mean collapse.
 
 \subsection*{Evaluation setup and metrics}
-To ensure a consistent and fair benchmark across all models taken into account, we use \gls{mmd} to assess the similarity between predicted and true gene expression distributions.
+To ensure a consistent and fair benchmark across all models, we employ a suite of metrics targeting different aspects of model capability.
+We use the \gls{mse} to evaluate reconstruction of basal (control) cell states, the \gls{mmd} to evaluate the accuracy of out-of-distribution predictions for perturbed states, Precision@10 to evaluate non-additive genetic interactions, and Hit Rate @ K to evaluate reverse-engineering of genetic causes.
+The calculation of all metrics was standardized across the benchmarked tools.
+
+\paragraph{Mean Squared Error (MSE).}
+The \gls{mse} measures each model's ability to faithfully reconstruct the gene expression profile of control (unperturbed) cells; a lower value indicates better performance.
+To avoid trivial memorization, the set of control cells is randomly split into two non-overlapping halves: an input set and a ground-truth set.
+The model reconstructs cells from the input set, and the \gls{mse} is computed between the reconstructions and the corresponding ground-truth cells, averaged over batches.
+For a batch of $\numsamplesobs$ cells with $\numgenes$ genes, the \gls{mse} is
+\begin{equation}
+    \mseloss = \frac{1}{\numsamplesobs \cdot \numgenes} \sum_{i=1}^{\numsamplesobs} \sum_{j=1}^{\numgenes} \bigl( \variables_{ij} - \predictedvariable_{ij} \bigr)^2,
+    \label{eq:metrics:mse}
+\end{equation}
+where $\variables_{ij}$ is the expression level of gene $j$ in true control cell $i$, and $\predictedvariable_{ij}$ is the corresponding reconstructed value.
+
+\paragraph{Maximum Mean Discrepancy (MMD).}
+The \gls{mmd}~\cite{gretton2012kernel} measures the distance between two probability distributions based on the distance between their mean embeddings in a reproducing kernel Hilbert space.
+It quantifies the dissimilarity between the distribution of model-predicted gene expression profiles and the distribution of true, experimentally observed profiles for a given perturbation.
+We use a Gaussian (radial basis function) kernel
+\begin{equation}
+    \kernel(\variables, \vy) = \exp\!\left( -\frac{\|\variables - \vy\|^2}{2\mmdsigmaMMD^2} \right),
+    \label{eq:metrics:kernel}
+\end{equation}
+where $\mmdsigmaMMD$ is the bandwidth hyperparameter.
+The squared \gls{mmd} between the true distribution $\pdata$ and the model's distribution $\pmodel$ is, in population form,
+\begin{equation}
+    \mmd^2(\pdata, \pmodel) = \E_{\variables, \variables' \sim \pdata}\bigl[\kernel(\variables, \variables')\bigr]
+    - 2\,\E_{\variables \sim \pdata,\, \predictedvariable \sim \pmodel}\bigl[\kernel(\variables, \predictedvariable)\bigr]
+    + \E_{\predictedvariable, \predictedvariable' \sim \pmodel}\bigl[\kernel(\predictedvariable, \predictedvariable')\bigr] .
+    \label{eq:metrics:mmd}
+\end{equation}
+In practice we use a multi-kernel (multi-window) estimate, i.e.\ a weighted combination of Gaussian kernels at several bandwidths, and the unbiased empirical estimator on batches; we refer to this estimator simply as \gls{mmd} throughout.
 The \gls{mmd} is calculated per-condition and then averaged to provide an overall measure of distribution similarity.
-Following common practice, we estimate \gls{mmd} with a multi-kernel (multi-window) Gaussian kernel, i.e. a weighted combination of Gaussian kernels at several bandwidths; we refer to this estimator simply as \gls{mmd} throughout.
-Alongside objective metric comparison, we use Precision@10 to evaluate non-additive interactions of combinatorial perturbations.
+
+\paragraph{Precision@10 for non-additive genetic interactions.}
+To evaluate the models' ability to predict non-additive effects, we use the Precision@10 metric inspired by the GEARS study~\cite{roohani2024predicting}, with a naive additive baseline.
+For each double-gene perturbation, we compute an effect vector $\effectvector$ as the mean perturbed profile minus the mean control profile, for both ground-truth data and model predictions.
+The naive additive baseline assumes the double-perturbation effect is the sum of the individual single-perturbation effects, $\effectvectornaive = \effectvector_A + \effectvector_B$.
+Comparing the true or predicted combined effect $\effectvector(A+B)$ against this baseline yields five interaction scores:
+\begin{itemize}
+    \item \emph{Synergy} and \emph{Suppression}: $\synergyscore = \frac{\ltwonorm{\effectvector(A+B)}}{\ltwonorm{\effectvectornaive}}$ (magnitude ratio);
+    \item \emph{Neomorphism}: $\neomorphismscore = 1 - \cossim{\effectvector(A+B)}{\effectvectornaive}$ (change in direction);
+    \item \emph{Redundancy}: $\redundancyscore = \min\bigl(\cossim{\effectvector(A+B)}{\effectvector_A}, \cossim{\effectvector(A+B)}{\effectvector_B}\bigr)$ (functional overlap);
+    \item \emph{Epistasis}: $\epistasiscore = \bigl\lvert \cossim{\effectvector(A+B)}{\effectvector_A} - \cossim{\effectvector(A+B)}{\effectvector_B} \bigr\rvert$ (dominance).
+\end{itemize}
+For each interaction type, perturbations are ranked by their predicted score and the top 10 are selected.
+These are compared against a ground-truth set of interactors, defined as those whose true score falls in the top 25\% (or, for suppression, the bottom 25\%) of that category.
+Precision@10 is the fraction of the top-10 predictions that are true interactors; higher is better.
+
+\paragraph{Hit Rate @ K for reverse perturbation.}
+To assess each model's ability to reverse-engineer the genetic cause of an observed phenotype, we query the model with a ground-truth mean expression profile $\meanexpression_{p_{\text{true}}}$ of a double perturbation and rank the database of predicted profiles by Euclidean distance to the query.
+We report two variants of Hit Rate @ K.
+\emph{Correct (Exact Match) Hit Rate @ K} is the fraction of queries for which the exact true perturbation is within the top K predictions.
+\emph{Relevant (Gene Overlap) Hit Rate @ K} is the fraction of queries for which at least one of the true perturbation's genes is present in the top K predictions, i.e.\ $\text{genes}(\hat{p}) \cap \text{genes}(p_q) \neq \emptyset$ for some prediction $\hat{p}$ in the top K.
 
 We used the Perturb-seq single-cell RNA-seq dataset curated by Norman et al.~\cite{norman2019exploring} as processed in the CPA study~\cite{lotfollahi_predicting_2023} and refer to it as the Norman-CPA dataset.
 It profiles 105 gene perturbations in K562 cells, including both single and double perturbations.

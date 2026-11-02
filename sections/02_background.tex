@@ -51,7 +51,7 @@ In the causal setting, this problem is compounded, as multiple distinct causal s
 This means that learning interpretable causal mechanisms from observational data alone is ill-posed.
 
 To overcome this fundamental limitation, modern \gls{crl} relies on access to interventional data.
-The key insight is that interventions create unique statistical signatures that break the symmetries present in observational data.
+The key insight is that interventions create unique statistical signatures that break the symmetries present in observational data (Fig.~\ref{fig:single_node_intervention}).
 As formally established in recent work~\cite{scholkopf2021toward}, achieving identifiability depends on a set of key requirements.
 
 \textbf{Requirement 1 (Acyclic Causal Structure).}
@@ -59,7 +59,7 @@ The assumption that the causal structure forms a \gls{dag} is a foundational pri
 
 \textbf{Requirement 2 (Atomic, Single-Node Interventions).}
 Identifiability theory demonstrates that causal structure recovery requires access to interventional data that targets each individual latent variable at least once.
-This requirement of atomic (single-node) interventions is a key assumption in modern \gls{crl} methods~\cite{zhang2023identifiability,von2023nonparametric}.
+This requirement of atomic (single-node) interventions is a key assumption in modern \gls{crl} methods~\cite{zhang2023identifiability,von2023nonparametric}; recently, identifiability has also been shown under unknown multi-node interventions~\cite{varici2024linear}.
 
 \textbf{Requirement 3 (Faithfulness).}
 The framework also relies on the \emph{faithfulness assumption}, which posits that all conditional independencies in the data are a consequence of the causal graph structure (d-separation) and not due to coincidental cancellations of parameters.
