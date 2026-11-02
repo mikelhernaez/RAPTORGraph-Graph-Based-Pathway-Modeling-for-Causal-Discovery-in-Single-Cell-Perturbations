@@ -618,7 +618,7 @@ Understanding how cells respond to genetic perturbations, such as those induced 
 However, the combinatorial explosion across $\sim$20{,}000 protein-coding genes makes exhaustive perturbation experiments infeasible~\cite{norman2019exploring}, motivating computational models that predict cellular responses to unseen perturbations or combinations thereof.
 
 Existing approaches to predict the transcriptional outcome following a perturbation face a fundamental challenge: generative quality comes at the cost of causal interpretability.
-For example, recent methods like GEARS~\cite{roohani2024predicting} or scGPT~\cite{cui2024scgpt} achieve strong predictive performance in cellular response to perturbations; however, they act as ``black boxes'' providing little mechanistic insight into how perturbations affect cellular systems.
+Models such as GEARS~\cite{roohani2024predicting} and scGPT~\cite{cui2024scgpt} have demonstrated the ability to predict transcriptional responses to genetic perturbations, including previously unseen perturbations, although their predictive performance varies across datasets and evaluation metrics; however, they act as ``black boxes'' providing little mechanistic insight into how perturbations affect cellular systems.
 This lack of interpretability prevents researchers from understanding why certain combinations of perturbations produce synergistic effects, failing to provide testable biological hypotheses.
 
 As such, computational biology demands models that provide mechanistic insights into cellular function~\cite{chen_applying_2024}, making \gls{crl}~\cite{scholkopf2021toward} a promising approach for mapping genes to biological processes.
@@ -706,17 +706,20 @@ The key insight is that interventions create unique statistical signatures that 
 As formally established in recent work~\cite{scholkopf2021toward}, achieving identifiability depends on a set of key requirements.
 
 \textbf{Requirement 1 (Acyclic Causal Structure).}
-The assumption that the causal structure forms a \gls{dag} is a foundational principle in causal discovery~\cite{pearl2009causality}.
+We model the causal relationships among latent pathways using a directed acyclic graph (DAG), a standard structural assumption in causal discovery~\cite{pearl2009causality}.
+This assumption provides a well-defined causal ordering and excludes directed feedback cycles within the modeled structure.
 
 \textbf{Requirement 2 (Atomic, Single-Node Interventions).}
-Identifiability theory demonstrates that causal structure recovery requires access to interventional data that targets each individual latent variable at least once.
-This requirement of atomic (single-node) interventions is a key assumption in modern \gls{crl} methods~\cite{zhang2023identifiability,von2023nonparametric}; recently, identifiability has also been shown under unknown multi-node interventions~\cite{varici2024linear}.
+Several causal representation learning methods establish identifiability guarantees under atomic interventions, in which each intervention directly modifies the causal mechanism of a single latent variable~\cite{zhang2023identifiability,von2023nonparametric}.
+In particular, Zhang et al.~\cite{zhang2023identifiability} consider single-target soft interventions and assume that every latent variable is targeted at least once.
+Under additional assumptions, this setting permits recovery of causal ancestry and the latent causal graph up to the relevant equivalence class.
+Although single-target interventions are common in identifiability theory, they are not universally necessary: recent work has established identifiability guarantees under sufficiently diverse unknown multi-node interventions~\cite{varici2024linear}.
 
 \textbf{Requirement 3 (Faithfulness).}
-The framework also relies on the \emph{faithfulness assumption}, which posits that all conditional independencies in the data are a consequence of the causal graph structure (d-separation) and not due to coincidental cancellations of parameters.
-The work of Zhang et al.~\cite{zhang2023identifiability} formalizes two key aspects of this requirement for their setting.
-First, \emph{linear interventional faithfulness} ensures that the effect of an intervention on a descendant is not perfectly cancelled by a linear combination of other variables.
-Second, they assume no perfect cancellation between a direct causal effect and other parallel paths in the graph.
+Causal discovery commonly assumes faithfulness, meaning that conditional independencies in the observed distribution reflect graphical separation rather than coincidental cancellations of causal effects.
+Zhang et al.~\cite{zhang2023identifiability} introduce two additional conditions for identifying latent causal structures.
+First, \emph{linear interventional faithfulness} requires that relevant intervention-induced distributional changes remain detectable under specified linear combinations of latent variables, enabling identification of ancestral relationships.
+Second, \emph{adjacency faithfulness} excludes conditional independencies that could obscure direct causal connections under linear transformations, enabling recovery of the causal graph under the remaining identifiability assumptions.
 
 Under these conditions, it is possible to provably recover the true latent causal graph up to a well-defined equivalence class.
 Following the work of Zhang et al.~\cite{zhang2023identifiability}, their main theorem provides a formal guarantee for identifiability (\Cref{thm:zhang_full_dag}):
@@ -728,6 +731,13 @@ If the set of interventions is atomic (single-node, targeting each latent variab
 
 This reliance on an \textbf{atomic set of interventions}, where each latent variable is targeted at least once, is a cornerstone of modern \gls{crl}.
 It forms the basis for models applied to Perturb-seq data, as seen in recent methods~\cite{zhang2023identifiability,de2025interpretable}.
+
+Importantly, we distinguish modeling requirements from theoretical identifiability assumptions and from empirical validation.
+The DAG structure and the sparse, single-target intervention mapping are \emph{modeling requirements} imposed by our architecture.
+Theoretical identifiability guarantees instead require intervention coverage, restrictions on the observation map, and the appropriate faithfulness conditions described above.
+Finally, whether the learned representations and perturbation effects are biologically meaningful is an \emph{empirical} question.
+This distinction matters because Zhang et al.~\cite{zhang2023identifiability} prove identifiability under their specified generative assumptions; those guarantees do not automatically transfer to \gls{raptorgraph} merely because it enforces a sparse intervention mapping and an acyclic graph.
+In particular, enforcing a single-node intervention in the learned representation does not prove that a biological perturbation directly changes only one latent causal mechanism: a genetic perturbation may have direct effects on multiple biological pathways, and assigning it to exactly one latent entry point is an architectural constraint rather than an experimentally verified property.
 
 \subsection*{The intervention spillover problem}
 While identifiability theory provides a strong theoretical foundation, a key practical challenge arises from the architectural choices in most \gls{crl} models.
