@@ -630,3 +630,42 @@ Cited **6** time(s):
 | `walter2019biological` | [x] | [x] | pathway specificity in cell; correct |
 | `wei_perturbase_2024` | [x] | [x] | PerturBase database; correct |
 | `zhang2023identifiability` | [x] | [x] | identifiability from interventions; see atomic-intervention nuance |
+---
+
+## 4. Recommended theorem additions (identifiability section)
+
+Theoretical results for the manuscript's "Identifiability from targeted interventions" section and its supplement. All statements are **paraphrased** from the published sources (not verbatim), attributed to original authors, and are established results — **not** new theorems proved for RAPTORGraph.
+
+### Role table (what to cite where)
+
+| Role | Relevant result | Bib key status |
+|------|-----------------|----------------|
+| Latent representation under restricted observation maps | Zhang Lemma 1; Ahuja Thm 4.4 | `zhang2023identifiability`, `ahuja2023interventional` ✓ |
+| Single-target soft-intervention assumptions | Zhang Section 2 | `zhang2023identifiability` ✓ |
+| Identification of causal ancestry | Zhang Thm 1 | `zhang2023identifiability` ✓ |
+| Identification of the causal graph | Zhang Thm 2 | `zhang2023identifiability` ✓ |
+| Predictions for unseen intervention combinations | Zhang Thm 3 | `zhang2023identifiability` ✓ |
+| Generalizations to multiple intervention targets | Varıcı Thms 1–2 | `varici2024linear` **MISSING** |
+| Acyclicity of learned graphs (not causal identifiability) | DAGMA Thm 1 | `bello2022dagma` ✓ |
+
+### Key attribution results
+
+- **Zhang et al. (2023)** — affine identifiability of latent dim (Lemma 1); ancestral identifiability (Thm 1); graph identifiability up to causal-disentanglement equivalence (Thm 2); prediction of unseen intervention combinations (Thm 3). Setting: unpaired single-target **soft** interventions covering every latent variable. Note: graph identifiability does **not** imply component-wise identifiability of latents.
+- **Ahuja et al. (2023)** — deterministic autoencoder identifies latent representation up to affine transform (Thm 4.4); stronger identification from **fixed-value** interventions (Thm 5.3). The fixed-value result must **not** be applied to arbitrary soft interventions.
+- **Khemakhem et al. (2020)** — identifiability up to linear transform of sufficient statistics (Thm 1); component-wise under extra conditions (Thm 2). Requires a specific conditional latent model, not a VAE alone.
+- **Varıcı et al. (2024)** — unknown **multi-node** interventions; diversity of the intervention-target matrix (full row rank) enables identifiability up to ancestors (soft) and perfect latent recovery (hard). Shows single-target interventions are not universally necessary.
+- **Classical graph identifiability** — LiNGAM (Shimizu et al. 2006, non-Gaussian); restricted additive-noise models (Peters et al. 2014, note "restricted"); equal-variance Gaussian (Peters & Bühlmann 2014).
+- **DAGMA (Bello et al. 2022)** — log-determinant acyclicity characterization: `h_ldet^s(W)=0 ⟺ W is a DAG`. This establishes **acyclicity**, not uniqueness of the recovered graph — keep these as separate theoretical claims.
+
+### Missing bibliography keys (need adding to references.bib)
+
+- `varici2024linear` — Varıcı et al., *Linear Causal Representation Learning from Unknown Multi-node Interventions*, NeurIPS 2024
+- `shimizu2006linear` — Shimizu et al., *A Linear Non-Gaussian Acyclic Model for Causal Discovery*, JMLR 2006
+- `peters2014causal` — Peters et al., *Causal inference with the additive noise model*, 2014
+- `peters2014identifiability` — Peters & Bühlmann, *Identifiability of Gaussian structural equation models with equal error variances*, 2014
+
+### Caveats for the manuscript
+
+- These are population-level, idealized results under specific assumptions on the observation map and interventional distributions. They do **not** prove an arbitrary neural encoder / sparse pathway layer / learned acyclic graph inherits the guarantees.
+- A one-to-one mapping from targeted genes to pathway entry points, even with an acyclic pathway graph, is **insufficient** to prove the latent pathways or graph are uniquely recoverable. That requires a separate theorem tying RAPTORGraph's actual encoder, structural equations, intervention semantics, and decoder to suitable identification assumptions.
+- Zhang's faithfulness assumption as stated in the collection is a summary; a formal proof invoking their theorem must impose the full original condition. The Ahuja citation in that assumption should be removed when stating Zhang's faithfulness condition specifically (the two assumptions are not identical).
