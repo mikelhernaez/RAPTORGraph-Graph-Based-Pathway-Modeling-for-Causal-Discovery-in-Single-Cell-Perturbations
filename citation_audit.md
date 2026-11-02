@@ -614,14 +614,14 @@ Cited **6** time(s):
 | `lippe2022citris` | [x] | [x] | temporal intervened sequences; correct |
 | `lotfollahi2019scgen` | [x] | [x] | scGen; but see Transformer grouping issue |
 | `lotfollahi2023predicting` | [x] | [x] | CPA vector arithmetic; correct |
-| `lotfollahi_predicting_2023` | [x] | [x] | same CPA paper; duplicate key |
+| `lotfollahi_predicting_2023` | [x] | [x] | consolidated: sole CPA key (was duplicate) |
 | `ma_emodin_2019` | [x] | [x] | EGR1 K562; correct |
 | `norman2019exploring` | [x] | [x] | Norman Perturb-seq dataset; correct |
 | `pearl2009causality` | [x] | [x] | SCM/identifiability; correct |
 | `plenge2013validating` | [x] | [x] | therapeutic targets genetics; correct |
 | `replogle_combinatorial_2020` | [x] | [x] | Replogle CRISPRi dataset; correct |
 | `roohani2022gears` | [x] | [x] | GEARS; correct |
-| `roohani2024predicting` | [x] | [x] | same GEARS paper; duplicate key |
+| `roohani2024predicting` | [x] | [x] | consolidated: sole GEARS key (published Nat Biotech) |
 | `scholkopf2021toward` | [x] | [x] | CRL review; correct |
 | `schneider2017tissue` | [x] | [x] | tissue-specific tumorigenesis; correct |
 | `shaulian_mammalian_2000` | [x] | [x] | UV response c-Jun; correct |
