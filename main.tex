@@ -999,7 +999,7 @@ However, this fixed ordering makes simple acyclicity constraints, such as enforc
 These methods impose a strict and arbitrary causal hierarchy, as the influence of one latent variable on another is entirely restricted by their ordering (e.g., latent $i$ can only influence latent $j$ if $i<j$), which would conflict with the true biological relationships we aim to discover.
 For this, we adapt the DAGMA framework~\cite{bello2022dagma} for use in a deep learning context.
 
-\textbf{DAGMA} reformulates the combinatorial search for a \gls{dag} into a continuous optimization problem.
+\textbf{DAGMA} reformulates the combinatorial search for a \gls{dag} into a continuous optimization problem, following the continuous acyclicity-constrained paradigm of NOTEARS~\cite{zheng2018dags}.
 This is achieved by minimizing a score function that measures data fit, subject to a differentiable constraint that is satisfied only if the graph is acyclic.
 The DAGMA acyclicity constraint, $\acyclicityfunc_s(\graphmatrix)$, is based on a log-determinant function:
 \begin{equation}
@@ -1033,7 +1033,7 @@ It encourages the learned posterior distribution over the latent variables, $q(\
 This promotes a smooth and well-structured latent space.
 
 \textbf{Interventional Prediction Loss ($\mmdloss$).}
-For interventional data, the model's ability to predict out-of-distribution outcomes is evaluated using the \gls{mmd}.
+For interventional data, the model's ability to predict out-of-distribution outcomes is evaluated using the \gls{mmd}~\cite{gretton2012kernel}.
 This loss measures the distributional distance between the model-predicted cell states following a perturbation and the ground-truth distribution of experimentally observed cells for that same perturbation.
 
 \textbf{Causal Graph Loss ($\dagmaloss$).}
