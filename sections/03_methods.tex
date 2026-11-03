@@ -161,6 +161,14 @@ To ensure a consistent and fair benchmark across all models, we employ a suite o
 We use the \gls{mse} to evaluate reconstruction of basal (control) cell states, the \gls{mmd} to evaluate the accuracy of out-of-distribution predictions for perturbed states, Precision@10 to evaluate non-additive genetic interactions, and Hit Rate @ K to evaluate reverse-engineering of genetic causes.
 The calculation of all metrics was standardized across the benchmarked tools.
 
+\paragraph{Training details.}
+\gls{raptorgraph} is implemented in PyTorch Lightning and trained with the AdamW optimizer at a learning rate of $10^{-4}$ and weight decay of $1.3\times10^{-4}$.
+We use a batch size of 256 and train for 100 epochs on a single GPU.
+The GraphPathway encoder uses a hidden dimension of 904, eight pathway graphs, and three interaction blocks with SiLU activations and residual connections; the decoder is a two-layer MLP that maps the latent space back to the gene-expression space.
+The number of latent factors is set to $1.04\times$ the number of perturbed genes.
+The composite objective (\cref{eq:total_loss}) uses weights $\alpharec = 0.197$ for reconstruction, $\betakl = 0.447$ for the KL term, and DAGMA weights $\mu = 0.27$ and $\lambda_1 = 0.052$.
+All reported results are averaged over three random seeds ($41$, $42$, $43$).
+
 \paragraph{Mean Squared Error (MSE).}
 The \gls{mse} measures each model's ability to faithfully reconstruct the gene expression profile of control (unperturbed) cells; a lower value indicates better performance.
 To avoid trivial memorization, the set of control cells is randomly split into two non-overlapping halves: an input set and a ground-truth set.
