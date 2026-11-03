@@ -1094,7 +1094,7 @@ The calculation of all metrics was standardized across the benchmarked tools.
 We use a batch size of 256 and train for 100 epochs on a single GPU.
 The GraphPathway encoder uses a hidden dimension of 904, eight pathway graphs, and three interaction blocks with SiLU activations and residual connections; the decoder is a two-layer MLP that maps the latent space back to the gene-expression space.
 The number of latent factors is set to $1.04\times$ the number of perturbed genes.
-The composite objective (\cref{eq:total_loss}) uses weights $\alpharec = 0.197$ for reconstruction, $\betakl = 0.447$ for the KL term, and DAGMA weights $\mu = 0.27$ and $\lambda_1 = 0.052$.
+The composite objective (\cref{eq:total_loss}) combines the reconstruction term (weight $\alpharec = 1$) with the \gls{mmd} term weighted by $\gammammd = 0.197$, the KL term weighted by $\betakl = 0.447$, and the graph term weighted by $\deltadagma = 1$; the DAGMA loss itself uses score weight $\mu = 0.27$ and sparsity weight $\lambda_1 = 0.052$.
 All reported results are averaged over three random seeds ($41$, $42$, $43$).
 
 \paragraph{Mean Squared Error (MSE).}
